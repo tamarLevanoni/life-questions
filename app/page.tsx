@@ -40,7 +40,7 @@ export default function Home() {
         {/* Background gradient orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
-            className="glow-pink"
+            className="glow-teal"
             style={{ top: '10%', right: '-10%' }}
             animate={{
               x: [0, 30, 0],
@@ -75,7 +75,7 @@ export default function Home() {
           >
             {/* Main title */}
             <h1 className="text-4xl md:text-6xl font-bold font-hebrew mb-6">
-              <span className="bg-gradient-to-l from-[#FF4D8E] via-[#FF6B9D] to-[#FF9100] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-l from-[#14B8A6] via-[#06B6D4] to-[#00C2FF] bg-clip-text text-transparent">
                 שאלות מהחיים
               </span>
             </h1>

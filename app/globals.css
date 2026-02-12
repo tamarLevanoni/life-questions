@@ -1,14 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Hebrew font import */
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap');
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Hebrew font family */
-  --font-hebrew: 'Heebo', 'Arial Hebrew', sans-serif;
+  /* Hebrew font family - loaded via next/font in layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -51,7 +47,7 @@
   --radius-4xl: calc(var(--radius) + 16px);
 
   /* YUV.AI Brand Colors */
-  --color-yuv-pink: #FF4D8E;
+  --color-yuv-teal: #14B8A6;
   --color-yuv-blue: #00C2FF;
   --color-yuv-orange: #FF9100;
   --color-yuv-dark: #1C1C1E;
@@ -67,102 +63,102 @@
 /* ========== LIGHT MODE (DEFAULT) ========== */
 :root {
   --radius: 0.625rem;
-  --background: 0 0% 98%; /* #FAFAFA */
-  --foreground: 0 0% 9%; /* Near black text */
+  --background: hsl(0 0% 98%); /* #FAFAFA */
+  --foreground: hsl(0 0% 9%); /* Near black text */
 
   /* Navbar glass styling */
   --nav-bg: rgba(255, 255, 255, 0.7);
   --nav-border: rgba(255, 255, 255, 0.3);
   --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 9%);
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 9%);
 
-  --primary: 338 100% 65%; /* #FF4D8E - YUV Pink */
-  --primary-foreground: 0 0% 100%;
+  --primary: hsl(173 58% 40%); /* #14B8A6 - YUV Teal */
+  --primary-foreground: hsl(0 0% 100%);
 
-  --secondary: 195 100% 50%; /* #00C2FF - Cyber Blue */
-  --secondary-foreground: 0 0% 100%;
+  --secondary: hsl(195 100% 50%); /* #00C2FF - Cyber Blue */
+  --secondary-foreground: hsl(0 0% 100%);
 
-  --muted: 240 5% 96%;
-  --muted-foreground: 240 4% 46%;
+  --muted: hsl(240 5% 96%);
+  --muted-foreground: hsl(240 4% 46%);
 
-  --accent: 34 100% 50%; /* #FF9100 - Phoenix Orange */
-  --accent-foreground: 0 0% 100%;
+  --accent: hsl(34 100% 50%); /* #FF9100 - Phoenix Orange */
+  --accent-foreground: hsl(0 0% 100%);
 
-  --destructive: 0 84% 60%;
+  --destructive: hsl(0 84% 60%);
 
-  --border: 240 6% 90%;
-  --input: 240 6% 90%;
-  --ring: 338 100% 65%;
+  --border: hsl(240 6% 90%);
+  --input: hsl(240 6% 90%);
+  --ring: hsl(173 58% 40%);
 
-  --chart-1: 338 100% 65%;
-  --chart-2: 195 100% 50%;
-  --chart-3: 34 100% 50%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 160 60% 45%;
+  --chart-1: hsl(173 58% 40%);
+  --chart-2: hsl(195 100% 50%);
+  --chart-3: hsl(34 100% 50%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(160 60% 45%);
 
-  --sidebar: 0 0% 98%;
-  --sidebar-foreground: 0 0% 9%;
-  --sidebar-primary: 338 100% 65%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 5% 96%;
-  --sidebar-accent-foreground: 0 0% 9%;
-  --sidebar-border: 240 6% 90%;
-  --sidebar-ring: 338 100% 65%;
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(0 0% 9%);
+  --sidebar-primary: hsl(173 58% 40%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 5% 96%);
+  --sidebar-accent-foreground: hsl(0 0% 9%);
+  --sidebar-border: hsl(240 6% 90%);
+  --sidebar-ring: hsl(173 58% 40%);
 }
 
 /* ========== DARK MODE ========== */
 .dark {
-  --background: 240 6% 10%; /* #18181B */
-  --foreground: 0 0% 98%; /* White text */
+  --background: hsl(240 6% 10%); /* #18181B */
+  --foreground: hsl(0 0% 98%); /* White text */
 
   /* Navbar glass styling - dark mode */
   --nav-bg: rgba(28, 28, 30, 0.8);
   --nav-border: rgba(255, 255, 255, 0.1);
   --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
-  --card: 240 6% 12%;
-  --card-foreground: 0 0% 98%;
+  --card: hsl(240 6% 12%);
+  --card-foreground: hsl(0 0% 98%);
 
-  --popover: 240 6% 12%;
-  --popover-foreground: 0 0% 98%;
+  --popover: hsl(240 6% 12%);
+  --popover-foreground: hsl(0 0% 98%);
 
-  --primary: 338 100% 65%;
-  --primary-foreground: 0 0% 100%;
+  --primary: hsl(173 58% 40%);
+  --primary-foreground: hsl(0 0% 100%);
 
-  --secondary: 195 100% 50%;
-  --secondary-foreground: 0 0% 100%;
+  --secondary: hsl(195 100% 50%);
+  --secondary-foreground: hsl(0 0% 100%);
 
-  --muted: 240 4% 16%;
-  --muted-foreground: 240 5% 65%;
+  --muted: hsl(240 4% 16%);
+  --muted-foreground: hsl(240 5% 65%);
 
-  --accent: 34 100% 50%;
-  --accent-foreground: 0 0% 100%;
+  --accent: hsl(34 100% 50%);
+  --accent-foreground: hsl(0 0% 100%);
 
-  --destructive: 0 84% 60%;
+  --destructive: hsl(0 84% 60%);
 
-  --border: 240 4% 20%;
-  --input: 0 0% 100% / 15%;
-  --ring: 338 100% 65%;
+  --border: hsl(240 4% 20%);
+  --input: hsl(0 0% 100% / 15%);
+  --ring: hsl(173 58% 40%);
 
-  --chart-1: 338 100% 65%;
-  --chart-2: 195 100% 50%;
-  --chart-3: 34 100% 50%;
-  --chart-4: 280 65% 60%;
-  --chart-5: 160 60% 45%;
+  --chart-1: hsl(173 58% 40%);
+  --chart-2: hsl(195 100% 50%);
+  --chart-3: hsl(34 100% 50%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(160 60% 45%);
 
-  --sidebar: 240 6% 12%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-primary: 338 100% 65%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 5% 18%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 0 0% 100% / 10%;
-  --sidebar-ring: 338 100% 65%;
+  --sidebar: hsl(240 6% 12%);
+  --sidebar-foreground: hsl(0 0% 98%);
+  --sidebar-primary: hsl(173 58% 40%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 5% 18%);
+  --sidebar-accent-foreground: hsl(0 0% 98%);
+  --sidebar-border: hsl(0 0% 100% / 10%);
+  --sidebar-ring: hsl(173 58% 40%);
 }
 
 @layer base {
@@ -263,11 +259,11 @@
 }
 
 /* ========== GRADIENT GLOWS (Blurred Orbs) ========== */
-.glow-pink {
+.glow-teal {
   position: absolute;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255, 77, 142, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.3) 0%, transparent 70%);
   filter: blur(80px);
   border-radius: 50%;
   pointer-events: none;
@@ -295,31 +291,31 @@
 
 /* ========== GRADIENT BACKGROUNDS ========== */
 .gradient-brand {
-  background: linear-gradient(135deg, #FF4D8E 0%, #00C2FF 50%, #FF9100 100%);
+  background: linear-gradient(135deg, #14B8A6 0%, #00C2FF 50%, #FF9100 100%);
 }
 
 .gradient-card {
-  background: linear-gradient(135deg, #FF4D8E 0%, #8B5CF6 50%, #00C2FF 100%);
+  background: linear-gradient(135deg, #14B8A6 0%, #8B5CF6 50%, #00C2FF 100%);
 }
 
 .gradient-brand-text {
-  background: linear-gradient(135deg, #FF4D8E 0%, #00C2FF 50%, #FF9100 100%);
+  background: linear-gradient(135deg, #14B8A6 0%, #00C2FF 50%, #FF9100 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 /* ========== PROJECT CARD GRADIENTS ========== */
-.gradient-pink-purple {
-  background: linear-gradient(135deg, #FF4D8E 0%, #8B5CF6 100%);
+.gradient-teal-purple {
+  background: linear-gradient(135deg, #14B8A6 0%, #8B5CF6 100%);
 }
 
 .gradient-blue-cyan {
   background: linear-gradient(135deg, #3B82F6 0%, #00C2FF 100%);
 }
 
-.gradient-orange-pink {
-  background: linear-gradient(135deg, #FF9100 0%, #FF4D8E 100%);
+.gradient-orange-teal {
+  background: linear-gradient(135deg, #FF9100 0%, #14B8A6 100%);
 }
 
 .gradient-purple-blue {
@@ -331,12 +327,12 @@
 }
 
 /* ========== TEXT UTILITIES ========== */
-.text-yuv-pink { color: #FF4D8E; }
+.text-yuv-teal { color: #14B8A6; }
 .text-yuv-blue { color: #00C2FF; }
 .text-yuv-orange { color: #FF9100; }
 
 /* ========== BACKGROUND UTILITIES ========== */
-.bg-yuv-pink { background-color: #FF4D8E; }
+.bg-yuv-teal { background-color: #14B8A6; }
 .bg-yuv-blue { background-color: #00C2FF; }
 .bg-yuv-orange { background-color: #FF9100; }
 .bg-yuv-dark { background-color: #1C1C1E; }
@@ -472,13 +468,13 @@ html, body {
 
 /* Text selection highlight color */
 ::selection {
-  background-color: rgba(255, 77, 142, 0.3);
+  background-color: rgba(20, 184, 166, 0.3);
   color: inherit;
 }
 
 /* Focus visible for accessibility */
 :focus-visible {
-  outline: 2px solid #FF4D8E;
+  outline: 2px solid #14B8A6;
   outline-offset: 2px;
 }
 
@@ -519,24 +515,24 @@ html, body {
 /* ========== HEBREW TYPOGRAPHY ========== */
 
 .font-hebrew {
-  font-family: 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
+  font-family: var(--font-hebrew), 'Arial Hebrew', system-ui, sans-serif;
 }
 
 .text-hebrew {
-  font-family: 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
+  font-family: var(--font-hebrew), 'Arial Hebrew', system-ui, sans-serif;
   direction: rtl;
   text-align: right;
 }
 
 /* Hebrew text sizes */
 .text-hebrew-title {
-  font-family: 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
+  font-family: var(--font-hebrew), 'Arial Hebrew', system-ui, sans-serif;
   font-weight: 700;
   line-height: 1.3;
 }
 
 .text-hebrew-body {
-  font-family: 'Heebo', 'Arial Hebrew', system-ui, sans-serif;
+  font-family: var(--font-hebrew), 'Arial Hebrew', system-ui, sans-serif;
   font-weight: 400;
   line-height: 1.7;
 }
@@ -630,7 +626,7 @@ html, body {
 .story-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-  border-color: rgba(255, 77, 142, 0.3);
+  border-color: rgba(20, 184, 166, 0.3);
 }
 
 .dark .story-card {
@@ -641,7 +637,7 @@ html, body {
 
 .dark .story-card:hover {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 77, 142, 0.4);
+  border-color: rgba(20, 184, 166, 0.4);
 }
 
 /* ========== ANSWER PANEL STYLES ========== */
@@ -656,7 +652,7 @@ html, body {
 }
 
 .answer-panel-short {
-  border-left: 4px solid #FF4D8E;
+  border-left: 4px solid #14B8A6;
 }
 
 .answer-panel-expansion {
@@ -665,7 +661,7 @@ html, body {
 
 [dir="rtl"] .answer-panel-short {
   border-left: none;
-  border-right: 4px solid #FF4D8E;
+  border-right: 4px solid #14B8A6;
 }
 
 [dir="rtl"] .answer-panel-expansion {
@@ -690,8 +686,8 @@ html, body {
 }
 
 .search-input:focus {
-  border-color: #FF4D8E;
-  box-shadow: 0 0 0 3px rgba(255, 77, 142, 0.1);
+  border-color: #14B8A6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
 }
 
 .dark .search-input {
@@ -700,8 +696,8 @@ html, body {
 }
 
 .dark .search-input:focus {
-  border-color: #FF4D8E;
-  box-shadow: 0 0 0 3px rgba(255, 77, 142, 0.2);
+  border-color: #14B8A6;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
 }
 
 /* ========== FILTER BAR STYLES ========== */
@@ -720,11 +716,11 @@ html, body {
 
 .filter-chip:hover {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 77, 142, 0.3);
+  border-color: rgba(20, 184, 166, 0.3);
 }
 
 .filter-chip.active {
-  background: linear-gradient(135deg, #FF4D8E 0%, #FF6B9D 100%);
+  background: linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%);
   color: white;
   border-color: transparent;
 }

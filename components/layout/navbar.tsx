@@ -124,10 +124,10 @@ export function Navbar() {
             {session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="relative rounded-full ring-2 ring-transparent hover:ring-[#FF4D8E]/50 transition-all duration-200">
-                    <Avatar className="w-9 h-9 border-2 border-[#FF4D8E]/30">
+                  <button className="relative rounded-full ring-2 ring-transparent hover:ring-[#14B8A6]/50 transition-all duration-200">
+                    <Avatar className="w-9 h-9 border-2 border-[#14B8A6]/30">
                       <AvatarImage src={session.user.image || undefined} alt={session.user.name || 'User'} />
-                      <AvatarFallback className="bg-gradient-to-br from-[#FF4D8E] to-[#FF9100] text-white text-sm font-medium">
+                      <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-sm font-medium">
                         {session.user.name?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -160,8 +160,8 @@ export function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Avatar className="w-9 h-9 border-2 border-[#FF4D8E]/30 cursor-pointer hover:border-[#FF4D8E]/60 transition-colors" onClick={() => signIn('google')}>
-                <AvatarFallback className="bg-gradient-to-br from-[#FF4D8E] to-[#FF9100] text-white text-sm font-medium">
+              <Avatar className="w-9 h-9 border-2 border-[#14B8A6]/30 cursor-pointer hover:border-[#14B8A6]/60 transition-colors" onClick={() => signIn('google')}>
+                <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-sm font-medium">
                   YA
                 </AvatarFallback>
               </Avatar>
@@ -211,9 +211,9 @@ export function Navbar() {
             {session?.user ? (
               <div className="space-y-1">
                 <div className="flex items-center gap-3 px-4 py-2">
-                  <Avatar className="w-8 h-8 border-2 border-[#FF4D8E]/30">
+                  <Avatar className="w-8 h-8 border-2 border-[#14B8A6]/30">
                     <AvatarImage src={session.user.image || undefined} alt={session.user.name || 'User'} />
-                    <AvatarFallback className="bg-gradient-to-br from-[#FF4D8E] to-[#FF9100] text-white text-xs font-medium">
+                    <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-xs font-medium">
                       {session.user.name?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -247,7 +247,7 @@ export function Navbar() {
                   signIn('google');
                   setMobileMenuOpen(false);
                 }}
-                className="w-full px-4 py-3 rounded-xl bg-[#FF4D8E] text-white font-medium hover:bg-[#FF4D8E]/90 transition-colors"
+                className="w-full px-4 py-3 rounded-xl bg-[#14B8A6] text-white font-medium hover:bg-[#14B8A6]/90 transition-colors"
               >
                 Sign In with Google
               </button>

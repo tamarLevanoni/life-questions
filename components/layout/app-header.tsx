@@ -89,7 +89,7 @@ export function AppHeader() {
           onClick={handleLogoClick}
           className="flex items-center gap-2 shrink-0 cursor-pointer"
         >
-          <span className="text-lg md:text-xl font-bold text-foreground font-hebrew bg-gradient-to-l from-[#FF4D8E] to-[#FF9100] bg-clip-text text-transparent">
+          <span className="text-lg md:text-xl font-bold font-hebrew bg-gradient-to-l from-[#14B8A6] via-[#06B6D4] to-[#00C2FF] bg-clip-text text-transparent">
             שאלות מהחיים
           </span>
         </button>
@@ -134,13 +134,13 @@ export function AppHeader() {
             ) : session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="relative rounded-full ring-2 ring-transparent hover:ring-[#FF4D8E]/50 transition-all duration-200">
-                    <Avatar className="w-9 h-9 border-2 border-[#FF4D8E]/30">
+                  <button className="relative rounded-full ring-2 ring-transparent hover:ring-[#14B8A6]/50 transition-all duration-200">
+                    <Avatar className="w-9 h-9 border-2 border-[#14B8A6]/30">
                       <AvatarImage
                         src={session.user.image || undefined}
                         alt={session.user.name || 'User'}
                       />
-                      <AvatarFallback className="bg-gradient-to-br from-[#FF4D8E] to-[#FF9100] text-white text-sm font-medium">
+                      <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-sm font-medium">
                         {session.user.name?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -251,12 +251,12 @@ export function AppHeader() {
             {session?.user ? (
               <div className="space-y-1">
                 <div className="flex items-center gap-3 px-4 py-2">
-                  <Avatar className="w-8 h-8 border-2 border-[#FF4D8E]/30">
+                  <Avatar className="w-8 h-8 border-2 border-[#14B8A6]/30">
                     <AvatarImage
                       src={session.user.image || undefined}
                       alt={session.user.name || 'User'}
                     />
-                    <AvatarFallback className="bg-gradient-to-br from-[#FF4D8E] to-[#FF9100] text-white text-xs font-medium">
+                    <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-xs font-medium">
                       {session.user.name?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
