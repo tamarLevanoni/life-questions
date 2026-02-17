@@ -7,15 +7,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Mail, User } from 'lucide-react';
+import { AppHeader } from '@/components/layout/app-header';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
 
   if (status === 'loading') {
     return (
-      <div className="container mx-auto px-6 py-20 text-center">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <>
+        <AppHeader />
+        <div className="container mx-auto px-6 py-20 text-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </>
     );
   }
 
@@ -26,6 +30,8 @@ export default function ProfilePage() {
   const user = session.user;
 
   return (
+    <>
+    <AppHeader />
     <div className="container mx-auto px-6 py-20 max-w-2xl">
       <Card>
         <CardHeader className="text-center">
@@ -75,5 +81,6 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }

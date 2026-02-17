@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
+import { useAuth } from '@/lib/auth-context';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ const navLinks = [
 
 export function AppHeader() {
   const { data: session, status } = useSession();
+  const { openLoginModal } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -180,7 +182,7 @@ export function AppHeader() {
               </DropdownMenu>
             ) : (
               <button
-                onClick={() => signIn('google')}
+                onClick={openLoginModal}
                 className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium font-hebrew hover:opacity-90 transition-opacity"
               >
                 התחברות
@@ -283,12 +285,12 @@ export function AppHeader() {
             ) : (
               <button
                 onClick={() => {
-                  signIn('google');
+                  openLoginModal();
                   setMobileMenuOpen(false);
                 }}
                 className="w-full px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity font-hebrew"
               >
-                התחברות עם Google
+                התחברות
               </button>
             )}
           </div>
