@@ -5,11 +5,8 @@ import { ButtonPrimary } from '@/components/ui/button-primary';
 import { ArrowRight, Github, Linkedin, Twitter, Mail } from 'lucide-react';
 import Image from 'next/image';
 
-const socialLinks = [
-  { href: 'https://github.com/hoodini', icon: Github, label: 'GitHub' },
-  { href: 'https://www.linkedin.com/in/%F0%9F%8E%97%EF%B8%8Fyuval-avidani-87081474/', icon: Linkedin, label: 'LinkedIn' },
-  { href: 'https://twitter.com/yuvai', icon: Twitter, label: 'Twitter' },
-  { href: 'mailto:info@yuv.ai', icon: Mail, label: 'Email' },
+const socialLinks: { href: string; icon: typeof Github; label: string }[] = [
+  // TODO: Add social links
 ];
 
 export function HeroSection() {
@@ -166,8 +163,8 @@ export function HeroSection() {
               {/* Profile Image */}
               <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-white/20 dark:border-white/10 shadow-2xl">
                 <Image
-                  src="https://cdn.hailuoai.video/moss/prod/2026-01-01-02/user/multi_chat_file/1767204442417679023-304191379171532808_1767204439.jpg"
-                  alt="Yuval Avidani"
+                  src="/round-avatar.svg"
+                  alt="שאלות מהחיים"
                   fill
                   className="object-cover"
                   priority

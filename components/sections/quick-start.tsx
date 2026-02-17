@@ -47,10 +47,10 @@ const steps = [
     title: 'Create Your Project',
     description: 'Run the create command to scaffold a new project. This works with Bun, npm, pnpm, or Yarn.',
     code: `# With Bun (Recommended - 30x faster)
-bun create yuv-app my-project
+bun create life-questions my-project
 
 # Or with npm
-npm create yuv-app my-project
+npm create life-questions my-project
 
 # Or clone directly
 git clone https://github.com/hoodini/nextjs-bun-starter.git my-project`,

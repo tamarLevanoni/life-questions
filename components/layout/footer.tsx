@@ -10,11 +10,8 @@ const footerLinks = [
   { href: '#contact', label: 'Contact' },
 ];
 
-const socialLinks = [
-  { href: 'https://github.com/hoodini', icon: Github, label: 'GitHub' },
-  { href: 'https://www.linkedin.com/in/%F0%9F%8E%97%EF%B8%8Fyuval-avidani-87081474/', icon: Linkedin, label: 'LinkedIn' },
-  { href: 'https://twitter.com/yuvai', icon: Twitter, label: 'Twitter' },
-  { href: 'mailto:info@yuv.ai', icon: Mail, label: 'Email' },
+const socialLinks: { href: string; icon: typeof Github; label: string }[] = [
+  // TODO: Add social links
 ];
 
 function PhoenixLogo({ className = "w-6 h-6" }: { className?: string }) {
@@ -56,9 +53,9 @@ export function Footer() {
           <div className="flex flex-col items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
               <PhoenixLogo className="w-8 h-8" />
-              <span className="text-xl font-semibold text-white">YUV.AI</span>
+              <span className="text-xl font-semibold text-white">שאלות מהחיים</span>
             </Link>
-            <p className="text-white/50 text-sm">Fly High With YUV.AI</p>
+            <p className="text-white/50 text-sm">לומדים מהחיים, מבינים את התורה</p>
           </div>
 
           {/* Navigation Links */}
@@ -96,7 +93,7 @@ export function Footer() {
           {/* Copyright */}
           <div className="pt-4 border-t border-white/10 w-full text-center">
             <p className="text-sm text-white/40">
-              &copy; {currentYear} YUV.AI. All rights reserved.
+              &copy; {currentYear} שאלות מהחיים. כל הזכויות שמורות.
             </p>
           </div>
         </div>

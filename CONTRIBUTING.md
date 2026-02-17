@@ -1,69 +1,62 @@
-# Contributing to Next.js + Bun Starter Kit
+# תרומה לפרויקט שאלות מהחיים
 
-First off, thank you for considering contributing to this project! 🎉
+תודה שאתם שוקלים לתרום לפרויקט!
 
-## How to Contribute
+## איך לתרום
 
-### Reporting Bugs
+### דיווח על באגים
 
-If you find a bug, please create an issue with:
-- A clear title and description
-- Steps to reproduce
-- Expected vs actual behavior
-- Your environment (OS, Bun version, etc.)
+אם מצאתם באג, אנא צרו issue עם:
+- כותרת ותיאור ברורים
+- צעדים לשחזור הבעיה
+- התנהגות צפויה מול בפועל
+- פרטי הסביבה שלכם (מערכת הפעלה, גרסת Bun וכו')
 
-### Suggesting Enhancements
+### הצעות לשיפורים
 
-We love new ideas! Please create an issue with:
-- A clear description of the enhancement
-- Why it would be useful
-- Examples of how it would work
+נשמח לשמוע רעיונות חדשים! צרו issue עם:
+- תיאור ברור של השיפור
+- למה זה יהיה שימושי
+- דוגמאות לאיך זה יעבוד
 
 ### Pull Requests
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Test your changes thoroughly
-5. Commit your changes (`git commit -m 'Add some amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+1. עשו Fork לריפוזיטורי
+2. צרו branch חדש (`git checkout -b feature/amazing-feature`)
+3. בצעו את השינויים שלכם
+4. בדקו היטב את השינויים
+5. עשו commit (`git commit -m 'הוספת פיצ'ר מדהים'`)
+6. דחפו ל-branch (`git push origin feature/amazing-feature`)
+7. פתחו Pull Request
 
-### Development Setup
+### הקמת סביבת פיתוח
 
 ```bash
-# Clone the repo
-git clone https://github.com/hoodini/nextjs-bun-starter.git
-cd nextjs-bun-starter
+# שכפול הריפוזיטורי
+git clone <repository-url>
+cd life-questions
 
-# Install dependencies
+# התקנת תלויות
 bun install
 
-# Start development server
+# הפעלת שרת פיתוח
 bun run dev
 ```
 
-### Code Style
+### סגנון קוד
 
-- Use TypeScript
-- Follow the existing code style
-- Run `bun run lint` before committing
-- Keep components small and focused
-- Add comments for complex logic
+- השתמשו ב-TypeScript
+- עקבו אחרי סגנון הקוד הקיים
+- הריצו `bun run lint` לפני commit
+- שמרו על קומפוננטות קטנות וממוקדות
+- הוסיפו הערות ללוגיקה מורכבת
 
-### Commit Messages
+### הודעות Commit
 
-- Use clear, descriptive commit messages
-- Start with a verb (Add, Fix, Update, etc.)
-- Keep the first line under 72 characters
+- **חובה** לכתוב בעברית
+- השתמשו בהודעות ברורות ומתארות
+- התחילו בפועל (הוספה, תיקון, עדכון וכו')
 
-## Questions?
+## רישיון
 
-Feel free to reach out:
-- Create an issue
-- Twitter: [@yuvalav](https://x.com/yuvalav)
-- Website: [yuv.ai](https://yuv.ai)
-
-## License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
+בתרומה לפרויקט, אתם מסכימים שהתרומות שלכם יהיו תחת רישיון MIT.

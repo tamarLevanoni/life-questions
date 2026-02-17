@@ -46,13 +46,13 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* YUV.AI Brand Colors */
-  --color-yuv-teal: #14B8A6;
-  --color-yuv-blue: #00C2FF;
-  --color-yuv-orange: #FF9100;
-  --color-yuv-dark: #1C1C1E;
-  --color-yuv-gray-900: #1C1C1E;
-  --color-yuv-gray-100: #F2F2F7;
+  /* Brand Colors */
+  --color-brand-teal: #14B8A6;
+  --color-brand-blue: #00C2FF;
+  --color-brand-orange: #FF9100;
+  --color-brand-dark: #1C1C1E;
+  --color-brand-gray-900: #1C1C1E;
+  --color-brand-gray-100: #F2F2F7;
 
   /* Custom border radius */
   --radius-card: 16px;
@@ -77,7 +77,7 @@
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(0 0% 9%);
 
-  --primary: hsl(173 58% 40%); /* #14B8A6 - YUV Teal */
+  --primary: hsl(173 58% 40%); /* #14B8A6 - Brand Teal */
   --primary-foreground: hsl(0 0% 100%);
 
   --secondary: hsl(195 100% 50%); /* #00C2FF - Cyber Blue */
@@ -171,7 +171,7 @@
 }
 
 /* ========================================
-   GLASS MORPHISM UTILITIES - YUV.AI
+   GLASS MORPHISM UTILITIES
    ======================================== */
 
 /* Light mode glass */
@@ -327,17 +327,17 @@
 }
 
 /* ========== TEXT UTILITIES ========== */
-.text-yuv-teal { color: #14B8A6; }
-.text-yuv-blue { color: #00C2FF; }
-.text-yuv-orange { color: #FF9100; }
+.text-brand-teal { color: #14B8A6; }
+.text-brand-blue { color: #00C2FF; }
+.text-brand-orange { color: #FF9100; }
 
 /* ========== BACKGROUND UTILITIES ========== */
-.bg-yuv-teal { background-color: #14B8A6; }
-.bg-yuv-blue { background-color: #00C2FF; }
-.bg-yuv-orange { background-color: #FF9100; }
-.bg-yuv-dark { background-color: #1C1C1E; }
-.bg-yuv-gray-900 { background-color: #1C1C1E; }
-.bg-yuv-gray-100 { background-color: #F2F2F7; }
+.bg-brand-teal { background-color: #14B8A6; }
+.bg-brand-blue { background-color: #00C2FF; }
+.bg-brand-orange { background-color: #FF9100; }
+.bg-brand-dark { background-color: #1C1C1E; }
+.bg-brand-gray-900 { background-color: #1C1C1E; }
+.bg-brand-gray-100 { background-color: #F2F2F7; }
 
 /* ========== HOVER EFFECTS ========== */
 .hover-lift {

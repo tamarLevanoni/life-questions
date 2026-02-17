@@ -9,7 +9,7 @@ export function BoilerplateHero() {
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText('bun create yuv-app my-project');
+    navigator.clipboard.writeText('bun install');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -162,7 +162,7 @@ export function BoilerplateHero() {
         >
           <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 rounded-xl bg-[#1C1C1E]/90 backdrop-blur-md border border-white/10 shadow-xl font-mono text-xs sm:text-sm md:text-base whitespace-nowrap">
             <span className="text-muted-foreground">$</span>
-            <span className="text-white">bun create yuv-app my-project</span>
+            <span className="text-white">bun install</span>
             <button
               onClick={copyToClipboard}
               className="p-1.5 md:p-2 rounded-lg hover:bg-white/10 transition-colors text-white/60 hover:text-white flex-shrink-0"

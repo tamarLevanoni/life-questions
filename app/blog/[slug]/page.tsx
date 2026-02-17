@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
   }
 
   return {
-    title: `${post.title} | YUV.AI Blog`,
+    title: `${post.title} | שאלות מהחיים`,
     description: post.excerpt,
   };
 }

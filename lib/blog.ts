@@ -22,7 +22,7 @@ const posts: BlogPost[] = [
     date: 'January 5, 2025',
     readingTime: 5,
     author: {
-      name: 'Yuval Avidani',
+      name: 'צוות שאלות מהחיים',
     },
     content: `When building a modern web development boilerplate, every decision matters. The choice of package manager might seem small, but it impacts every developer who uses your template. Here's why we chose Bun.
 
@@ -95,7 +95,7 @@ The future of JavaScript tooling is fast, and Bun is leading the way.`,
     date: 'January 3, 2025',
     readingTime: 4,
     author: {
-      name: 'Yuval Avidani',
+      name: 'צוות שאלות מהחיים',
     },
     content: `Component libraries have always been a trade-off. You get speed and consistency, but you lose control and flexibility. shadcn/ui changes that equation entirely.
 
@@ -158,7 +158,7 @@ For this boilerplate, shadcn/ui was the obvious choice. It gives you professiona
     date: 'January 1, 2025',
     readingTime: 6,
     author: {
-      name: 'Yuval Avidani',
+      name: 'צוות שאלות מהחיים',
     },
     content: `Next.js 14 represents the maturation of the App Router. After months of improvements, it's now ready for production use. Here's what you need to know.
 
