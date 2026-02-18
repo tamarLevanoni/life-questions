@@ -17,6 +17,10 @@ const handler = NextAuth({
   },
   callbacks: {
     async jwt({ token, trigger, session }) {
+      // זמני: סימון הרשמה כהושלמה אוטומטית עד שיהיה שרת
+      if (token.isRegistrationComplete === undefined) {
+        token.isRegistrationComplete = true;
+      }
       // בעת עדכון session (מהאונבורדינג) - מיזוג הנתונים לתוך ה-JWT
       if (trigger === 'update' && session) {
         token.phone = session.phone;

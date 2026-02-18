@@ -59,6 +59,12 @@ export function OnboardingModal() {
     },
   });
 
+  const handleSkip = async () => {
+    // זמני: דילוג על אונבורדינג עד שיהיה שרת
+    await update({ isRegistrationComplete: true });
+    closeOnboardingModal();
+  };
+
   const selectedOccupations = watch('occupations');
   const marketingConsent = watch('marketingConsent');
 
@@ -90,13 +96,10 @@ export function OnboardingModal() {
   };
 
   return (
-    <Dialog open={isOnboardingModalOpen} onOpenChange={() => {}}>
+    <Dialog open={isOnboardingModalOpen} onOpenChange={(open) => { if (!open) handleSkip(); }}>
       <DialogContent
         className="sm:max-w-lg glass-panel border-black/10 dark:border-white/10"
         dir="rtl"
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(e) => e.preventDefault()}
-        showCloseButton={false}
       >
         <DialogHeader>
           <DialogTitle className="text-xl font-bold font-hebrew">
@@ -178,13 +181,20 @@ export function OnboardingModal() {
             </Label>
           </div>
 
-          {/* כפתור שליחה */}
+          {/* כפתורי שליחה ודילוג */}
           <button
             type="submit"
             disabled={isSubmitting}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium font-hebrew hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isSubmitting ? 'שומר...' : 'סיום הרשמה'}
+          </button>
+          <button
+            type="button"
+            onClick={handleSkip}
+            className="w-full py-2 text-sm text-muted-foreground font-hebrew hover:text-foreground transition-colors"
+          >
+            דלג לעת עתה
           </button>
         </form>
       </DialogContent>
