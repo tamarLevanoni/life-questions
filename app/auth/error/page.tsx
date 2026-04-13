@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldAlert, Home } from 'lucide-react';
@@ -11,7 +12,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   Default: 'אירעה שגיאה בתהליך ההתחברות. אנא נסה שוב.',
 };
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error') || 'Default';
   const message = ERROR_MESSAGES[error] || ERROR_MESSAGES.Default;
@@ -33,5 +34,19 @@ export default function AuthErrorPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
+        <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center">
+          <p className="text-muted-foreground font-hebrew text-sm">טוען...</p>
+        </div>
+      </div>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
