@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CategoryFilterBarProps, CategoryType, ShulchanAruchChelek } from '@/lib/types';
 import {
@@ -7,7 +8,16 @@ import {
   SHULCHAN_ARUCH_SECTIONS,
   SUBJECTS,
 } from '@/lib/constants/categories';
-import { X, BookOpen, Scale, Lightbulb, Video } from 'lucide-react';
+import { X, BookOpen, Scale, Lightbulb, Video, ChevronsUpDown, Check } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '@/components/ui/command';
 
 interface FilterOption {
   value: string;
@@ -20,11 +30,19 @@ const CATEGORY_TYPES: { value: CategoryType; label: string; icon: React.ReactNod
   { value: 'concepts', label: 'מושגים', icon: <Lightbulb className="w-4 h-4" /> },
 ];
 
+const SUB_FILTER_LABELS: Record<CategoryType, string> = {
+  shas: 'בחרו מסכת...',
+  shulchanAruch: 'בחרו חלק...',
+  concepts: 'בחרו נושא...',
+};
+
 export function CategoryFilterBar({
   activeFilters,
   onFiltersChange,
   className,
 }: CategoryFilterBarProps) {
+  const [comboboxOpen, setComboboxOpen] = useState(false);
+
   const handleCategoryTypeChange = (type: CategoryType | undefined) => {
     if (type === activeFilters.categoryType) {
       // Deselect if clicking the same type
@@ -153,23 +171,53 @@ export function CategoryFilterBar({
         )}
       </div>
 
-      {/* Sub-filters (shown when a category type is selected) */}
+      {/* Sub-filters combobox (shown when a category type is selected) */}
       {activeFilters.categoryType && subFilterOptions.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide scroll-snap-x">
-          {subFilterOptions.map((option) => (
+        <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+          <PopoverTrigger asChild>
             <button
-              key={option.value}
-              onClick={() => handleSubFilterChange(subFilterKey, option.value)}
-              className={cn(
-                'filter-chip whitespace-nowrap scroll-snap-item',
-                'text-sm py-1.5 px-3',
-                activeSubFilter === option.value && 'active'
-              )}
+              role="combobox"
+              aria-expanded={comboboxOpen}
+              className="filter-chip flex items-center gap-2 min-w-[180px] justify-between"
             >
-              {option.label}
+              <span className="truncate">
+                {activeSubFilter || SUB_FILTER_LABELS[activeFilters.categoryType]}
+              </span>
+              <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
             </button>
-          ))}
-        </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-[250px] p-0" align="start" side="bottom" >
+            <Command dir="rtl" >
+              <CommandInput placeholder="חיפוש..." className="font-hebrew" />
+              <CommandList className="max-h-[200px]">
+                <CommandEmpty className="font-hebrew py-4 text-center text-sm text-muted-foreground">
+                  לא נמצאו תוצאות
+                </CommandEmpty>
+                <CommandGroup>
+                  {subFilterOptions.map((option) => (
+                    <CommandItem
+                      key={option.value}
+                      value={option.value}
+                      onSelect={() => {
+                        handleSubFilterChange(subFilterKey, option.value);
+                        setComboboxOpen(false);
+                      }}
+                      className="font-hebrew flex items-center gap-2 cursor-pointer"
+                    >
+                      <Check
+                        className={cn(
+                          'w-4 h-4 shrink-0',
+                          activeSubFilter === option.value ? 'opacity-100' : 'opacity-0'
+                        )}
+                      />
+                      {option.label}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       )}
     </div>
   );
