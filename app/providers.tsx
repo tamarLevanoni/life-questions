@@ -6,6 +6,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { ToastProvider } from '@/lib/toast-context';
 import { LoginModal } from '@/components/auth/login-modal';
 import { OnboardingModal } from '@/components/auth/onboarding-modal';
+import { SessionUserSync } from '@/components/providers/session-user-sync';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <SessionProvider>
+        <SessionUserSync />
         <ToastProvider>
           <AuthProvider>
             {children}

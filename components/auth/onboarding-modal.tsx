@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
+import { useUserStore } from '@/lib/stores/user-store';
 import { onboardingSchema, type OnboardingFormData, type Occupation } from '@/lib/schemas';
 import {
   Dialog,
@@ -41,6 +42,7 @@ export function OnboardingModal() {
   const { isOnboardingModalOpen, closeOnboardingModal } = useAuth();
   const { data: session, update } = useSession();
   const { showToast } = useToast();
+  const registerUser = useUserStore((s) => s.registerUser);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirmLeaveOpen, setIsConfirmLeaveOpen] = useState(false);
 
@@ -80,28 +82,12 @@ export function OnboardingModal() {
   const onSubmit = async (data: OnboardingFormData) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/user/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          googleId: session?.user?.id,
-          email: session?.user?.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          institutionName: data.institutionName || undefined,
-          phone: data.phone,
-          occupations: data.occupations,
-          marketingConsent: data.marketingConsent,
-          image: session?.user?.image,
-        }),
+      const created = await registerUser({
+        googleId: session?.user?.id ?? '',
+        email: session?.user?.email ?? '',
+        ...data,
+        institutionName: data.institutionName || undefined,
       });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? 'שגיאה בשמירת הנתונים');
-      }
-
-      const created = await res.json();
 
       await update({
         backendUserId: created.id,

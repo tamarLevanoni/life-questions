@@ -1,6 +1,5 @@
 // ==================== CATEGORY TYPES ====================
 
-import type { Occupation } from '@/lib/schemas';
 
 export type ShulchanAruchChelek =
   | 'אורח חיים'
@@ -54,21 +53,6 @@ export interface Story {
   updatedAt?: Date;
 }
 
-// ==================== USER INTERFACES ====================
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  institutionName?: string;
-  phone: string;
-  image?: string;
-  occupations: Occupation[];
-  marketingConsent: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 // ==================== SEARCH INTERFACES ====================
 

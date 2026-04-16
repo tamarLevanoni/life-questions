@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
+import { Mail, type LucideIcon } from 'lucide-react';
 
 const footerLinks = [
   { href: '#about', label: 'About' },
@@ -10,7 +10,7 @@ const footerLinks = [
   { href: '#contact', label: 'Contact' },
 ];
 
-const socialLinks: { href: string; icon: typeof Github; label: string }[] = [
+const socialLinks: { href: string; icon: LucideIcon; label: string }[] = [
   // TODO: Add social links
 ];
 

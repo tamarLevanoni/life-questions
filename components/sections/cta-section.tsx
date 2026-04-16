@@ -1,14 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Star, Github, Twitter, Instagram, Youtube, Globe, ExternalLink } from 'lucide-react';
+import { Star, Globe, ExternalLink, type LucideIcon } from 'lucide-react';
 import { ButtonPrimary } from '@/components/ui/button-primary';
 
 const socialLinks: {
   name: string;
   handle: string;
   href: string;
-  icon: typeof Github;
+  icon: LucideIcon;
   color: string;
 }[] = [
   // TODO: Add social links
