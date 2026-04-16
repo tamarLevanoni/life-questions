@@ -29,7 +29,9 @@ const OCCUPATIONS: { value: Occupation; label: string }[] = [
 ];
 
 const onboardingSchema = z.object({
-  name: z.string().min(2, 'שם חייב להכיל לפחות 2 תווים'),
+  firstName: z.string().min(2, 'שם פרטי חייב להכיל לפחות 2 תווים'),
+  lastName: z.string().min(2, 'שם משפחה חייב להכיל לפחות 2 תווים'),
+  institutionName: z.string().optional(),
   phone: z.string().optional(),
   occupations: z.array(z.string()).min(1, 'יש לבחור לפחות עיסוק אחד'),
   marketingConsent: z.boolean(),
@@ -52,16 +54,16 @@ export function OnboardingModal() {
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
-      name: session?.user?.name || '',
+      firstName: session?.user?.firstName || '',
+      lastName: session?.user?.lastName || '',
+      institutionName: '',
       phone: '',
       occupations: [],
       marketingConsent: false,
     },
   });
 
-  const handleSkip = async () => {
-    // זמני: דילוג על אונבורדינג עד שיהיה שרת
-    await update({ isRegistrationComplete: true });
+  const handleSkip = () => {
     closeOnboardingModal();
   };
 
@@ -79,17 +81,44 @@ export function OnboardingModal() {
   const onSubmit = async (data: OnboardingFormData) => {
     setIsSubmitting(true);
     try {
+      const res = await fetch('/api/user/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleId: session?.user?.id,
+          email: session?.user?.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          institutionName: data.institutionName || undefined,
+          phone: data.phone || undefined,
+          occupations: data.occupations,
+          marketingConsent: data.marketingConsent,
+          image: session?.user?.image,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? 'שגיאה בשמירת הנתונים');
+      }
+
+      const created = await res.json();
+
       await update({
-        name: data.name,
-        phone: data.phone || undefined,
-        occupations: data.occupations,
-        marketingConsent: data.marketingConsent,
+        backendUserId: created.id,
+        firstName: created.firstName,
+        lastName: created.lastName,
+        institutionName: created.institutionName,
+        phone: created.phone,
+        occupations: created.occupations,
+        marketingConsent: created.marketingConsent,
         isRegistrationComplete: true,
       });
+
       showToast('ההרשמה הושלמה בהצלחה!', 'success');
       closeOnboardingModal();
-    } catch {
-      showToast('שגיאה בשמירת הנתונים. אנא נסה שוב.', 'error');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'שגיאה בשמירת הנתונים. אנא נסה שוב.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -111,18 +140,45 @@ export function OnboardingModal() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-5">
-          {/* שם */}
+          {/* שם פרטי */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="font-hebrew">שם מלא</Label>
+            <Label htmlFor="firstName" className="font-hebrew">שם פרטי</Label>
             <Input
-              id="name"
-              {...register('name')}
+              id="firstName"
+              {...register('firstName')}
               className="font-hebrew"
-              placeholder="השם שלך"
+              placeholder="שם פרטי"
             />
-            {errors.name && (
-              <p className="text-sm text-destructive font-hebrew">{errors.name.message}</p>
+            {errors.firstName && (
+              <p className="text-sm text-destructive font-hebrew">{errors.firstName.message}</p>
             )}
+          </div>
+
+          {/* שם משפחה */}
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className="font-hebrew">שם משפחה</Label>
+            <Input
+              id="lastName"
+              {...register('lastName')}
+              className="font-hebrew"
+              placeholder="שם משפחה"
+            />
+            {errors.lastName && (
+              <p className="text-sm text-destructive font-hebrew">{errors.lastName.message}</p>
+            )}
+          </div>
+
+          {/* שם מוסד */}
+          <div className="space-y-2">
+            <Label htmlFor="institutionName" className="font-hebrew">
+              שם מוסד <span className="text-muted-foreground text-xs">(אופציונלי)</span>
+            </Label>
+            <Input
+              id="institutionName"
+              {...register('institutionName')}
+              className="font-hebrew"
+              placeholder="ישיבה, בית ספר, קהילה..."
+            />
           </div>
 
           {/* טלפון */}

@@ -24,12 +24,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const openOnboardingModal = useCallback(() => setIsOnboardingModalOpen(true), []);
   const closeOnboardingModal = useCallback(() => setIsOnboardingModalOpen(false), []);
 
-  // זמני: מושבת עד שיהיה שרת - אונבורדינג לא חובה כרגע
-  // useEffect(() => {
-  //   if (status === 'authenticated' && session?.user && !session.user.isRegistrationComplete) {
-  //     setIsOnboardingModalOpen(true);
-  //   }
-  // }, [status, session]);
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user && !session.user.isRegistrationComplete) {
+      setIsOnboardingModalOpen(true);
+    }
+  }, [status, session]);
 
   return (
     <AuthContext.Provider
