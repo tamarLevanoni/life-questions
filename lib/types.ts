@@ -65,7 +65,9 @@ export interface Story {
 export interface UserProfile {
   id: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  institutionName?: string;
   phone?: string;
   image?: string;
   occupations: Occupation[];
@@ -75,7 +77,9 @@ export interface UserProfile {
 }
 
 export interface UserRegistrationData {
-  name: string;
+  firstName: string;
+  lastName: string;
+  institutionName?: string;
   phone?: string;
   occupations: Occupation[];
   marketingConsent: boolean;
