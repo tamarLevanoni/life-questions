@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod/v4';
@@ -15,6 +15,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -46,6 +56,7 @@ export function OnboardingModal() {
   const { data: session, update } = useSession();
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmLeaveOpen, setIsConfirmLeaveOpen] = useState(false);
 
   const {
     register,
@@ -66,7 +77,7 @@ export function OnboardingModal() {
   });
 
   const handleSkip = () => {
-    closeOnboardingModal();
+    setIsConfirmLeaveOpen(true);
   };
 
   const selectedOccupations = watch('occupations');
@@ -127,9 +138,32 @@ export function OnboardingModal() {
   };
 
   return (
+    <>
+    <AlertDialog open={isConfirmLeaveOpen} onOpenChange={setIsConfirmLeaveOpen}>
+      <AlertDialogContent dir="rtl">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="font-hebrew">לא ניתן להתחבר ללא השלמת הפרטים</AlertDialogTitle>
+          <AlertDialogDescription className="font-hebrew">
+            כדי להשתמש באתר יש להשלים את תהליך ההרשמה. אם תעזוב כעת תנותק מהמערכת.
+            <br />
+            האם אתה בטוח שברצונך לעזוב?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex-row-reverse gap-2">
+          <AlertDialogCancel className="font-hebrew">חזור להרשמה</AlertDialogCancel>
+          <AlertDialogAction
+            className="font-hebrew bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={() => signOut({ callbackUrl: '/' })}
+          >
+            עזוב והתנתק
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
     <Dialog open={isOnboardingModalOpen} onOpenChange={(open) => { if (!open) handleSkip(); }}>
       <DialogContent
-        className="sm:max-w-lg glass-panel border-black/10 dark:border-white/10"
+        className="sm:max-w-lg border-black/10 dark:border-white/10"
         dir="rtl"
       >
         <DialogHeader>
@@ -263,5 +297,6 @@ export function OnboardingModal() {
         </form>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
