@@ -7,12 +7,12 @@ export type ShulchanAruchChelek =
   | 'חושן משפט';
 
 export type Occupation =
-  | 'דיין'
-  | 'רב'
-  | 'מורה'
-  | 'תלמיד'
-  | 'הורה'
-  | 'לומד';
+  | 'dayyan'
+  | 'rabbi'
+  | 'teacher'
+  | 'student'
+  | 'parent'
+  | 'learner';
 
 export type ContactType = 'request' | 'comment' | 'enlightenment';
 

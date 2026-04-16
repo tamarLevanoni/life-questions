@@ -20,12 +20,12 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const OCCUPATIONS: { value: Occupation; label: string }[] = [
-  { value: 'דיין', label: 'דיין' },
-  { value: 'רב', label: 'רב' },
-  { value: 'מורה', label: 'מורה' },
-  { value: 'תלמיד', label: 'תלמיד' },
-  { value: 'הורה', label: 'הורה' },
-  { value: 'לומד', label: 'לומד' },
+  { value: 'dayyan', label: 'דיין' },
+  { value: 'rabbi', label: 'רב' },
+  { value: 'teacher', label: 'מורה' },
+  { value: 'student', label: 'תלמיד' },
+  { value: 'parent', label: 'הורה' },
+  { value: 'learner', label: 'לומד' },
 ];
 
 const onboardingSchema = z.object({

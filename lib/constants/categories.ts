@@ -190,21 +190,21 @@ export const SUBJECT_CONCEPTS: Record<Subject, string[]> = {
 // ==================== OCCUPATIONS ====================
 
 export const OCCUPATIONS: Occupation[] = [
-  'דיין',
-  'רב',
-  'מורה',
-  'תלמיד',
-  'הורה',
-  'לומד',
+  'dayyan',
+  'rabbi',
+  'teacher',
+  'student',
+  'parent',
+  'learner',
 ];
 
 export const OCCUPATION_LABELS: Record<Occupation, string> = {
-  'דיין': 'דיין',
-  'רב': 'רב',
-  'מורה': 'מורה/ה',
-  'תלמיד': 'תלמיד/ה',
-  'הורה': 'הורה',
-  'לומד': 'לומד/ת עצמאי/ת',
+  dayyan: 'דיין',
+  rabbi: 'רב',
+  teacher: 'מורה',
+  student: 'תלמיד',
+  parent: 'הורה',
+  learner: 'לומד',
 };
 
 // ==================== CONTACT TYPES ====================

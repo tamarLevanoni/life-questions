@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Mail, User, Building2 } from 'lucide-react';
+import { OCCUPATION_LABELS } from '@/lib/constants/categories';
 import { AppHeader } from '@/components/layout/app-header';
 
 export default function ProfilePage() {
@@ -89,7 +90,7 @@ export default function ProfilePage() {
                         key={occ}
                         className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-sm font-hebrew"
                       >
-                        {occ}
+                        {OCCUPATION_LABELS[occ] ?? occ}
                       </span>
                     ))}
                   </div>
