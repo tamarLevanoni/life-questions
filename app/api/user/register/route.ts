@@ -12,6 +12,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  console.log("🚀 ~ POST ~ body:", body)
 
   const res = await fetch(`${BACKEND_API_URL}/api/users`, {
     method: 'POST',
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
   });
 
   const data = await res.json();
+  console.log("🚀 ~ POST ~ data:", data)
 
   if (!res.ok) {
     return NextResponse.json(

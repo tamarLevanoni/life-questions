@@ -28,13 +28,15 @@ const OCCUPATIONS: { value: Occupation; label: string }[] = [
   { value: 'learner', label: 'לומד' },
 ];
 
+const occupationEnum = z.enum(['dayyan', 'rabbi', 'teacher', 'student', 'parent', 'learner']);
+
 const onboardingSchema = z.object({
   firstName: z.string().min(2, 'שם פרטי חייב להכיל לפחות 2 תווים'),
   lastName: z.string().min(2, 'שם משפחה חייב להכיל לפחות 2 תווים'),
   institutionName: z.string().optional(),
-  phone: z.string().optional(),
-  occupations: z.array(z.string()).min(1, 'יש לבחור לפחות עיסוק אחד'),
-  marketingConsent: z.boolean(),
+  phone: z.string().min(9, 'מספר טלפון לא תקין'),
+  occupations: z.array(occupationEnum).min(1, 'יש לבחור לפחות עיסוק אחד'),
+  marketingConsent: z.boolean().refine((val) => val === true, { message: 'יש לאשר קבלת עדכונים' }),
 });
 
 type OnboardingFormData = z.infer<typeof onboardingSchema>;
@@ -59,7 +61,7 @@ export function OnboardingModal() {
       institutionName: '',
       phone: '',
       occupations: [],
-      marketingConsent: false,
+      marketingConsent: true,
     },
   });
 
@@ -70,7 +72,7 @@ export function OnboardingModal() {
   const selectedOccupations = watch('occupations');
   const marketingConsent = watch('marketingConsent');
 
-  const toggleOccupation = (occupation: string) => {
+  const toggleOccupation = (occupation: Occupation) => {
     const current = selectedOccupations || [];
     const updated = current.includes(occupation)
       ? current.filter((o) => o !== occupation)
@@ -90,7 +92,7 @@ export function OnboardingModal() {
           firstName: data.firstName,
           lastName: data.lastName,
           institutionName: data.institutionName || undefined,
-          phone: data.phone || undefined,
+          phone: data.phone,
           occupations: data.occupations,
           marketingConsent: data.marketingConsent,
           image: session?.user?.image,
@@ -183,9 +185,7 @@ export function OnboardingModal() {
 
           {/* טלפון */}
           <div className="space-y-2">
-            <Label htmlFor="phone" className="font-hebrew">
-              טלפון <span className="text-muted-foreground text-xs">(אופציונלי)</span>
-            </Label>
+            <Label htmlFor="phone" className="font-hebrew">טלפון</Label>
             <Input
               id="phone"
               type="tel"
@@ -194,6 +194,9 @@ export function OnboardingModal() {
               placeholder="050-0000000"
               dir="ltr"
             />
+            {errors.phone && (
+              <p className="text-sm text-destructive font-hebrew">{errors.phone.message}</p>
+            )}
           </div>
 
           {/* עיסוקים */}
@@ -224,17 +227,22 @@ export function OnboardingModal() {
           </div>
 
           {/* הסכמה שיווקית */}
-          <div className="flex items-center gap-3">
-            <Checkbox
-              id="marketingConsent"
-              checked={marketingConsent}
-              onCheckedChange={(checked) =>
-                setValue('marketingConsent', checked === true)
-              }
-            />
-            <Label htmlFor="marketingConsent" className="text-sm font-hebrew cursor-pointer">
-              אני מעוניין לקבל עדכונים ותוכן חדש במייל
-            </Label>
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="marketingConsent"
+                checked={marketingConsent}
+                onCheckedChange={(checked) =>
+                  setValue('marketingConsent', checked === true, { shouldValidate: true })
+                }
+              />
+              <Label htmlFor="marketingConsent" className="text-sm font-hebrew cursor-pointer">
+                אני מעוניין לקבל עדכונים ותוכן חדש במייל
+              </Label>
+            </div>
+            {errors.marketingConsent && (
+              <p className="text-sm text-destructive font-hebrew">{errors.marketingConsent.message}</p>
+            )}
           </div>
 
           {/* כפתורי שליחה ודילוג */}
