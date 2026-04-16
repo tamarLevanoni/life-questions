@@ -163,10 +163,10 @@ export function OnboardingModal() {
 
     <Dialog open={isOnboardingModalOpen} onOpenChange={(open) => { if (!open) handleSkip(); }}>
       <DialogContent
-        className="sm:max-w-lg border-black/10 dark:border-white/10"
+        className="sm:max-w-lg border-black/10 dark:border-white/10 flex flex-col max-h-[90dvh]"
         dir="rtl"
       >
-        <DialogHeader>
+        <DialogHeader className="shrink-0">
           <DialogTitle className="text-xl font-bold font-hebrew">
             השלמת הרשמה
           </DialogTitle>
@@ -175,7 +175,7 @@ export function OnboardingModal() {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-5 overflow-y-auto overscroll-contain px-1">
           {/* שם פרטי */}
           <div className="space-y-2">
             <Label htmlFor="firstName" className="font-hebrew">שם פרטי</Label>
