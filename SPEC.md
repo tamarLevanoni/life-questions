@@ -331,7 +331,7 @@ interface UserProfile {
   id: string;
   email: string;
   name: string;
-  phone?: string;
+  phone: string;
   occupations: Occupation[];
   marketingConsent: boolean;
   createdAt: Date;

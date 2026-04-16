@@ -1,4 +1,5 @@
-import type { ShulchanAruchChelek, Occupation, CategoriesData } from '@/lib/types';
+import type { Occupation } from '@/lib/schemas';
+import type { ShulchanAruchChelek, CategoriesData } from '@/lib/types';
 
 // ==================== SEDER HASHAS (TALMUD) ====================
 

@@ -1,18 +1,12 @@
 // ==================== CATEGORY TYPES ====================
 
+import type { Occupation } from '@/lib/schemas';
+
 export type ShulchanAruchChelek =
   | 'אורח חיים'
   | 'יורה דעה'
   | 'אבן העזר'
   | 'חושן משפט';
-
-export type Occupation =
-  | 'dayyan'
-  | 'rabbi'
-  | 'teacher'
-  | 'student'
-  | 'parent'
-  | 'learner';
 
 export type ContactType = 'request' | 'comment' | 'enlightenment';
 
@@ -68,21 +62,12 @@ export interface UserProfile {
   firstName: string;
   lastName: string;
   institutionName?: string;
-  phone?: string;
+  phone: string;
   image?: string;
   occupations: Occupation[];
   marketingConsent: boolean;
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface UserRegistrationData {
-  firstName: string;
-  lastName: string;
-  institutionName?: string;
-  phone?: string;
-  occupations: Occupation[];
-  marketingConsent: boolean;
 }
 
 // ==================== SEARCH INTERFACES ====================

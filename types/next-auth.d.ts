@@ -1,4 +1,4 @@
-import type { Occupation } from '@/lib/types';
+import type { Occupation } from '@/lib/schemas';
 import 'next-auth';
 import 'next-auth/jwt';
 

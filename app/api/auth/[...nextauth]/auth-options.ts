@@ -1,8 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-
-const BACKEND_API_URL = process.env.BACKEND_API_URL!;
-const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET!;
+import { backendFetch } from '@/lib/backend-fetch';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -24,12 +22,9 @@ export const authOptions: NextAuthOptions = {
 
       try {
         const googleId = account.providerAccountId;
-        const res = await fetch(`${BACKEND_API_URL}/api/users/google/${googleId}`, {
-          headers: { 'x-api-secret': INTERNAL_API_SECRET },
-        });
-
-        if (res.ok) {
-          user.backendData = await res.json();
+        const { data, ok } = await backendFetch(`/api/users/google/${googleId}`);
+        if (ok) {
+          user.backendData = data as typeof user.backendData;
         }
         // 404 = new user — don't block sign-in, backendData stays undefined
       } catch {

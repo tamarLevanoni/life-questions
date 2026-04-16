@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod/v4';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
-import type { Occupation } from '@/lib/types';
+import { onboardingSchema, type OnboardingFormData, type Occupation } from '@/lib/schemas';
 import {
   Dialog,
   DialogContent,
@@ -37,19 +36,6 @@ const OCCUPATIONS: { value: Occupation; label: string }[] = [
   { value: 'parent', label: 'הורה' },
   { value: 'learner', label: 'לומד' },
 ];
-
-const occupationEnum = z.enum(['dayyan', 'rabbi', 'teacher', 'student', 'parent', 'learner']);
-
-const onboardingSchema = z.object({
-  firstName: z.string().min(2, 'שם פרטי חייב להכיל לפחות 2 תווים'),
-  lastName: z.string().min(2, 'שם משפחה חייב להכיל לפחות 2 תווים'),
-  institutionName: z.string().optional(),
-  phone: z.string().min(9, 'מספר טלפון לא תקין'),
-  occupations: z.array(occupationEnum).min(1, 'יש לבחור לפחות עיסוק אחד'),
-  marketingConsent: z.boolean().refine((val) => val === true, { message: 'יש לאשר קבלת עדכונים' }),
-});
-
-type OnboardingFormData = z.infer<typeof onboardingSchema>;
 
 export function OnboardingModal() {
   const { isOnboardingModalOpen, closeOnboardingModal } = useAuth();
