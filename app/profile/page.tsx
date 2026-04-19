@@ -6,30 +6,31 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Mail, User, Building2 } from 'lucide-react';
+import { Mail, User, Building2, Phone, Briefcase, Bell } from 'lucide-react';
 import { OCCUPATION_LABELS } from '@/lib/constants/categories';
 import { AppHeader } from '@/components/layout/app-header';
+import { useUserStore } from '@/lib/stores/user-store';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
+  const user = useUserStore((s) => s.user);
 
-  if (status === 'loading') {
+  if (status === 'loading' || (status === 'authenticated' && !user)) {
     return (
       <>
         <AppHeader />
         <div className="container mx-auto px-6 py-20 text-center">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">טוען...</p>
         </div>
       </>
     );
   }
 
-  if (!session) {
+  if (status === 'unauthenticated') {
     redirect('/');
   }
 
-  const user = session.user;
-  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.name || 'User';
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'משתמש';
 
   return (
     <>
@@ -39,9 +40,9 @@ export default function ProfilePage() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Avatar className="w-32 h-32">
-              <AvatarImage src={user?.image || ''} alt={fullName} />
+              <AvatarImage src={session?.user?.image || ''} alt={fullName} />
               <AvatarFallback className="text-3xl">
-                {(user?.firstName || user?.name)?.[0]?.toUpperCase() || 'U'}
+                {user?.firstName?.[0]?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -69,6 +70,16 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {user?.phone && (
+              <div className="flex items-center gap-4">
+                <Phone className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">טלפון</p>
+                  <p className="font-medium">{user.phone}</p>
+                </div>
+              </div>
+            )}
+
             {user?.institutionName && (
               <div className="flex items-center gap-4">
                 <Building2 className="w-5 h-5 text-muted-foreground" />
@@ -81,7 +92,7 @@ export default function ProfilePage() {
 
             {user?.occupations && user.occupations.length > 0 && (
               <div className="flex items-start gap-4">
-                <div className="w-5 h-5 mt-0.5" />
+                <Briefcase className="w-5 h-5 mt-0.5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">עיסוקים</p>
                   <div className="flex flex-wrap gap-1 mt-1">
@@ -94,6 +105,16 @@ export default function ProfilePage() {
                       </span>
                     ))}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {user?.marketingConsent !== undefined && (
+              <div className="flex items-center gap-4">
+                <Bell className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">עדכונים ושיווק</p>
+                  <p className="font-medium">{user.marketingConsent ? 'מסכים לקבל עדכונים' : 'לא מסכים לקבל עדכונים'}</p>
                 </div>
               </div>
             )}

@@ -83,14 +83,15 @@ export function OnboardingModal() {
     setIsSubmitting(true);
     try {
       const created = await registerUser({
-        googleId: session?.user?.id ?? '',
+        googleId: session?.user?.googleId ?? '',
         email: session?.user?.email ?? '',
         ...data,
         institutionName: data.institutionName || undefined,
       });
 
       await update({
-        backendUserId: created.id,
+        id: created.id,
+        googleId: created.googleId,
         firstName: created.firstName,
         lastName: created.lastName,
         institutionName: created.institutionName,

@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { backendFetch } from '@/lib/backend-fetch';
+import type { UserData } from '@/lib/schemas';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,7 +23,7 @@ export const authOptions: NextAuthOptions = {
 
       try {
         const googleId = account.providerAccountId;
-        const { data, ok } = await backendFetch(`/api/users/google/${googleId}`);
+        const { data, ok } = await backendFetch<UserData>(`/api/users/google/${googleId}`);
         if (ok) {
           user.backendData = data as typeof user.backendData;
         }
@@ -38,7 +39,9 @@ export const authOptions: NextAuthOptions = {
       // Initial sign-in: persist backend data into the JWT
       if (account && user) {
         if (user.backendData) {
-          token.backendUserId = user.backendData.id;
+          token.id = user.backendData.id;
+          token.googleId = user.backendData.googleId;
+          token.email = user.backendData.email;
           token.firstName = user.backendData.firstName;
           token.lastName = user.backendData.lastName;
           token.institutionName = user.backendData.institutionName;
@@ -61,14 +64,18 @@ export const authOptions: NextAuthOptions = {
         if (session.marketingConsent !== undefined) token.marketingConsent = session.marketingConsent;
         if (session.isRegistrationComplete !== undefined)
           token.isRegistrationComplete = session.isRegistrationComplete;
-        if (session.backendUserId !== undefined) token.backendUserId = session.backendUserId;
+        if (session.id !== undefined) token.id = session.id;
+        if (session.googleId !== undefined) token.googleId = session.googleId;
+        if (session.email !== undefined) token.email = session.email;
       }
 
       return token;
     },
 
     async session({ session, token }) {
-      session.user.id = token.sub;
+      session.user.id = token.id;
+      session.user.googleId = token.googleId ?? token.sub; // fallback ל-sub עבור משתמשים חדשים שעוד לא נרשמו
+      session.user.email = token.email;
       session.user.firstName = token.firstName;
       session.user.lastName = token.lastName;
       session.user.institutionName = token.institutionName;

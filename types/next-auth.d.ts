@@ -5,7 +5,7 @@ import 'next-auth/jwt';
 declare module 'next-auth' {
   interface Session {
     // כל שדות UserData אופציונליים + שדות NextAuth הרגילים
-    user: Partial<UserData> & {
+    user: Partial<Omit<UserData,'email'>> & {
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -21,8 +21,7 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   // JWT מכיל את שדות UserData (ללא email שנמצאים ב-token.email)
-  interface JWT extends Partial<Omit<UserData, 'email'>> {
-    backendUserId?: string;
+  interface JWT extends Partial<UserData> {
     isRegistrationComplete?: boolean; // flag זמני של OAuth — לא מגיע מהשרת
   }
 }

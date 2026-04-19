@@ -16,6 +16,7 @@ export const occupationEnum = z.enum([
 
 export const userDataSchema = z.object({
   id: z.string(),
+  googleId: z.string(),
   email: z.email(),
   firstName: z.string(),
   lastName: z.string(),
