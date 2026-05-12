@@ -198,7 +198,7 @@ export interface CategoriesData {
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
-  story: Story;
+  story: ApiStory;
   onClick?: () => void;
   className?: string;
 }

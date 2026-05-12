@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/layout/app-header';
 import { Footer } from '@/components/layout/footer';
 import { ScenarioCard } from '@/components/story/scenario-card';
-import { mockStories } from '@/lib/mock-data';
+import { useStoriesStore } from '@/lib/stores/stories-store';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, BookOpen, Users, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -29,7 +30,11 @@ const features = [
 
 export default function Home() {
   const router = useRouter();
-  const featuredStories = mockStories.slice(0, 3);
+  const { stories: featuredStories, searchStories } = useStoriesStore();
+
+  useEffect(() => {
+    searchStories({ limit: 3 });
+  }, [searchStories]);
 
   return (
     <main className="min-h-screen bg-background text-foreground" dir="rtl">

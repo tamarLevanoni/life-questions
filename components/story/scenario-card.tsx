@@ -5,8 +5,10 @@ import type { ScenarioCardProps } from '@/lib/types';
 import { Video } from 'lucide-react';
 
 export function ScenarioCard({ story, onClick, className }: ScenarioCardProps) {
-  // Get the primary subject from concepts
-  const primarySubject = story.categories.concepts[0]?.subject;
+  const concepts = [...story.conceptsAi, ...story.conceptsFromIndex];
+  const primaryConcept = concepts[0];
+  const shasRef = story.shasRefs[0];
+  const shuRef = story.shuRefs[0];
 
   return (
     <article
@@ -21,15 +23,13 @@ export function ScenarioCard({ story, onClick, className }: ScenarioCardProps) {
       <div className="flex flex-col gap-3">
         {/* Header with badges */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          {/* Subject badge */}
-          {primarySubject && (
+          {primaryConcept && (
             <span className="badge-concepts px-3 py-1 text-xs font-medium rounded-full">
-              {primarySubject}
+              {primaryConcept}
             </span>
           )}
 
-          {/* Video indicator */}
-          {story.hasVideo && (
+          {story.videoUrl && (
             <span className="video-indicator">
               <Video className="w-3 h-3" />
               <span>וידאו</span>
@@ -44,19 +44,19 @@ export function ScenarioCard({ story, onClick, className }: ScenarioCardProps) {
 
         {/* Question preview */}
         <p className="text-sm text-muted-foreground line-clamp-2">
-          {story.question}
+          {story.legalQuestion}
         </p>
 
         {/* Category references */}
         <div className="flex items-center gap-2 flex-wrap mt-1">
-          {story.categories.shas && (
+          {shasRef && (
             <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-              {story.categories.shas.masechet}
+              {shasRef.shasPage.masechet.name}
             </span>
           )}
-          {story.categories.shulchanAruch && (
+          {shuRef && (
             <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-              {story.categories.shulchanAruch.chelek}
+              {shuRef.shuSiman.section.name}
             </span>
           )}
         </div>
