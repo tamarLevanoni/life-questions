@@ -1,32 +1,27 @@
 import { NextResponse } from 'next/server';
-import { getStoryById, getAdjacentStories } from '@/lib/mock-data';
-import type { StoryWithNavigation } from '@/lib/types';
+import { backendFetch } from '@/lib/backend-fetch';
+import type { ApiStory, ApiStoryNeighbors } from '@/lib/types';
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
 
-  // Get story by ID from mock data
-  // In the future, this will call the Node.js API with API Secret
-  const story = getStoryById(id);
+  const [storyResult, neighborsResult] = await Promise.all([
+    backendFetch<ApiStory>(`/api/stories/${id}`),
+    backendFetch<ApiStoryNeighbors>(`/api/stories/${id}/neighbors`),
+  ]);
 
-  if (!story) {
+  if (!storyResult.ok) {
     return NextResponse.json(
-      { error: 'Story not found' },
-      { status: 404 }
+      { error: storyResult.error ?? 'Story not found' },
+      { status: storyResult.status }
     );
   }
 
-  // Get adjacent stories for navigation
-  const adjacent = getAdjacentStories(id);
-
-  const response: StoryWithNavigation = {
-    story,
-    prevId: adjacent.prevId,
-    nextId: adjacent.nextId,
-  };
-
-  return NextResponse.json(response);
+  return NextResponse.json({
+    story: storyResult.data,
+    neighbors: neighborsResult.data ?? { prev: null, next: null },
+  });
 }

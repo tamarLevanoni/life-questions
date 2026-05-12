@@ -1,44 +1,28 @@
 import { NextResponse } from 'next/server';
-import { filterStories, mockStories } from '@/lib/mock-data';
-import type { PaginatedResponse, Story } from '@/lib/types';
+import { backendFetch } from '@/lib/backend-fetch';
+import type { ApiPaginatedStories } from '@/lib/types';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  // Extract query parameters
-  const query = searchParams.get('q') || undefined;
-  const categoryType = searchParams.get('categoryType') || undefined;
-  const masechet = searchParams.get('masechet') || undefined;
-  const chelek = searchParams.get('chelek') || undefined;
-  const subject = searchParams.get('subject') || undefined;
-  const hasVideoParam = searchParams.get('hasVideo');
-  const hasVideo = hasVideoParam === 'true' ? true : hasVideoParam === 'false' ? false : undefined;
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const pageSize = parseInt(searchParams.get('pageSize') || '20', 10);
+  const params = new URLSearchParams();
+  const forward = ['q', 'masechetId', 'daf', 'amud', 'shuSectionId', 'simanId', 'seif', 'concept', 'page'];
+  for (const key of forward) {
+    const val = searchParams.get(key);
+    if (val !== null) params.set(key, val);
+  }
 
-  // Filter stories using mock data
-  // In the future, this will call the Node.js API with API Secret
-  const allResults = filterStories(
-    query,
-    categoryType,
-    masechet,
-    chelek,
-    subject,
-    hasVideo
+  const pageSize = searchParams.get('pageSize');
+  const limit = searchParams.get('limit') ?? pageSize ?? '20';
+  params.set('limit', limit);
+
+  const { data, ok, status, error } = await backendFetch<ApiPaginatedStories>(
+    `/api/stories?${params}`
   );
 
-  // Paginate results
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const paginatedData = allResults.slice(start, end);
+  if (!ok) {
+    return NextResponse.json({ error: error ?? 'Backend error' }, { status });
+  }
 
-  const response: PaginatedResponse<Story> = {
-    data: paginatedData,
-    total: allResults.length,
-    page,
-    pageSize,
-    hasMore: end < allResults.length,
-  };
-
-  return NextResponse.json(response);
+  return NextResponse.json(data);
 }
