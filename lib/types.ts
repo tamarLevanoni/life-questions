@@ -220,18 +220,28 @@ export interface SearchBarProps {
   className?: string;
 }
 
+export interface UiSearchFilters {
+  categoryType?: CategoryType;
+  masechetId?: string;
+  shuSectionId?: string;
+  concept?: string;
+}
+
 export interface CategoryFilterBarProps {
-  activeFilters: SearchFilters;
-  onFiltersChange: (filters: SearchFilters) => void;
+  masechtot: ApiMasechet[];
+  shuSections: ApiShuSectionWithSimanim[];
+  concepts: string[];
+  activeFilters: UiSearchFilters;
+  onFiltersChange: (filters: UiSearchFilters) => void;
   className?: string;
 }
 
 export interface SearchResultsListProps {
-  stories: Story[];
+  stories: ApiStory[];
   isLoading: boolean;
   hasMore: boolean;
   onLoadMore: () => void;
-  onStoryClick: (story: Story) => void;
+  onStoryClick: (story: ApiStory) => void;
   emptyMessage?: string;
 }
 

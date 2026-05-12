@@ -2,13 +2,8 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import type { CategoryFilterBarProps, CategoryType, ShulchanAruchChelek } from '@/lib/types';
-import {
-  MASECHOT,
-  SHULCHAN_ARUCH_SECTIONS,
-  SUBJECTS,
-} from '@/lib/constants/categories';
-import { X, BookOpen, Scale, Lightbulb, Video, ChevronsUpDown, Check } from 'lucide-react';
+import type { CategoryFilterBarProps, CategoryType } from '@/lib/types';
+import { X, BookOpen, Scale, Lightbulb, ChevronsUpDown, Check } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -33,105 +28,85 @@ const CATEGORY_TYPES: { value: CategoryType; label: string; icon: React.ReactNod
 const SUB_FILTER_LABELS: Record<CategoryType, string> = {
   shas: 'בחרו מסכת...',
   shulchanAruch: 'בחרו חלק...',
-  concepts: 'בחרו נושא...',
+  concepts: 'בחרו מושג...',
 };
 
 export function CategoryFilterBar({
+  masechtot,
+  shuSections,
+  concepts,
   activeFilters,
   onFiltersChange,
   className,
 }: CategoryFilterBarProps) {
   const [comboboxOpen, setComboboxOpen] = useState(false);
 
-  const handleCategoryTypeChange = (type: CategoryType | undefined) => {
+  const handleCategoryTypeChange = (type: CategoryType) => {
     if (type === activeFilters.categoryType) {
-      // Deselect if clicking the same type
-      onFiltersChange({
-        ...activeFilters,
-        categoryType: undefined,
-        masechet: undefined,
-        chelek: undefined,
-        subject: undefined,
-      });
+      onFiltersChange({ ...activeFilters, categoryType: undefined, masechetId: undefined, shuSectionId: undefined, concept: undefined });
     } else {
-      // Select new type and clear sub-filters
-      onFiltersChange({
-        ...activeFilters,
-        categoryType: type,
-        masechet: undefined,
-        chelek: undefined,
-        subject: undefined,
-      });
+      onFiltersChange({ ...activeFilters, categoryType: type, masechetId: undefined, shuSectionId: undefined, concept: undefined });
     }
   };
 
-  const handleSubFilterChange = (key: string, value: string | undefined) => {
-    onFiltersChange({
-      ...activeFilters,
-      [key]: activeFilters[key as keyof typeof activeFilters] === value ? undefined : value,
-    });
-  };
+  const handleClearAll = () => onFiltersChange({});
 
-  const handleVideoFilterToggle = () => {
-    onFiltersChange({
-      ...activeFilters,
-      hasVideo: activeFilters.hasVideo === true ? undefined : true,
-    });
-  };
+  const hasActiveFilters = activeFilters.categoryType || activeFilters.masechetId || activeFilters.shuSectionId || activeFilters.concept;
 
-  const handleClearAll = () => {
-    onFiltersChange({});
-  };
-
-  const hasActiveFilters = activeFilters.categoryType || activeFilters.hasVideo;
-
-  // Get sub-filter options based on selected category type
   const getSubFilterOptions = (): FilterOption[] => {
     switch (activeFilters.categoryType) {
       case 'shas':
-        return MASECHOT.map((m) => ({ value: m, label: m }));
+        return masechtot.map((m) => ({ value: m.id, label: m.name }));
       case 'shulchanAruch':
-        return SHULCHAN_ARUCH_SECTIONS.map((s) => ({ value: s, label: s }));
+        return shuSections.map((s) => ({ value: s.id, label: s.name }));
       case 'concepts':
-        return SUBJECTS.map((s) => ({ value: s, label: s }));
+        return concepts.map((c) => ({ value: c, label: c }));
       default:
         return [];
     }
   };
 
-  const getActiveSubFilter = (): string | undefined => {
+  const getActiveSubFilterValue = (): string | undefined => {
     switch (activeFilters.categoryType) {
-      case 'shas':
-        return activeFilters.masechet;
-      case 'shulchanAruch':
-        return activeFilters.chelek;
-      case 'concepts':
-        return activeFilters.subject;
-      default:
-        return undefined;
+      case 'shas': return activeFilters.masechetId;
+      case 'shulchanAruch': return activeFilters.shuSectionId;
+      case 'concepts': return activeFilters.concept;
+      default: return undefined;
     }
   };
 
-  const getSubFilterKey = (): string => {
+  const getActiveSubFilterLabel = (): string | undefined => {
+    switch (activeFilters.categoryType) {
+      case 'shas': return masechtot.find((m) => m.id === activeFilters.masechetId)?.name;
+      case 'shulchanAruch': return shuSections.find((s) => s.id === activeFilters.shuSectionId)?.name;
+      case 'concepts': return activeFilters.concept;
+      default: return undefined;
+    }
+  };
+
+  const handleSubFilterSelect = (value: string) => {
+    const current = getActiveSubFilterValue();
+    const next = current === value ? undefined : value;
     switch (activeFilters.categoryType) {
       case 'shas':
-        return 'masechet';
+        onFiltersChange({ ...activeFilters, masechetId: next });
+        break;
       case 'shulchanAruch':
-        return 'chelek';
+        onFiltersChange({ ...activeFilters, shuSectionId: next });
+        break;
       case 'concepts':
-        return 'subject';
-      default:
-        return '';
+        onFiltersChange({ ...activeFilters, concept: next });
+        break;
     }
+    setComboboxOpen(false);
   };
 
   const subFilterOptions = getSubFilterOptions();
-  const activeSubFilter = getActiveSubFilter();
-  const subFilterKey = getSubFilterKey();
+  const activeSubFilterValue = getActiveSubFilterValue();
+  const activeSubFilterLabel = getActiveSubFilterLabel();
 
   return (
     <div className={cn('space-y-3', className)} dir="rtl">
-      {/* Main category type filters */}
       <div className="flex items-center gap-2 flex-wrap">
         {CATEGORY_TYPES.map((type) => (
           <button
@@ -147,19 +122,6 @@ export function CategoryFilterBar({
           </button>
         ))}
 
-        {/* Video filter */}
-        <button
-          onClick={handleVideoFilterToggle}
-          className={cn(
-            'filter-chip flex items-center gap-2',
-            activeFilters.hasVideo === true && 'active'
-          )}
-        >
-          <Video className="w-4 h-4" />
-          <span>וידאו</span>
-        </button>
-
-        {/* Clear all button */}
         {hasActiveFilters && (
           <button
             onClick={handleClearAll}
@@ -171,7 +133,6 @@ export function CategoryFilterBar({
         )}
       </div>
 
-      {/* Sub-filters combobox (shown when a category type is selected) */}
       {activeFilters.categoryType && subFilterOptions.length > 0 && (
         <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
           <PopoverTrigger asChild>
@@ -181,13 +142,13 @@ export function CategoryFilterBar({
               className="filter-chip flex items-center gap-2 min-w-[180px] justify-between"
             >
               <span className="truncate">
-                {activeSubFilter || SUB_FILTER_LABELS[activeFilters.categoryType]}
+                {activeSubFilterLabel || SUB_FILTER_LABELS[activeFilters.categoryType]}
               </span>
               <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-[250px] p-0" align="start" side="bottom" >
-            <Command dir="rtl" >
+          <PopoverContent className="w-[250px] p-0" align="start" side="bottom">
+            <Command dir="rtl">
               <CommandInput placeholder="חיפוש..." className="font-hebrew" />
               <CommandList className="max-h-[200px]">
                 <CommandEmpty className="font-hebrew py-4 text-center text-sm text-muted-foreground">
@@ -197,17 +158,14 @@ export function CategoryFilterBar({
                   {subFilterOptions.map((option) => (
                     <CommandItem
                       key={option.value}
-                      value={option.value}
-                      onSelect={() => {
-                        handleSubFilterChange(subFilterKey, option.value);
-                        setComboboxOpen(false);
-                      }}
+                      value={option.label}
+                      onSelect={() => handleSubFilterSelect(option.value)}
                       className="font-hebrew flex items-center gap-2 cursor-pointer"
                     >
                       <Check
                         className={cn(
                           'w-4 h-4 shrink-0',
-                          activeSubFilter === option.value ? 'opacity-100' : 'opacity-0'
+                          activeSubFilterValue === option.value ? 'opacity-100' : 'opacity-0'
                         )}
                       />
                       {option.label}
