@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { AppHeader } from '@/components/layout/app-header';
 import { ExpandableAnswerPanel } from '@/components/story/expandable-answer-panel';
-import { getStoryById, getAdjacentStories } from '@/lib/mock-data';
-import type { Story } from '@/lib/types';
+import { useStoryDetailStore } from '@/lib/stores/story-detail-store';
 import {
   ChevronRight,
   ChevronLeft,
@@ -22,38 +21,20 @@ export default function StoryPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
-  const [story, setStory] = useState<Story | null>(null);
-  const [prevId, setPrevId] = useState<string | null>(null);
-  const [nextId, setNextId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { story, neighbors, loading, error, fetchStory, clear } = useStoryDetailStore();
 
   const storyId = params.id as string;
 
   useEffect(() => {
-    if (storyId) {
-      setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        const foundStory = getStoryById(storyId);
-        setStory(foundStory || null);
-
-        if (foundStory) {
-          const adjacent = getAdjacentStories(storyId);
-          setPrevId(adjacent.prevId);
-          setNextId(adjacent.nextId);
-        }
-
-        setIsLoading(false);
-      }, 200);
-    }
-  }, [storyId]);
+    if (storyId) fetchStory(storyId);
+    return () => clear();
+  }, [storyId, fetchStory, clear]);
 
   const handleRequestAccess = () => {
     router.push('/api/auth/signin');
   };
 
-  // Loading state
-  if (isLoading) {
+  if (loading) {
     return (
       <main className="min-h-screen bg-background" dir="rtl">
         <AppHeader />
@@ -69,8 +50,7 @@ export default function StoryPage() {
     );
   }
 
-  // Not found state
-  if (!story) {
+  if (error || !story) {
     return (
       <main className="min-h-screen bg-background" dir="rtl">
         <AppHeader />
@@ -80,7 +60,7 @@ export default function StoryPage() {
               הסיפור לא נמצא
             </h1>
             <p className="text-muted-foreground font-hebrew mb-8">
-              הסיפור שחיפשת לא קיים או הוסר
+              {error ?? 'הסיפור שחיפשת לא קיים או הוסר'}
             </p>
             <Link
               href="/search"
@@ -96,6 +76,9 @@ export default function StoryPage() {
   }
 
   const canViewExpansion = !!session;
+  const concepts = [...story.conceptsAi, ...story.conceptsFromIndex];
+  const prevId = neighbors?.prev?.id ?? null;
+  const nextId = neighbors?.next?.id ?? null;
 
   return (
     <main className="min-h-screen bg-background" dir="rtl">
@@ -103,7 +86,6 @@ export default function StoryPage() {
 
       <div className="pt-24 pb-12 px-4">
         <div className="max-w-3xl mx-auto">
-          {/* Back to search */}
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -118,7 +100,6 @@ export default function StoryPage() {
             </Link>
           </motion.div>
 
-          {/* Story Content Card */}
           <motion.article
             className="glass-card rounded-2xl p-6 md:p-8 mb-6"
             initial={{ opacity: 0, y: 20 }}
@@ -127,28 +108,33 @@ export default function StoryPage() {
           >
             {/* Category badges */}
             <div className="flex flex-wrap gap-2 mb-4">
-              {story.categories.shas && (
-                <span className="badge-shas px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1">
+              {story.shasRefs.map((ref) => (
+                <span
+                  key={ref.shasPageId}
+                  className="badge-shas px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1"
+                >
                   <BookOpen className="w-3 h-3" />
-                  {story.categories.shas.masechet} {story.categories.shas.daf}
+                  {ref.shasPage.masechet.name} {ref.shasPage.daf}{ref.shasPage.amud}
                 </span>
-              )}
-              {story.categories.shulchanAruch && (
-                <span className="badge-shulchan-aruch px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1">
+              ))}
+              {story.shuRefs.map((ref) => (
+                <span
+                  key={ref.shuSimanId}
+                  className="badge-shulchan-aruch px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1"
+                >
                   <Scale className="w-3 h-3" />
-                  {story.categories.shulchanAruch.chelek}{' '}
-                  {story.categories.shulchanAruch.siman}
+                  {ref.shuSiman.section.name} סי׳ {ref.shuSiman.siman}
                 </span>
-              )}
-              {story.categories.concepts.map((concept, index) => (
+              ))}
+              {concepts.map((concept, index) => (
                 <span
                   key={index}
                   className="badge-concepts px-3 py-1 text-xs font-medium rounded-full"
                 >
-                  {concept.subject} - {concept.concept}
+                  {concept}
                 </span>
               ))}
-              {story.hasVideo && (
+              {story.videoUrl && (
                 <span className="video-indicator">
                   <Video className="w-3 h-3" />
                   וידאו
@@ -161,26 +147,26 @@ export default function StoryPage() {
               {story.title}
             </h1>
 
-            {/* Story content */}
+            {/* Story body */}
             <div className="mb-8">
               <h2 className="text-lg font-semibold font-hebrew mb-3 text-primary">
                 הסיפור
               </h2>
               <p className="text-foreground leading-relaxed font-hebrew whitespace-pre-wrap">
-                {story.storyContent}
+                {story.storyBody}
               </p>
             </div>
 
-            {/* Question */}
+            {/* Legal question */}
             <div className="mb-8 p-4 rounded-xl bg-muted/50 border-r-4 border-primary">
               <h2 className="text-lg font-semibold font-hebrew mb-2">
                 השאלה
               </h2>
-              <p className="text-foreground font-hebrew">{story.question}</p>
+              <p className="text-foreground font-hebrew">{story.legalQuestion}</p>
             </div>
 
-            {/* Video embed if exists */}
-            {story.hasVideo && story.videoUrl && (
+            {/* Video embed */}
+            {story.videoUrl && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold font-hebrew mb-3">
                   צפייה בוידאו
@@ -214,23 +200,25 @@ export default function StoryPage() {
           </motion.div>
 
           {/* Expansion Panel */}
-          <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-          >
-            <ExpandableAnswerPanel
-              title="הרחבה"
-              content={story.expansion}
-              variant="expansion"
-              isLocked={!canViewExpansion}
-              defaultExpanded={false}
-              onRequestAccess={handleRequestAccess}
-            />
-          </motion.div>
+          {story.expansion !== null && (
+            <motion.div
+              className="mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              <ExpandableAnswerPanel
+                title="הרחבה"
+                content={story.expansion}
+                variant="expansion"
+                isLocked={!canViewExpansion}
+                defaultExpanded={false}
+                onRequestAccess={handleRequestAccess}
+              />
+            </motion.div>
+          )}
 
-          {/* Navigation between stories */}
+          {/* Navigation */}
           {(prevId || nextId) && (
             <motion.div
               className="flex items-center justify-between gap-4 pt-6 border-t border-border"
@@ -249,7 +237,6 @@ export default function StoryPage() {
               ) : (
                 <div />
               )}
-
               {nextId ? (
                 <Link
                   href={`/story/${nextId}`}
