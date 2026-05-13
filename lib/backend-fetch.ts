@@ -6,12 +6,10 @@
  * קובץ זה אינו מייבא מ-auth-options כדי למנוע circular dependency.
  */
 
+import type { StandardResponse } from '@/lib/types';
+
 const BACKEND_API_URL = process.env.BACKEND_API_URL!;
 const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET!;
-
-type StandardResponse<T = unknown> =
-  | { success: true; data: T }
-  | { success: false; error: string };
 
 export async function backendFetch<T = unknown>(
   path: string,

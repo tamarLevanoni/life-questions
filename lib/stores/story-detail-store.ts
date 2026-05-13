@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { ApiStory, ApiStoryNeighbors } from '@/lib/types';
+import type { Story, StoryNeighbors } from '@/lib/types';
 
 interface StoryDetailState {
-  story: ApiStory | null;
-  neighbors: ApiStoryNeighbors | null;
+  story: Story | null;
+  neighbors: StoryNeighbors | null;
   loading: boolean;
   error: string | null;
   fetchStory: (id: string) => Promise<void>;
@@ -24,7 +24,7 @@ export const useStoryDetailStore = create<StoryDetailState>((set) => ({
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error ?? 'הסיפור לא נמצא');
       }
-      const data: { story: ApiStory; neighbors: ApiStoryNeighbors } = await res.json();
+      const data: { story: Story; neighbors: StoryNeighbors } = await res.json();
       set({ story: data.story, neighbors: data.neighbors, loading: false });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });

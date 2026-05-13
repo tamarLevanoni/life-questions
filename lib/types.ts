@@ -1,54 +1,66 @@
+import type { UserData } from '@/lib/schemas';
+
+// ==================== BFF / UTILITY TYPES ====================
+
+// StandardResponse — עטיפה אחידה של תגובות מ-backend (מיוצאת לשימוש ב-BFF routes)
+export type StandardResponse<T = unknown> =
+  | { success: true; data: T }
+  | { success: false; error: string };
+
+// RegisterBody נגזר מ-UserData — מקור אמת אחד, בלי כפילות שדות
+export type RegisterBody = Omit<UserData, 'id'>;
+
 // ==================== API TYPES (Backend) ====================
 
-export interface ApiMasechet {
+export interface Masechet {
   id: string;
   name: string;
   orderIndex: number;
 }
 
-export interface ApiShasPage {
+export interface ShasPage {
   id: string;
   daf: number;
   amud: string;
-  masechet: ApiMasechet;
+  masechet: Masechet;
 }
 
-export interface ApiShasRef {
+export interface ShasRef {
   shasPageId: string;
   sourceText: string | null;
-  shasPage: ApiShasPage;
+  shasPage: ShasPage;
 }
 
-export interface ApiShuSection {
+export interface ShuSection {
   id: string;
   name: string;
 }
 
-export interface ApiShuSiman {
+export interface ShuSiman {
   id: string;
   siman: number;
   title: string | null;
-  section: ApiShuSection;
+  section: ShuSection;
 }
 
-export interface ApiShuSectionWithSimanim extends ApiShuSection {
-  simanim: ApiShuSiman[];
+export interface ShuSectionWithSimanim extends ShuSection {
+  simanim: ShuSiman[];
 }
 
-export interface ApiShuRef {
+export interface ShuRef {
   shuSimanId: string;
   seif: number;
-  shuSiman: ApiShuSiman;
+  shuSiman: ShuSiman;
 }
 
-export interface ApiTopic {
+export interface Topic {
   id: string;
   bookNumber: number;
   name: string;
   orderIndex: number;
 }
 
-export interface ApiStory {
+export interface Story {
   id: string;
   bookNumber: number;
   storyOrder: number;
@@ -62,26 +74,26 @@ export interface ApiStory {
   conceptsFromIndex: string[];
   videoUrl: string | null;
   imageUrl: string | null;
-  topic: ApiTopic;
-  shasRefs: ApiShasRef[];
-  shuRefs: ApiShuRef[];
+  topic: Topic;
+  shasRefs: ShasRef[];
+  shuRefs: ShuRef[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface ApiStoryNeighbors {
+export interface StoryNeighbors {
   prev: { id: string; title: string } | null;
   next: { id: string; title: string } | null;
 }
 
-export interface ApiPaginatedStories {
-  stories: ApiStory[];
+export interface PaginatedStories {
+  stories: Story[];
   total: number;
   page: number;
   limit: number;
 }
 
-export interface ApiSearchParams {
+export interface SearchParams {
   q?: string;
   masechetId?: string;
   daf?: number;
@@ -101,7 +113,7 @@ export type CategoryType = 'shas' | 'shulchanAruch' | 'concepts';
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
-  story: ApiStory;
+  story: Story;
   onClick?: () => void;
   className?: string;
 }
@@ -131,8 +143,8 @@ export interface UiSearchFilters {
 }
 
 export interface CategoryFilterBarProps {
-  masechtot: ApiMasechet[];
-  shuSections: ApiShuSectionWithSimanim[];
+  masechtot: Masechet[];
+  shuSections: ShuSectionWithSimanim[];
   concepts: string[];
   activeFilters: UiSearchFilters;
   onFiltersChange: (filters: UiSearchFilters) => void;
@@ -140,11 +152,11 @@ export interface CategoryFilterBarProps {
 }
 
 export interface SearchResultsListProps {
-  stories: ApiStory[];
+  stories: Story[];
   isLoading: boolean;
   hasMore: boolean;
   onLoadMore: () => void;
-  onStoryClick: (story: ApiStory) => void;
+  onStoryClick: (story: Story) => void;
   emptyMessage?: string;
 }
 

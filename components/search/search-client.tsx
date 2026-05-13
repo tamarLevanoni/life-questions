@@ -9,7 +9,7 @@ import { SearchResultsList } from '@/components/search/search-results-list';
 import { useDebounce } from '@/lib/hooks/use-debounce';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
-import type { ApiStory, UiSearchFilters } from '@/lib/types';
+import type { Story, UiSearchFilters } from '@/lib/types';
 import { LogIn } from 'lucide-react';
 import Link from 'next/link';
 
@@ -54,7 +54,7 @@ export function SearchClient() {
     setFilters(newFilters);
   };
 
-  const handleStoryClick = (story: ApiStory) => {
+  const handleStoryClick = (story: Story) => {
     router.push(`/story/${story.id}`);
   };
 

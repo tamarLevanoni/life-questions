@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import type { ApiPaginatedStories } from '@/lib/types';
+import type { PaginatedStories } from '@/lib/types';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const limit = searchParams.get('limit') ?? pageSize ?? '20';
   params.set('limit', limit);
 
-  const { data, ok, status, error } = await backendFetch<ApiPaginatedStories>(
+  const { data, ok, status, error } = await backendFetch<PaginatedStories>(
     `/api/stories?${params}`
   );
 

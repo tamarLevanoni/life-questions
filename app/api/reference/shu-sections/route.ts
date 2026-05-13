@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import type { ApiShuSectionWithSimanim } from '@/lib/types';
+import type { ShuSectionWithSimanim } from '@/lib/types';
 
 export async function GET() {
-  const { data, ok, status, error } = await backendFetch<ApiShuSectionWithSimanim[]>(
+  const { data, ok, status, error } = await backendFetch<ShuSectionWithSimanim[]>(
     '/api/reference/shu-sections'
   );
 

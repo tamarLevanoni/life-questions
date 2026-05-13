@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import type { ApiStory, ApiStoryNeighbors } from '@/lib/types';
+import type { Story, StoryNeighbors } from '@/lib/types';
 
 export async function GET(
   _request: Request,
@@ -9,8 +9,8 @@ export async function GET(
   const { id } = await params;
 
   const [storyResult, neighborsResult] = await Promise.all([
-    backendFetch<ApiStory>(`/api/stories/${id}`),
-    backendFetch<ApiStoryNeighbors>(`/api/stories/${id}/neighbors`),
+    backendFetch<Story>(`/api/stories/${id}`),
+    backendFetch<StoryNeighbors>(`/api/stories/${id}/neighbors`),
   ]);
 
   if (!storyResult.ok) {

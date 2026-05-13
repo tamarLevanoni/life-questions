@@ -1,16 +1,6 @@
 import { create } from 'zustand';
 import type { UserData, MutableUserData } from '@/lib/schemas';
-
-interface RegisterBody {
-  googleId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  institutionName?: string;
-  phone: string;
-  occupations: string[];
-  marketingConsent: boolean;
-}
+import type { RegisterBody } from '@/lib/types';
 
 interface UserState {
   user: UserData | null;

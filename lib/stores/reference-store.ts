@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { ApiMasechet, ApiShuSectionWithSimanim } from '@/lib/types';
+import type { Masechet, ShuSectionWithSimanim } from '@/lib/types';
 
 interface ReferenceState {
-  masechtot: ApiMasechet[];
-  shuSections: ApiShuSectionWithSimanim[];
+  masechtot: Masechet[];
+  shuSections: ShuSectionWithSimanim[];
   concepts: string[];
   loaded: boolean;
   loading: boolean;
@@ -35,8 +35,8 @@ export const useReferenceStore = create<ReferenceState>((set, get) => ({
       }
 
       const [masechtot, shuSections, concepts] = await Promise.all([
-        masechtotRes.json() as Promise<ApiMasechet[]>,
-        shuSectionsRes.json() as Promise<ApiShuSectionWithSimanim[]>,
+        masechtotRes.json() as Promise<Masechet[]>,
+        shuSectionsRes.json() as Promise<ShuSectionWithSimanim[]>,
         conceptsRes.json() as Promise<string[]>,
       ]);
 

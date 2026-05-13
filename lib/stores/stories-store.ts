@@ -1,18 +1,18 @@
 import { create } from 'zustand';
-import type { ApiStory, ApiSearchParams } from '@/lib/types';
+import type { Story, SearchParams } from '@/lib/types';
 
 interface StoriesState {
-  stories: ApiStory[];
+  stories: Story[];
   total: number;
   page: number;
   loading: boolean;
   error: string | null;
-  searchStories: (params: ApiSearchParams) => Promise<void>;
-  loadMoreStories: (params: ApiSearchParams) => Promise<void>;
+  searchStories: (params: SearchParams) => Promise<void>;
+  loadMoreStories: (params: SearchParams) => Promise<void>;
   reset: () => void;
 }
 
-function buildQuery(params: ApiSearchParams): string {
+function buildQuery(params: SearchParams): string {
   const q = new URLSearchParams();
   if (params.q) q.set('q', params.q);
   if (params.masechetId) q.set('masechetId', params.masechetId);
