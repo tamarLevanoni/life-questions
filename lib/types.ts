@@ -1,8 +1,8 @@
+import { z } from 'zod/v4';
 import type { UserData } from '@/lib/schemas';
 
 // ==================== BFF / UTILITY TYPES ====================
 
-// StandardResponse — עטיפה אחידה של תגובות מ-backend (מיוצאת לשימוש ב-BFF routes)
 export type StandardResponse<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string };
@@ -10,101 +10,116 @@ export type StandardResponse<T = unknown> =
 // RegisterBody נגזר מ-UserData — מקור אמת אחד, בלי כפילות שדות
 export type RegisterBody = Omit<UserData, 'id'>;
 
-// ==================== API TYPES (Backend) ====================
+// ==================== API SCHEMAS & TYPES ====================
+// כל טיפוס API נגזר מהסכמה — מקור אמת אחד לצורה ולvalidation
 
-export interface Masechet {
-  id: string;
-  name: string;
-  orderIndex: number;
-}
+export const masechetSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  orderIndex: z.number(),
+});
+export type Masechet = z.infer<typeof masechetSchema>;
 
-export interface ShasPage {
-  id: string;
-  daf: number;
-  amud: string;
-  masechet: Masechet;
-}
+export const shasPageSchema = z.object({
+  id: z.string(),
+  daf: z.number(),
+  amud: z.string(),
+  masechet: masechetSchema,
+});
+export type ShasPage = z.infer<typeof shasPageSchema>;
 
-export interface ShasRef {
-  shasPageId: string;
-  sourceText: string | null;
-  shasPage: ShasPage;
-}
+export const shasRefSchema = z.object({
+  shasPageId: z.string(),
+  sourceText: z.string().nullable(),
+  shasPage: shasPageSchema,
+});
+export type ShasRef = z.infer<typeof shasRefSchema>;
 
-export interface ShuSection {
-  id: string;
-  name: string;
-}
+export const shuSectionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type ShuSection = z.infer<typeof shuSectionSchema>;
 
-export interface ShuSiman {
-  id: string;
-  siman: number;
-  title: string | null;
-  section: ShuSection;
-}
+export const shuSimanSchema = z.object({
+  id: z.string(),
+  siman: z.number(),
+  title: z.string().nullable(),
+  section: shuSectionSchema,
+});
+export type ShuSiman = z.infer<typeof shuSimanSchema>;
 
-export interface ShuSectionWithSimanim extends ShuSection {
-  simanim: ShuSiman[];
-}
+export const shuSectionWithSimanimSchema = shuSectionSchema.extend({
+  simanim: z.array(shuSimanSchema),
+});
+export type ShuSectionWithSimanim = z.infer<typeof shuSectionWithSimanimSchema>;
 
-export interface ShuRef {
-  shuSimanId: string;
-  seif: number;
-  shuSiman: ShuSiman;
-}
+export const shuRefSchema = z.object({
+  shuSimanId: z.string(),
+  seif: z.number(),
+  shuSiman: shuSimanSchema,
+});
+export type ShuRef = z.infer<typeof shuRefSchema>;
 
-export interface Topic {
-  id: string;
-  bookNumber: number;
-  name: string;
-  orderIndex: number;
-}
+export const topicSchema = z.object({
+  id: z.string(),
+  bookNumber: z.number(),
+  name: z.string(),
+  orderIndex: z.number(),
+});
+export type Topic = z.infer<typeof topicSchema>;
 
-export interface Story {
-  id: string;
-  bookNumber: number;
-  storyOrder: number;
-  title: string;
-  storyBody: string;
-  legalQuestion: string;
-  legalQuestionSource: string;
-  shortAnswer: string;
-  expansion: string | null;
-  conceptsAi: string[];
-  conceptsFromIndex: string[];
-  videoUrl: string | null;
-  imageUrl: string | null;
-  topic: Topic;
-  shasRefs: ShasRef[];
-  shuRefs: ShuRef[];
-  createdAt: string;
-  updatedAt: string;
-}
+export const storySchema = z.object({
+  id: z.string(),
+  bookNumber: z.number(),
+  storyOrder: z.number(),
+  title: z.string(),
+  storyBody: z.string(),
+  legalQuestion: z.string(),
+  legalQuestionSource: z.string(),
+  shortAnswer: z.string(),
+  expansion: z.string().nullable(),
+  conceptsAi: z.array(z.string()),
+  conceptsFromIndex: z.array(z.string()),
+  videoUrl: z.string().nullable(),
+  imageUrl: z.string().nullable(),
+  topic: topicSchema,
+  shasRefs: z.array(shasRefSchema),
+  shuRefs: z.array(shuRefSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type Story = z.infer<typeof storySchema>;
 
-export interface StoryNeighbors {
-  prev: { id: string; title: string } | null;
-  next: { id: string; title: string } | null;
-}
+const storyRefSchema = z.object({ id: z.string(), title: z.string() }).nullable();
+export const storyNeighborsSchema = z.object({
+  prev: storyRefSchema,
+  next: storyRefSchema,
+});
+export type StoryNeighbors = z.infer<typeof storyNeighborsSchema>;
 
-export interface PaginatedStories {
-  stories: Story[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export const paginatedStoriesSchema = z.object({
+  stories: z.array(storySchema),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+});
+export type PaginatedStories = z.infer<typeof paginatedStoriesSchema>;
 
-export interface SearchParams {
-  q?: string;
-  masechetId?: string;
-  daf?: number;
-  amud?: 'a' | 'b';
-  shuSectionId?: string;
-  simanId?: string;
-  seif?: number;
-  concept?: string;
-  page?: number;
-  limit?: number;
-}
+export const searchParamsSchema = z.object({
+  q: z.string().optional(),
+  masechetId: z.string().optional(),
+  daf: z.coerce.number().optional(),
+  amud: z.enum(['a', 'b']).optional(),
+  shuSectionId: z.string().optional(),
+  simanId: z.string().optional(),
+  seif: z.coerce.number().optional(),
+  concept: z.string().optional(),
+  page: z.coerce.number().optional(),
+  limit: z.coerce.number().optional(),
+});
+export type SearchParams = z.infer<typeof searchParamsSchema>;
+export const SEARCH_PARAM_KEYS = Object.keys(searchParamsSchema.shape) as (keyof SearchParams)[];
 
 // ==================== UI TYPES ====================
 

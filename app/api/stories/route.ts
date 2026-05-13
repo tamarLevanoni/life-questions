@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import type { PaginatedStories } from '@/lib/types';
+import { SEARCH_PARAM_KEYS, paginatedStoriesSchema } from '@/lib/types';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const params = new URLSearchParams();
-  const forward = ['q', 'masechetId', 'daf', 'amud', 'shuSectionId', 'simanId', 'seif', 'concept', 'page'];
-  for (const key of forward) {
+  for (const key of SEARCH_PARAM_KEYS) {
     const val = searchParams.get(key);
     if (val !== null) params.set(key, val);
   }
@@ -16,13 +15,16 @@ export async function GET(request: Request) {
   const limit = searchParams.get('limit') ?? pageSize ?? '20';
   params.set('limit', limit);
 
-  const { data, ok, status, error } = await backendFetch<PaginatedStories>(
-    `/api/stories?${params}`
-  );
+  const { data, ok, status, error } = await backendFetch(`/api/stories?${params}`);
 
   if (!ok) {
     return NextResponse.json({ error: error ?? 'Backend error' }, { status });
   }
 
-  return NextResponse.json(data);
+  const parsed = paginatedStoriesSchema.safeParse(data);
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Backend returned unexpected data' }, { status: 502 });
+  }
+
+  return NextResponse.json(parsed.data);
 }
