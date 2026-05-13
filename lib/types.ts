@@ -50,7 +50,7 @@ export const shuSimanSchema = z.object({
 export type ShuSiman = z.infer<typeof shuSimanSchema>;
 
 export const shuSectionWithSimanimSchema = shuSectionSchema.extend({
-  simanim: z.array(shuSimanSchema),
+  simanim: z.array(shuSimanSchema.omit({ section: true })),
 });
 export type ShuSectionWithSimanim = z.infer<typeof shuSectionWithSimanimSchema>;
 
@@ -97,6 +97,11 @@ export const storyNeighborsSchema = z.object({
   next: storyRefSchema,
 });
 export type StoryNeighbors = z.infer<typeof storyNeighborsSchema>;
+
+export const storyWithNeighborsSchema = storySchema.extend({
+  neighbors: storyNeighborsSchema,
+});
+export type StoryWithNeighbors = z.infer<typeof storyWithNeighborsSchema>;
 
 export const paginatedStoriesSchema = z.object({
   stories: z.array(storySchema),
@@ -145,6 +150,7 @@ export interface ExpandableAnswerPanelProps {
 export interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
+  onSearch: () => void;
   placeholder?: string;
   isLoading?: boolean;
   className?: string;

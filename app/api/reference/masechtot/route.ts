@@ -9,13 +9,13 @@ export async function GET() {
   const { data, ok, status, error } = await backendFetch('/api/reference/masechtot');
 
   if (!ok) {
-    return NextResponse.json({ error: error ?? 'Backend error' }, { status });
+    return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });
   }
 
   const parsed = schema.safeParse(data);
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Backend returned unexpected data' }, { status: 502 });
+    return NextResponse.json({ success: false, error: 'Backend returned unexpected data' }, { status: 502 });
   }
 
-  return NextResponse.json(parsed.data);
+  return NextResponse.json({ success: true, data: parsed.data });
 }

@@ -1,9 +1,8 @@
 import { create } from 'zustand';
-import type { Story, StoryNeighbors } from '@/lib/types';
+import type { StoryWithNeighbors } from '@/lib/types';
 
 interface StoryDetailState {
-  story: Story | null;
-  neighbors: StoryNeighbors | null;
+  story: StoryWithNeighbors | null;
   loading: boolean;
   error: string | null;
   fetchStory: (id: string) => Promise<void>;
@@ -12,7 +11,6 @@ interface StoryDetailState {
 
 export const useStoryDetailStore = create<StoryDetailState>((set) => ({
   story: null,
-  neighbors: null,
   loading: false,
   error: null,
 
@@ -20,16 +18,16 @@ export const useStoryDetailStore = create<StoryDetailState>((set) => ({
     set({ loading: true, error: null });
     try {
       const res = await fetch(`/api/stories/${id}`);
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || !body.success) {
         throw new Error(body.error ?? 'הסיפור לא נמצא');
       }
-      const data: { story: Story; neighbors: StoryNeighbors } = await res.json();
-      set({ story: data.story, neighbors: data.neighbors, loading: false });
+      const data = body.data as StoryWithNeighbors;
+      set({ story: data, loading: false });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
   },
 
-  clear: () => set({ story: null, neighbors: null, loading: false, error: null }),
+  clear: () => set({ story: null, loading: false, error: null }),
 }));

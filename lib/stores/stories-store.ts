@@ -38,9 +38,9 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await fetch(`/api/stories?${buildQuery({ ...params, page: 1 })}`);
-      if (!res.ok) throw new Error('שגיאה בטעינת סיפורים');
-      const data = await res.json();
-      set({ stories: data.stories, total: data.total, page: 1, loading: false });
+      const body = await res.json();
+      if (!res.ok || !body.success) throw new Error(body.error ?? 'שגיאה בטעינת סיפורים');
+      set({ stories: body.data.stories, total: body.data.total, page: 1, loading: false });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
@@ -51,11 +51,11 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await fetch(`/api/stories?${buildQuery({ ...params, page: nextPage })}`);
-      if (!res.ok) throw new Error('שגיאה בטעינת סיפורים');
-      const data = await res.json();
+      const body = await res.json();
+      if (!res.ok || !body.success) throw new Error(body.error ?? 'שגיאה בטעינת סיפורים');
       set((state) => ({
-        stories: [...state.stories, ...data.stories],
-        total: data.total,
+        stories: [...state.stories, ...body.data.stories],
+        total: body.data.total,
         page: nextPage,
         loading: false,
       }));

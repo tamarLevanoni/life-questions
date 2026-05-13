@@ -6,8 +6,8 @@ export async function GET() {
   if (auth instanceof NextResponse) return auth;
 
   const { data, ok, status, error } = await backendFetch(`/api/users/google/${auth.user.id}`);
-  if (!ok) return NextResponse.json({ error: error ?? 'Backend error' }, { status });
-  return NextResponse.json(data);
+  if (!ok) return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });
+  return NextResponse.json({ success: true, data });
 }
 
 export async function PATCH(request: Request) {
@@ -20,6 +20,6 @@ export async function PATCH(request: Request) {
     body: JSON.stringify(body),
   });
 
-  if (!ok) return NextResponse.json({ error: error ?? 'Backend error' }, { status });
-  return NextResponse.json(data);
+  if (!ok) return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });
+  return NextResponse.json({ success: true, data });
 }

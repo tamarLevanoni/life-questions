@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import { storySchema, storyNeighborsSchema } from '@/lib/types';
+import { storyWithNeighborsSchema } from '@/lib/types';
 
 export async function GET(
   _request: Request,
@@ -8,25 +8,19 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const [storyResult, neighborsResult] = await Promise.all([
-    backendFetch(`/api/stories/${id}`),
-    backendFetch(`/api/stories/${id}/neighbors`),
-  ]);
+  const result = await backendFetch(`/api/stories/${id}`);
 
-  if (!storyResult.ok) {
+  if (!result.ok) {
     return NextResponse.json(
-      { error: storyResult.error ?? 'Story not found' },
-      { status: storyResult.status }
+      { success: false, error: result.error ?? 'Story not found' },
+      { status: result.status }
     );
   }
 
-  const parsedStory = storySchema.safeParse(storyResult.data);
-  if (!parsedStory.success) {
-    return NextResponse.json({ error: 'Backend returned unexpected data' }, { status: 502 });
+  const parsed = storyWithNeighborsSchema.safeParse(result.data);
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: 'Backend returned unexpected data' }, { status: 502 });
   }
 
-  const parsedNeighbors = storyNeighborsSchema.safeParse(neighborsResult.data);
-  const neighbors = parsedNeighbors.success ? parsedNeighbors.data : { prev: null, next: null };
-
-  return NextResponse.json({ story: parsedStory.data, neighbors });
+  return NextResponse.json({ success: true, data: parsed.data });
 }

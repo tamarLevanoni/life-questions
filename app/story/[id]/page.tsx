@@ -21,7 +21,7 @@ export default function StoryPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
-  const { story, neighbors, loading, error, fetchStory, clear } = useStoryDetailStore();
+  const { story, loading, error, fetchStory, clear } = useStoryDetailStore();
 
   const storyId = params.id as string;
 
@@ -77,8 +77,8 @@ export default function StoryPage() {
 
   const canViewExpansion = !!session;
   const concepts = [...story.conceptsAi, ...story.conceptsFromIndex];
-  const prevId = neighbors?.prev?.id ?? null;
-  const nextId = neighbors?.next?.id ?? null;
+  const prevId = story.neighbors?.prev?.id ?? null;
+  const nextId = story.neighbors?.next?.id ?? null;
 
   return (
     <main className="min-h-screen bg-background" dir="rtl">

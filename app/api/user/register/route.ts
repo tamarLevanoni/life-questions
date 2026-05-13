@@ -11,6 +11,6 @@ export async function POST(request: Request) {
     body: JSON.stringify(body),
   });
 
-  if (!ok) return NextResponse.json({ error: error ?? 'Backend error' }, { status });
-  return NextResponse.json(data, { status: 201 });
+  if (!ok) return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });
+  return NextResponse.json({ success: true, data }, { status: 201 });
 }

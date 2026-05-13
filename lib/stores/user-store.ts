@@ -27,11 +27,9 @@ export const useUserStore = create<UserState>((set) => ({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error ?? 'שגיאה בהרשמה');
-    }
-    const user: UserData = await res.json();
+    const resBody = await res.json();
+    if (!res.ok || !resBody.success) throw new Error(resBody.error ?? 'שגיאה בהרשמה');
+    const user: UserData = resBody.data;
     set({ user });
     return user;
   },
@@ -42,22 +40,18 @@ export const useUserStore = create<UserState>((set) => ({
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(partial),
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error ?? 'שגיאה בעדכון הפרופיל');
-    }
-    const user: UserData = await res.json();
+    const resBody = await res.json();
+    if (!res.ok || !resBody.success) throw new Error(resBody.error ?? 'שגיאה בעדכון הפרופיל');
+    const user: UserData = resBody.data;
     set({ user });
     return user;
   },
 
   fetchUser: async () => {
     const res = await fetch('/api/user/profile');
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error ?? 'שגיאה בטעינת הפרופיל');
-    }
-    const user: UserData = await res.json();
+    const resBody = await res.json();
+    if (!res.ok || !resBody.success) throw new Error(resBody.error ?? 'שגיאה בטעינת הפרופיל');
+    const user: UserData = resBody.data;
     set({ user });
     return user;
   },

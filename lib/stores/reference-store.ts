@@ -30,17 +30,25 @@ export const useReferenceStore = create<ReferenceState>((set, get) => ({
         fetch('/api/reference/concepts'),
       ]);
 
-      if (!masechtotRes.ok || !shuSectionsRes.ok || !conceptsRes.ok) {
+      const [masechtotBody, shuSectionsBody, conceptsBody] = await Promise.all([
+        masechtotRes.json(),
+        shuSectionsRes.json(),
+        conceptsRes.json(),
+      ]);
+
+      if (!masechtotRes.ok || !masechtotBody.success ||
+          !shuSectionsRes.ok || !shuSectionsBody.success ||
+          !conceptsRes.ok || !conceptsBody.success) {
         throw new Error('שגיאה בטעינת נתוני עזר');
       }
 
-      const [masechtot, shuSections, concepts] = await Promise.all([
-        masechtotRes.json() as Promise<Masechet[]>,
-        shuSectionsRes.json() as Promise<ShuSectionWithSimanim[]>,
-        conceptsRes.json() as Promise<string[]>,
-      ]);
-
-      set({ masechtot, shuSections, concepts, loaded: true, loading: false });
+      set({
+        masechtot: masechtotBody.data as Masechet[],
+        shuSections: shuSectionsBody.data as ShuSectionWithSimanim[],
+        concepts: conceptsBody.data as string[],
+        loaded: true,
+        loading: false,
+      });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
