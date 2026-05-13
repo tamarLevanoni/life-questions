@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Masechet, ShuSectionWithSimanim } from '@/lib/types';
+import type { Masechet, ShuSectionWithSimanim, MasechetPage } from '@/lib/types';
 
 interface ReferenceState {
   masechtot: Masechet[];
@@ -8,7 +8,10 @@ interface ReferenceState {
   loaded: boolean;
   loading: boolean;
   error: string | null;
+  masechetPages: Record<string, MasechetPage[]>;
+  masechetPagesLoading: Record<string, boolean>;
   loadAll: () => Promise<void>;
+  loadMasechetPages: (masechetId: string) => Promise<void>;
 }
 
 export const useReferenceStore = create<ReferenceState>((set, get) => ({
@@ -18,6 +21,8 @@ export const useReferenceStore = create<ReferenceState>((set, get) => ({
   loaded: false,
   loading: false,
   error: null,
+  masechetPages: {},
+  masechetPagesLoading: {},
 
   loadAll: async () => {
     if (get().loaded || get().loading) return;
@@ -51,6 +56,24 @@ export const useReferenceStore = create<ReferenceState>((set, get) => ({
       });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
+    }
+  },
+
+  loadMasechetPages: async (masechetId: string) => {
+    const state = get();
+    if (state.masechetPages[masechetId] || state.masechetPagesLoading[masechetId]) return;
+
+    set((s) => ({ masechetPagesLoading: { ...s.masechetPagesLoading, [masechetId]: true } }));
+    try {
+      const res = await fetch(`/api/reference/masechtot/${masechetId}/pages`);
+      const body = await res.json();
+      if (!res.ok || !body.success) throw new Error('שגיאה בטעינת דפי מסכת');
+      set((s) => ({
+        masechetPages: { ...s.masechetPages, [masechetId]: body.data as MasechetPage[] },
+        masechetPagesLoading: { ...s.masechetPagesLoading, [masechetId]: false },
+      }));
+    } catch {
+      set((s) => ({ masechetPagesLoading: { ...s.masechetPagesLoading, [masechetId]: false } }));
     }
   },
 }));

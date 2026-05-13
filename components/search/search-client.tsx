@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { SearchBar } from '@/components/search/search-bar';
 import { CategoryFilterBar } from '@/components/search/category-filter-bar';
 import { SearchResultsList } from '@/components/search/search-results-list';
-import { useDebounce } from '@/lib/hooks/use-debounce';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
 import type { Story, UiSearchFilters } from '@/lib/types';
@@ -20,31 +19,30 @@ export function SearchClient() {
   const { status } = useSession();
 
   const { stories, total, page, loading, searchStories, loadMoreStories } = useStoriesStore();
-  const { masechtot, shuSections, concepts, loadAll } = useReferenceStore();
+  const { masechtot, shuSections, concepts } = useReferenceStore();
 
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<UiSearchFilters>({});
-
-  const debouncedQuery = useDebounce(query, 300);
-
-  useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const buildApiParams = useCallback(
     (uiFilters: UiSearchFilters) => ({
-      q: debouncedQuery || undefined,
+      q: query || undefined,
       masechetId: uiFilters.masechetId,
+      daf: uiFilters.daf,
+      amud: uiFilters.amud,
       shuSectionId: uiFilters.shuSectionId,
+      simanId: uiFilters.simanId,
       concept: uiFilters.concept,
       limit: PAGE_LIMIT,
     }),
-    [debouncedQuery]
+    [query]
   );
 
-  useEffect(() => {
+  const handleSearch = useCallback(() => {
+    setHasSearched(true);
     searchStories(buildApiParams(filters));
-  }, [debouncedQuery, filters, searchStories, buildApiParams]);
+  }, [searchStories, buildApiParams, filters]);
 
   const handleLoadMore = () => {
     loadMoreStories({ ...buildApiParams(filters), page: page + 1 });
@@ -91,6 +89,7 @@ export function SearchClient() {
           <SearchBar
             value={query}
             onChange={setQuery}
+            onSearch={handleSearch}
             isLoading={loading && stories.length === 0}
             placeholder="חיפוש לפי שם סיפור..."
           />
@@ -106,18 +105,20 @@ export function SearchClient() {
           />
         </div>
 
-        <SearchResultsList
-          stories={stories}
-          isLoading={loading}
-          hasMore={hasMore}
-          onLoadMore={handleLoadMore}
-          onStoryClick={handleStoryClick}
-          emptyMessage={
-            debouncedQuery || filters.masechetId || filters.shuSectionId || filters.concept
-              ? 'לא נמצאו תוצאות לחיפוש זה'
-              : 'אין סיפורים להצגה'
-          }
-        />
+        {hasSearched && (
+          <SearchResultsList
+            stories={stories}
+            isLoading={loading}
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            onStoryClick={handleStoryClick}
+            emptyMessage={
+              query || filters.masechetId || filters.shuSectionId || filters.concept || filters.simanId || filters.daf !== undefined
+                ? 'לא נמצאו תוצאות לחיפוש זה'
+                : 'אין סיפורים להצגה'
+            }
+          />
+        )}
       </div>
     </div>
   );

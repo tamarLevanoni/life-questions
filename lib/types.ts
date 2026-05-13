@@ -28,6 +28,13 @@ export const shasPageSchema = z.object({
 });
 export type ShasPage = z.infer<typeof shasPageSchema>;
 
+export const masechetPageSchema = z.object({
+  id: z.string(),
+  daf: z.number(),
+  amud: z.string(),
+});
+export type MasechetPage = z.infer<typeof masechetPageSchema>;
+
 export const shasRefSchema = z.object({
   shasPageId: z.string(),
   sourceText: z.string().nullable(),
@@ -159,7 +166,10 @@ export interface SearchBarProps {
 export interface UiSearchFilters {
   categoryType?: CategoryType;
   masechetId?: string;
+  daf?: number;
+  amud?: 'a' | 'b';
   shuSectionId?: string;
+  simanId?: string;
   concept?: string;
 }
 
