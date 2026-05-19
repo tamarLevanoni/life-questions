@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CategoryFilterBarProps, CategoryType } from '@/lib/types';
-import { useReferenceStore } from '@/lib/stores/reference-store';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
-import { X, BookOpen, Scale, Lightbulb, ChevronsUpDown, Check, Loader2 } from 'lucide-react';
+import { X, BookOpen, Scale, Lightbulb, ChevronsUpDown, Check } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -30,7 +29,7 @@ const CATEGORY_TYPES: { value: CategoryType; label: string; icon: React.ReactNod
 const SUB_FILTER_LABELS: Record<CategoryType, string> = {
   shas: 'בחרו מסכת...',
   shulchanAruch: 'בחרו חלק...',
-  concepts: 'בחרו מושג...',
+  concepts: 'בחרו נושא...',
 };
 
 const SUB_SUB_FILTER_LABELS: Record<'shas' | 'shulchanAruch', string> = {
@@ -41,21 +40,13 @@ const SUB_SUB_FILTER_LABELS: Record<'shas' | 'shulchanAruch', string> = {
 export function CategoryFilterBar({
   masechtot,
   shuSections,
-  concepts,
+  topics,
   activeFilters,
   onFiltersChange,
   className,
 }: CategoryFilterBarProps) {
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [subComboboxOpen, setSubComboboxOpen] = useState(false);
-
-  const { masechetPages, masechetPagesLoading, loadMasechetPages } = useReferenceStore();
-
-  useEffect(() => {
-    if (activeFilters.categoryType === 'shas' && activeFilters.masechetId) {
-      loadMasechetPages(activeFilters.masechetId);
-    }
-  }, [activeFilters.categoryType, activeFilters.masechetId, loadMasechetPages]);
 
   const handleCategoryTypeChange = (type: CategoryType) => {
     if (type === activeFilters.categoryType) {
@@ -71,11 +62,11 @@ export function CategoryFilterBar({
     activeFilters.categoryType ||
     activeFilters.masechetId ||
     activeFilters.shuSectionId ||
-    activeFilters.concept ||
+    activeFilters.topicId ||
     activeFilters.simanId ||
     activeFilters.daf !== undefined;
 
-  // ── Level 2 (masechet / section / concept) ─────────────────────────────────
+  // ── Level 2 (masechet / section / topic) ──────────────────────────────────
 
   const getSubFilterOptions = (): FilterOption[] => {
     switch (activeFilters.categoryType) {
@@ -84,7 +75,7 @@ export function CategoryFilterBar({
       case 'shulchanAruch':
         return shuSections.map((s) => ({ value: s.id, label: s.name }));
       case 'concepts':
-        return concepts.map((c) => ({ value: c, label: c }));
+        return topics.map((t) => ({ value: t.id, label: t.name }));
       default:
         return [];
     }
@@ -94,7 +85,7 @@ export function CategoryFilterBar({
     switch (activeFilters.categoryType) {
       case 'shas': return activeFilters.masechetId;
       case 'shulchanAruch': return activeFilters.shuSectionId;
-      case 'concepts': return activeFilters.concept;
+      case 'concepts': return activeFilters.topicId;
       default: return undefined;
     }
   };
@@ -103,7 +94,7 @@ export function CategoryFilterBar({
     switch (activeFilters.categoryType) {
       case 'shas': return masechtot.find((m) => m.id === activeFilters.masechetId)?.name;
       case 'shulchanAruch': return shuSections.find((s) => s.id === activeFilters.shuSectionId)?.name;
-      case 'concepts': return activeFilters.concept;
+      case 'concepts': return topics.find((t) => t.id === activeFilters.topicId)?.name;
       default: return undefined;
     }
   };
@@ -113,13 +104,13 @@ export function CategoryFilterBar({
     const next = current === value ? undefined : value;
     switch (activeFilters.categoryType) {
       case 'shas':
-        onFiltersChange({ ...activeFilters, masechetId: next, daf: undefined, amud: undefined });
+        onFiltersChange({ ...activeFilters, masechetId: next, daf: undefined });
         break;
       case 'shulchanAruch':
         onFiltersChange({ ...activeFilters, shuSectionId: next, simanId: undefined });
         break;
       case 'concepts':
-        onFiltersChange({ ...activeFilters, concept: next });
+        onFiltersChange({ ...activeFilters, topicId: next });
         break;
     }
     setComboboxOpen(false);
@@ -129,11 +120,13 @@ export function CategoryFilterBar({
 
   const getSubSubFilterOptions = (): FilterOption[] => {
     if (activeFilters.categoryType === 'shas' && activeFilters.masechetId) {
-      const pages = masechetPages[activeFilters.masechetId] ?? [];
-      return pages.map((p) => ({
-        value: `${p.daf}_${p.amud}`,
-        label: `דף ${toHebrewNumeral(p.daf)} ${p.amud === 'a' ? 'ע"א' : 'ע"ב'}`,
-      }));
+      const pages = masechtot.find((m) => m.id === activeFilters.masechetId)?.pages ?? [];
+      const seen = new Set<number>();
+      return pages.flatMap((p) => {
+        if (seen.has(p.daf)) return [];
+        seen.add(p.daf);
+        return [{ value: String(p.daf), label: `דף ${toHebrewNumeral(p.daf)}` }];
+      });
     }
     if (activeFilters.categoryType === 'shulchanAruch' && activeFilters.shuSectionId) {
       const section = shuSections.find((s) => s.id === activeFilters.shuSectionId);
@@ -147,7 +140,7 @@ export function CategoryFilterBar({
 
   const getActiveSubSubFilterValue = (): string | undefined => {
     if (activeFilters.categoryType === 'shas' && activeFilters.daf !== undefined) {
-      return `${activeFilters.daf}_${activeFilters.amud ?? 'a'}`;
+      return String(activeFilters.daf);
     }
     if (activeFilters.categoryType === 'shulchanAruch') return activeFilters.simanId;
     return undefined;
@@ -155,7 +148,7 @@ export function CategoryFilterBar({
 
   const getActiveSubSubFilterLabel = (): string | undefined => {
     if (activeFilters.categoryType === 'shas' && activeFilters.daf !== undefined) {
-      return `דף ${toHebrewNumeral(activeFilters.daf)} ${activeFilters.amud === 'b' ? 'ע"ב' : 'ע"א'}`;
+      return `דף ${toHebrewNumeral(activeFilters.daf)}`;
     }
     if (activeFilters.categoryType === 'shulchanAruch' && activeFilters.simanId) {
       const section = shuSections.find((s) => s.id === activeFilters.shuSectionId);
@@ -168,12 +161,7 @@ export function CategoryFilterBar({
   const handleSubSubFilterSelect = (value: string) => {
     const current = getActiveSubSubFilterValue();
     if (activeFilters.categoryType === 'shas') {
-      if (current === value) {
-        onFiltersChange({ ...activeFilters, daf: undefined, amud: undefined });
-      } else {
-        const [dafStr, amudStr] = value.split('_');
-        onFiltersChange({ ...activeFilters, daf: Number(dafStr), amud: amudStr as 'a' | 'b' });
-      }
+      onFiltersChange({ ...activeFilters, daf: current === value ? undefined : Number(value) });
     } else if (activeFilters.categoryType === 'shulchanAruch') {
       onFiltersChange({ ...activeFilters, simanId: current === value ? undefined : value });
     }
@@ -183,11 +171,6 @@ export function CategoryFilterBar({
   const showSubSubFilter =
     (activeFilters.categoryType === 'shas' && !!activeFilters.masechetId) ||
     (activeFilters.categoryType === 'shulchanAruch' && !!activeFilters.shuSectionId);
-
-  const isSubSubLoading =
-    activeFilters.categoryType === 'shas' &&
-    !!activeFilters.masechetId &&
-    !!masechetPagesLoading[activeFilters.masechetId];
 
   const subFilterOptions = getSubFilterOptions();
   const activeSubFilterValue = getActiveSubFilterValue();
@@ -223,7 +206,7 @@ export function CategoryFilterBar({
         )}
       </div>
 
-      {/* Level 2 — masechet / section / concept */}
+      {/* Level 2 — masechet / section / topic */}
       {activeFilters.categoryType && subFilterOptions.length > 0 && (
         <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
           <PopoverTrigger asChild>
@@ -276,23 +259,13 @@ export function CategoryFilterBar({
             <button
               role="combobox"
               aria-expanded={subComboboxOpen}
-              disabled={isSubSubLoading}
-              className="filter-chip flex items-center gap-2 min-w-[180px] justify-between disabled:opacity-60"
+              className="filter-chip flex items-center gap-2 min-w-[180px] justify-between"
             >
-              {isSubSubLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                  <span className="truncate font-hebrew">טוען...</span>
-                </>
-              ) : (
-                <>
-                  <span className="truncate">
-                    {getActiveSubSubFilterLabel() ||
-                      SUB_SUB_FILTER_LABELS[activeFilters.categoryType as 'shas' | 'shulchanAruch']}
-                  </span>
-                  <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
-                </>
-              )}
+              <span className="truncate">
+                {getActiveSubSubFilterLabel() ||
+                  SUB_SUB_FILTER_LABELS[activeFilters.categoryType as 'shas' | 'shulchanAruch']}
+              </span>
+              <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-[280px] p-0" align="start" side="bottom">

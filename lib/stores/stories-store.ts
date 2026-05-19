@@ -17,11 +17,10 @@ function buildQuery(params: SearchParams): string {
   if (params.q) q.set('q', params.q);
   if (params.masechetId) q.set('masechetId', params.masechetId);
   if (params.daf !== undefined) q.set('daf', String(params.daf));
-  if (params.amud) q.set('amud', params.amud);
   if (params.shuSectionId) q.set('shuSectionId', params.shuSectionId);
   if (params.simanId) q.set('simanId', params.simanId);
   if (params.seif !== undefined) q.set('seif', String(params.seif));
-  if (params.concept) q.set('concept', params.concept);
+  if (params.topicId) q.set('topicId', params.topicId);
   if (params.page) q.set('page', String(params.page));
   if (params.limit) q.set('limit', String(params.limit));
   return q.toString();

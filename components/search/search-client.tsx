@@ -19,7 +19,7 @@ export function SearchClient() {
   const { status } = useSession();
 
   const { stories, total, page, loading, searchStories, loadMoreStories } = useStoriesStore();
-  const { masechtot, shuSections, concepts } = useReferenceStore();
+  const { masechtot, shuSections, topics } = useReferenceStore();
 
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<UiSearchFilters>({});
@@ -30,10 +30,9 @@ export function SearchClient() {
       q: query || undefined,
       masechetId: uiFilters.masechetId,
       daf: uiFilters.daf,
-      amud: uiFilters.amud,
       shuSectionId: uiFilters.shuSectionId,
       simanId: uiFilters.simanId,
-      concept: uiFilters.concept,
+      topicId: uiFilters.topicId,
       limit: PAGE_LIMIT,
     }),
     [query]
@@ -99,7 +98,7 @@ export function SearchClient() {
           <CategoryFilterBar
             masechtot={masechtot}
             shuSections={shuSections}
-            concepts={concepts}
+            topics={topics}
             activeFilters={filters}
             onFiltersChange={handleFiltersChange}
           />
@@ -113,7 +112,7 @@ export function SearchClient() {
             onLoadMore={handleLoadMore}
             onStoryClick={handleStoryClick}
             emptyMessage={
-              query || filters.masechetId || filters.shuSectionId || filters.concept || filters.simanId || filters.daf !== undefined
+              query || filters.masechetId || filters.shuSectionId || filters.topicId || filters.simanId || filters.daf !== undefined
                 ? 'לא נמצאו תוצאות לחיפוש זה'
                 : 'אין סיפורים להצגה'
             }

@@ -35,6 +35,11 @@ export const masechetPageSchema = z.object({
 });
 export type MasechetPage = z.infer<typeof masechetPageSchema>;
 
+export const masechetWithPagesSchema = masechetSchema.extend({
+  pages: z.array(masechetPageSchema),
+});
+export type MasechetWithPages = z.infer<typeof masechetWithPagesSchema>;
+
 export const shasRefSchema = z.object({
   shasPageId: z.string(),
   sourceText: z.string().nullable(),
@@ -68,9 +73,15 @@ export const shuRefSchema = z.object({
 });
 export type ShuRef = z.infer<typeof shuRefSchema>;
 
+export const bookSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+export type Book = z.infer<typeof bookSchema>;
+
 export const topicSchema = z.object({
   id: z.string(),
-  bookNumber: z.number(),
+  bookId: z.string(),
   name: z.string(),
   orderIndex: z.number(),
 });
@@ -78,7 +89,7 @@ export type Topic = z.infer<typeof topicSchema>;
 
 export const storySchema = z.object({
   id: z.string(),
-  bookNumber: z.number(),
+  bookId: z.string(),
   storyOrder: z.number(),
   title: z.string(),
   storyBody: z.string(),
@@ -122,11 +133,10 @@ export const searchParamsSchema = z.object({
   q: z.string().optional(),
   masechetId: z.string().optional(),
   daf: z.coerce.number().optional(),
-  amud: z.enum(['a', 'b']).optional(),
   shuSectionId: z.string().optional(),
   simanId: z.string().optional(),
   seif: z.coerce.number().optional(),
-  concept: z.string().optional(),
+  topicId: z.string().optional(),
   page: z.coerce.number().optional(),
   limit: z.coerce.number().optional(),
 });
@@ -167,16 +177,15 @@ export interface UiSearchFilters {
   categoryType?: CategoryType;
   masechetId?: string;
   daf?: number;
-  amud?: 'a' | 'b';
   shuSectionId?: string;
   simanId?: string;
-  concept?: string;
+  topicId?: string;
 }
 
 export interface CategoryFilterBarProps {
-  masechtot: Masechet[];
+  masechtot: MasechetWithPages[];
   shuSections: ShuSectionWithSimanim[];
-  concepts: string[];
+  topics: Topic[];
   activeFilters: UiSearchFilters;
   onFiltersChange: (filters: UiSearchFilters) => void;
   className?: string;
