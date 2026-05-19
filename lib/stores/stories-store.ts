@@ -18,6 +18,7 @@ interface StoriesState {
 function buildQuery(params: SearchParams): string {
   const q = new URLSearchParams();
   if (params.q) q.set('q', params.q);
+  if (params.bookId) q.set('bookId', params.bookId);
   if (params.masechetId) q.set('masechetId', params.masechetId);
   if (params.daf !== undefined) q.set('daf', String(params.daf));
   if (params.shuSectionId) q.set('shuSectionId', params.shuSectionId);

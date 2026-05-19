@@ -19,7 +19,7 @@ export function SearchClient() {
   const { status } = useSession();
 
   const { stories, total, page, loading, searchStories, loadMoreStories } = useStoriesStore();
-  const { masechtot, shuSections, topics } = useReferenceStore();
+  const { masechtot, shuSections, topics, books } = useReferenceStore();
 
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<UiSearchFilters>({});
@@ -28,6 +28,7 @@ export function SearchClient() {
   const buildApiParams = useCallback(
     (uiFilters: UiSearchFilters) => ({
       q: query || undefined,
+      bookId: uiFilters.bookId,
       masechetId: uiFilters.masechetId,
       daf: uiFilters.daf,
       shuSectionId: uiFilters.shuSectionId,
@@ -99,6 +100,7 @@ export function SearchClient() {
             masechtot={masechtot}
             shuSections={shuSections}
             topics={topics}
+            books={books}
             activeFilters={filters}
             onFiltersChange={handleFiltersChange}
           />

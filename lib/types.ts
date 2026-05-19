@@ -131,6 +131,7 @@ export type PaginatedStories = z.infer<typeof paginatedStoriesSchema>;
 
 export const searchParamsSchema = z.object({
   q: z.string().optional(),
+  bookId: z.string().optional(),
   masechetId: z.string().optional(),
   daf: z.coerce.number().optional(),
   shuSectionId: z.string().optional(),
@@ -175,6 +176,7 @@ export interface SearchBarProps {
 
 export interface UiSearchFilters {
   categoryType?: CategoryType;
+  bookId?: string;
   masechetId?: string;
   daf?: number;
   shuSectionId?: string;
@@ -186,6 +188,7 @@ export interface CategoryFilterBarProps {
   masechtot: MasechetWithPages[];
   shuSections: ShuSectionWithSimanim[];
   topics: Topic[];
+  books: Book[];
   activeFilters: UiSearchFilters;
   onFiltersChange: (filters: UiSearchFilters) => void;
   className?: string;

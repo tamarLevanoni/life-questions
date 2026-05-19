@@ -9,10 +9,15 @@ import { LoginModal } from '@/components/auth/login-modal';
 import { OnboardingModal } from '@/components/auth/onboarding-modal';
 import { SessionUserSync } from '@/components/providers/session-user-sync';
 import { useReferenceStore } from '@/lib/stores/reference-store';
+import { useStoriesStore } from '@/lib/stores/stories-store';
 
 function ReferencePreloader() {
   const loadAll = useReferenceStore((s) => s.loadAll);
+  const { loadFeaturedStories } = useStoriesStore();
   useEffect(() => { loadAll(); }, [loadAll]);
+  useEffect(() => {
+    loadFeaturedStories();
+  }, [loadFeaturedStories]);
   return null;
 }
 

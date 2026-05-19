@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CategoryFilterBarProps, CategoryType } from '@/lib/types';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
-import { X, BookOpen, Scale, Lightbulb, ChevronsUpDown, Check } from 'lucide-react';
+import { X, BookOpen, Scale, Lightbulb, ChevronsUpDown, Check, Library } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -41,10 +41,12 @@ export function CategoryFilterBar({
   masechtot,
   shuSections,
   topics,
+  books,
   activeFilters,
   onFiltersChange,
   className,
 }: CategoryFilterBarProps) {
+  const [bookComboboxOpen, setBookComboboxOpen] = useState(false);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [subComboboxOpen, setSubComboboxOpen] = useState(false);
 
@@ -59,12 +61,21 @@ export function CategoryFilterBar({
   const handleClearAll = () => onFiltersChange({});
 
   const hasActiveFilters =
+    activeFilters.bookId ||
     activeFilters.categoryType ||
     activeFilters.masechetId ||
     activeFilters.shuSectionId ||
     activeFilters.topicId ||
     activeFilters.simanId ||
     activeFilters.daf !== undefined;
+
+  const activeBookLabel = books.find((b) => b.id === activeFilters.bookId)?.name;
+
+  const handleBookSelect = (value: string) => {
+    const next = activeFilters.bookId === value ? undefined : value;
+    onFiltersChange({ ...activeFilters, bookId: next });
+    setBookComboboxOpen(false);
+  };
 
   // ── Level 2 (masechet / section / topic) ──────────────────────────────────
 
@@ -179,6 +190,51 @@ export function CategoryFilterBar({
 
   return (
     <div className={cn('space-y-3', className)} dir="rtl">
+      {/* Book filter */}
+      <Popover open={bookComboboxOpen} onOpenChange={setBookComboboxOpen}>
+        <PopoverTrigger asChild>
+          <button
+            role="combobox"
+            aria-expanded={bookComboboxOpen}
+            className="filter-chip flex items-center gap-2 min-w-[200px] justify-between"
+          >
+            <span className="flex items-center gap-2 truncate">
+              <Library className="w-4 h-4 shrink-0" />
+              <span className="truncate">{activeBookLabel ?? 'בחרו ספר...'}</span>
+            </span>
+            <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[260px] p-0" align="start" side="bottom">
+          <Command dir="rtl">
+            <CommandInput placeholder="חיפוש ספר..." className="font-hebrew" />
+            <CommandList className="max-h-[220px]">
+              <CommandEmpty className="font-hebrew py-4 text-center text-sm text-muted-foreground">
+                לא נמצאו תוצאות
+              </CommandEmpty>
+              <CommandGroup>
+                {books.map((book) => (
+                  <CommandItem
+                    key={book.id}
+                    value={book.name}
+                    onSelect={() => handleBookSelect(book.id)}
+                    className="font-hebrew flex items-center gap-2 cursor-pointer"
+                  >
+                    <Check
+                      className={cn(
+                        'w-4 h-4 shrink-0',
+                        activeFilters.bookId === book.id ? 'opacity-100' : 'opacity-0'
+                      )}
+                    />
+                    {book.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
       {/* Level 1 — category type */}
       <div className="flex items-center gap-2 flex-wrap">
         {CATEGORY_TYPES.map((type) => (

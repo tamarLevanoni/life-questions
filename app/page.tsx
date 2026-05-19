@@ -5,7 +5,6 @@ import { AppHeader } from '@/components/layout/app-header';
 import { Footer } from '@/components/layout/footer';
 import { ScenarioCard } from '@/components/story/scenario-card';
 import { useStoriesStore } from '@/lib/stores/stories-store';
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, BookOpen, Users, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -30,12 +29,7 @@ const features = [
 
 export default function Home() {
   const router = useRouter();
-  const { featuredStories, loadFeaturedStories } = useStoriesStore();
-
-  useEffect(() => {
-    if(featuredStories.length>0) return;
-    loadFeaturedStories();
-  }, [loadFeaturedStories, featuredStories.length]);
+  const { featuredStories } = useStoriesStore();
 
   return (
     <main className="min-h-screen bg-background text-foreground" dir="rtl">
