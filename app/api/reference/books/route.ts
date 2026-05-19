@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod/v4';
 import { backendFetch } from '@/lib/backend-fetch';
-import { masechetPageSchema } from '@/lib/types';
+import { bookSchema } from '@/lib/types';
 
-const schema = z.array(masechetPageSchema);
+const schema = z.array(bookSchema);
 
-export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const { data, ok, status, error } = await backendFetch(`/api/reference/masechtot/${id}/pages`);
+export async function GET() {
+  const { data, ok, status, error } = await backendFetch('/api/reference/books');
 
   if (!ok) {
     return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });

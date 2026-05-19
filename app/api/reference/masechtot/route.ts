@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod/v4';
 import { backendFetch } from '@/lib/backend-fetch';
-import { masechetSchema } from '@/lib/types';
+import { masechetWithPagesSchema } from '@/lib/types';
 
-const schema = z.array(masechetSchema);
+const schema = z.array(masechetWithPagesSchema);
 
 export async function GET() {
   const { data, ok, status, error } = await backendFetch('/api/reference/masechtot');

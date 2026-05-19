@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod/v4';
 import { backendFetch } from '@/lib/backend-fetch';
+import { topicSchema } from '@/lib/types';
 
-const schema = z.array(z.string());
+const schema = z.array(topicSchema);
 
 export async function GET() {
-  const { data, ok, status, error } = await backendFetch('/api/reference/concepts');
+  const { data, ok, status, error } = await backendFetch('/api/reference/topics');
 
   if (!ok) {
     return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });
