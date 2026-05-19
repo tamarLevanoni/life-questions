@@ -17,8 +17,8 @@ const features = [
   },
   {
     icon: Sparkles,
-    title: 'תשובות ברורות',
-    description: 'מבנה קבוע: סיפור, שאלה, תשובה והרחבה',
+    title: 'חיפוש חכם מבוסס AI',
+    description: 'חפש לפי שם סיפור, מקור תלמודי, נושא — ה-AI ימצא בשבילך',
   },
   {
     icon: Users,
@@ -84,7 +84,7 @@ export default function Home() {
             <p className="text-lg md:text-xl text-muted-foreground font-hebrew max-w-2xl mx-auto mb-8 leading-relaxed">
               לימוד קצר, משמעותי ומחובר למציאות.
               <br />
-              סיפורים אמיתיים מחיי היום-יום עם תשובות ברורות ונגישות.
+              סיפורים אמיתיים עם תשובות ברורות — וחיפוש חכם מבוסס AI שמוצא בדיוק את מה שאתה צריך.
             </p>
 
             {/* CTA Buttons */}
@@ -252,9 +252,7 @@ export default function Home() {
             <h2 className="text-2xl md:text-3xl font-bold font-hebrew mb-4">
               מוכנים להתחיל?
             </h2>
-            <p className="text-muted-foreground font-hebrew mb-8 max-w-md mx-auto">
-              התחברו כדי לגשת לכל התכנים ולשמור את ההתקדמות שלכם
-            </p>
+
             <Link
               href="/search"
               className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-xl font-hebrew font-medium text-lg hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"

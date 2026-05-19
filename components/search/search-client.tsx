@@ -66,7 +66,7 @@ export function SearchClient() {
             חיפוש סיפורים
           </h1>
           <p className="text-muted-foreground font-hebrew">
-            חפשו לפי שם הסיפור או סננו לפי קטגוריות
+            חיפוש מבוסס AI — לפי שם סיפור, מקור, נושא, ועוד
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export function SearchClient() {
             onChange={setQuery}
             onSearch={handleSearch}
             isLoading={loading && stories.length === 0}
-            placeholder="הקלד כאן כדי לחפש.."
+            placeholder="מה אתה מחפש?"
           />
         </div>
 
