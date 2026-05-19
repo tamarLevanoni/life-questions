@@ -3,22 +3,10 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CategoryFilterBarProps, CategoryType } from '@/lib/types';
-import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 import { X, BookOpen, Scale, Lightbulb, ChevronsUpDown, Check, Library } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from '@/components/ui/command';
-
-interface FilterOption {
-  value: string;
-  label: string;
-}
+import { SearchCombobox } from './search-combobox';
+import { ShasSubFilters, ShulchanAruchSubFilters, ConceptsSubFilters } from './category-sub-filters';
 
 const CATEGORY_TYPES: { value: CategoryType; label: string; icon: React.ReactNode }[] = [
   { value: 'shas', label: 'ש"ס', icon: <BookOpen className="w-4 h-4" /> },
@@ -26,234 +14,87 @@ const CATEGORY_TYPES: { value: CategoryType; label: string; icon: React.ReactNod
   { value: 'concepts', label: 'מושגים', icon: <Lightbulb className="w-4 h-4" /> },
 ];
 
-const SUB_FILTER_LABELS: Record<CategoryType, string> = {
-  shas: 'בחרו מסכת...',
-  shulchanAruch: 'בחרו חלק...',
-  concepts: 'בחרו נושא...',
-};
-
-const SUB_SUB_FILTER_LABELS: Record<'shas' | 'shulchanAruch', string> = {
-  shas: 'בחרו דף...',
-  shulchanAruch: 'בחרו סימן...',
-};
-
 export function CategoryFilterBar({
-  masechtot,
-  shuSections,
-  topics,
-  books,
-  activeFilters,
-  onFiltersChange,
-  className,
+  masechtot, shuSections, topics, books,
+  activeFilters, onFiltersChange, className,
 }: CategoryFilterBarProps) {
-  const [bookComboboxOpen, setBookComboboxOpen] = useState(false);
-  const [comboboxOpen, setComboboxOpen] = useState(false);
-  const [subComboboxOpen, setSubComboboxOpen] = useState(false);
+  const [bookOpen, setBookOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+
+  const { categoryType, bookId } = activeFilters;
+
+  const handleBookSelect = (id: string) => {
+    if (id === bookId) {
+      onFiltersChange({ ...activeFilters, bookId: undefined, topicId: undefined });
+    } else {
+      const topicStillValid = topics.find((t) => t.id === activeFilters.topicId)?.bookId === id;
+      onFiltersChange({ ...activeFilters, bookId: id, topicId: topicStillValid ? activeFilters.topicId : undefined });
+    }
+    setBookOpen(false);
+  };
 
   const handleCategoryTypeChange = (type: CategoryType) => {
-    if (type === activeFilters.categoryType) {
-      onFiltersChange({});
-    } else {
-      onFiltersChange({ categoryType: type });
-    }
+    onFiltersChange({ bookId, categoryType: type === categoryType ? undefined : type });
+    setCategoryOpen(false);
   };
 
-  const handleClearAll = () => onFiltersChange({});
-
-  const hasActiveFilters =
-    activeFilters.bookId ||
-    activeFilters.categoryType ||
-    activeFilters.masechetId ||
-    activeFilters.shuSectionId ||
-    activeFilters.topicId ||
-    activeFilters.simanId ||
-    activeFilters.daf !== undefined;
-
-  const activeBookLabel = books.find((b) => b.id === activeFilters.bookId)?.name;
-
-  const handleBookSelect = (value: string) => {
-    const next = activeFilters.bookId === value ? undefined : value;
-    onFiltersChange({ ...activeFilters, bookId: next });
-    setBookComboboxOpen(false);
-  };
-
-  // ── Level 2 (masechet / section / topic) ──────────────────────────────────
-
-  const getSubFilterOptions = (): FilterOption[] => {
-    switch (activeFilters.categoryType) {
-      case 'shas':
-        return masechtot.map((m) => ({ value: m.id, label: m.name }));
-      case 'shulchanAruch':
-        return shuSections.map((s) => ({ value: s.id, label: s.name }));
-      case 'concepts':
-        return topics.map((t) => ({ value: t.id, label: t.name }));
-      default:
-        return [];
-    }
-  };
-
-  const getActiveSubFilterValue = (): string | undefined => {
-    switch (activeFilters.categoryType) {
-      case 'shas': return activeFilters.masechetId;
-      case 'shulchanAruch': return activeFilters.shuSectionId;
-      case 'concepts': return activeFilters.topicId;
-      default: return undefined;
-    }
-  };
-
-  const getActiveSubFilterLabel = (): string | undefined => {
-    switch (activeFilters.categoryType) {
-      case 'shas': return masechtot.find((m) => m.id === activeFilters.masechetId)?.name;
-      case 'shulchanAruch': return shuSections.find((s) => s.id === activeFilters.shuSectionId)?.name;
-      case 'concepts': return topics.find((t) => t.id === activeFilters.topicId)?.name;
-      default: return undefined;
-    }
-  };
-
-  const handleSubFilterSelect = (value: string) => {
-    const current = getActiveSubFilterValue();
-    const next = current === value ? undefined : value;
-    switch (activeFilters.categoryType) {
-      case 'shas':
-        onFiltersChange({ ...activeFilters, masechetId: next, daf: undefined });
-        break;
-      case 'shulchanAruch':
-        onFiltersChange({ ...activeFilters, shuSectionId: next, simanId: undefined });
-        break;
-      case 'concepts':
-        onFiltersChange({ ...activeFilters, topicId: next });
-        break;
-    }
-    setComboboxOpen(false);
-  };
-
-  // ── Level 3 (daf / siman) ──────────────────────────────────────────────────
-
-  const getSubSubFilterOptions = (): FilterOption[] => {
-    if (activeFilters.categoryType === 'shas' && activeFilters.masechetId) {
-      const pages = masechtot.find((m) => m.id === activeFilters.masechetId)?.pages ?? [];
-      const seen = new Set<number>();
-      return pages.flatMap((p) => {
-        if (seen.has(p.daf)) return [];
-        seen.add(p.daf);
-        return [{ value: String(p.daf), label: `דף ${toHebrewNumeral(p.daf)}` }];
-      });
-    }
-    if (activeFilters.categoryType === 'shulchanAruch' && activeFilters.shuSectionId) {
-      const section = shuSections.find((s) => s.id === activeFilters.shuSectionId);
-      return (section?.simanim ?? []).map((s) => ({
-        value: s.id,
-        label: `סימן ${toHebrewNumeral(s.siman)}${s.title ? ` – ${s.title}` : ''}`,
-      }));
-    }
-    return [];
-  };
-
-  const getActiveSubSubFilterValue = (): string | undefined => {
-    if (activeFilters.categoryType === 'shas' && activeFilters.daf !== undefined) {
-      return String(activeFilters.daf);
-    }
-    if (activeFilters.categoryType === 'shulchanAruch') return activeFilters.simanId;
-    return undefined;
-  };
-
-  const getActiveSubSubFilterLabel = (): string | undefined => {
-    if (activeFilters.categoryType === 'shas' && activeFilters.daf !== undefined) {
-      return `דף ${toHebrewNumeral(activeFilters.daf)}`;
-    }
-    if (activeFilters.categoryType === 'shulchanAruch' && activeFilters.simanId) {
-      const section = shuSections.find((s) => s.id === activeFilters.shuSectionId);
-      const siman = section?.simanim.find((s) => s.id === activeFilters.simanId);
-      return siman ? `סימן ${toHebrewNumeral(siman.siman)}${siman.title ? ` – ${siman.title}` : ''}` : undefined;
-    }
-    return undefined;
-  };
-
-  const handleSubSubFilterSelect = (value: string) => {
-    const current = getActiveSubSubFilterValue();
-    if (activeFilters.categoryType === 'shas') {
-      onFiltersChange({ ...activeFilters, daf: current === value ? undefined : Number(value) });
-    } else if (activeFilters.categoryType === 'shulchanAruch') {
-      onFiltersChange({ ...activeFilters, simanId: current === value ? undefined : value });
-    }
-    setSubComboboxOpen(false);
-  };
-
-  const showSubSubFilter =
-    (activeFilters.categoryType === 'shas' && !!activeFilters.masechetId) ||
-    (activeFilters.categoryType === 'shulchanAruch' && !!activeFilters.shuSectionId);
-
-  const subFilterOptions = getSubFilterOptions();
-  const activeSubFilterValue = getActiveSubFilterValue();
-  const subSubFilterOptions = getSubSubFilterOptions();
-  const activeSubSubFilterValue = getActiveSubSubFilterValue();
+  const bookOptions = books.map((b) => ({ value: b.id, label: b.name }));
+  const activeBookLabel = bookOptions.find((o) => o.value === bookId)?.label;
+  const activeCategoryType = CATEGORY_TYPES.find((t) => t.value === categoryType);
+  const hasActiveFilters = Object.values(activeFilters).some((v) => v !== undefined);
 
   return (
     <div className={cn('space-y-3', className)} dir="rtl">
-      {/* Book filter */}
-      <Popover open={bookComboboxOpen} onOpenChange={setBookComboboxOpen}>
-        <PopoverTrigger asChild>
-          <button
-            role="combobox"
-            aria-expanded={bookComboboxOpen}
-            className="filter-chip flex items-center gap-2 min-w-[200px] justify-between"
-          >
-            <span className="flex items-center gap-2 truncate">
-              <Library className="w-4 h-4 shrink-0" />
-              <span className="truncate">{activeBookLabel ?? 'בחרו ספר...'}</span>
-            </span>
-            <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[260px] p-0" align="start" side="bottom">
-          <Command dir="rtl">
-            <CommandInput placeholder="חיפוש ספר..." className="font-hebrew" />
-            <CommandList className="max-h-[220px]">
-              <CommandEmpty className="font-hebrew py-4 text-center text-sm text-muted-foreground">
-                לא נמצאו תוצאות
-              </CommandEmpty>
-              <CommandGroup>
-                {books.map((book) => (
-                  <CommandItem
-                    key={book.id}
-                    value={book.name}
-                    onSelect={() => handleBookSelect(book.id)}
-                    className="font-hebrew flex items-center gap-2 cursor-pointer"
-                  >
-                    <Check
-                      className={cn(
-                        'w-4 h-4 shrink-0',
-                        activeFilters.bookId === book.id ? 'opacity-100' : 'opacity-0'
-                      )}
-                    />
-                    {book.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+      {/* שורה 1 — ספר | קטגוריה + נקה הכל */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <SearchCombobox
+          open={bookOpen} onOpenChange={setBookOpen}
+          label={activeBookLabel ?? 'בחרו ספר...'} icon={<Library className="w-4 h-4 shrink-0" />}
+          minWidth={200} activeValue={bookId}
+          onClear={() => onFiltersChange({ ...activeFilters, bookId: undefined, topicId: undefined })}
+          options={bookOptions} onSelect={handleBookSelect}
+          placeholder="חיפוש ספר..." popoverWidth="w-[260px]"
+        />
 
-      {/* Level 1 — category type */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {CATEGORY_TYPES.map((type) => (
-          <button
-            key={type.value}
-            onClick={() => handleCategoryTypeChange(type.value)}
-            className={cn(
-              'filter-chip flex items-center gap-2',
-              activeFilters.categoryType === type.value && 'active'
-            )}
-          >
-            {type.icon}
-            <span>{type.label}</span>
-          </button>
-        ))}
+        <div className="h-6 w-px bg-border shrink-0" />
+
+        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+          <PopoverTrigger asChild>
+            <button role="combobox" aria-expanded={categoryOpen}
+              className={cn('filter-chip flex items-center gap-2 min-w-[160px] justify-between', categoryType && 'active')}
+            >
+              <span className="flex items-center gap-2 truncate">
+                {activeCategoryType?.icon}
+                <span className="truncate">{activeCategoryType?.label ?? 'בחרו קטגוריה...'}</span>
+              </span>
+              {categoryType ? (
+                <X className="w-3.5 h-3.5 shrink-0 opacity-50 hover:opacity-100"
+                  onClick={(e) => { e.stopPropagation(); onFiltersChange({ bookId }); }} />
+              ) : (
+                <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[180px] p-1" align="start" side="bottom">
+            <div dir="rtl" className="flex flex-col gap-0.5">
+              {CATEGORY_TYPES.map((type) => (
+                <button key={type.value} onClick={() => handleCategoryTypeChange(type.value)}
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 text-sm rounded-md w-full transition-colors hover:bg-accent',
+                    categoryType === type.value && 'bg-accent font-medium'
+                  )}
+                >
+                  <Check className={cn('w-4 h-4 shrink-0', categoryType === type.value ? 'opacity-100' : 'opacity-0')} />
+                  {type.icon}
+                  <span>{type.label}</span>
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {hasActiveFilters && (
-          <button
-            onClick={handleClearAll}
+          <button onClick={() => onFiltersChange({})}
             className="flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="w-4 h-4" />
@@ -262,97 +103,19 @@ export function CategoryFilterBar({
         )}
       </div>
 
-      {/* Level 2 — masechet / section / topic */}
-      {activeFilters.categoryType && subFilterOptions.length > 0 && (
-        <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
-          <PopoverTrigger asChild>
-            <button
-              role="combobox"
-              aria-expanded={comboboxOpen}
-              className="filter-chip flex items-center gap-2 min-w-[180px] justify-between"
-            >
-              <span className="truncate">
-                {getActiveSubFilterLabel() || SUB_FILTER_LABELS[activeFilters.categoryType]}
-              </span>
-              <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[250px] p-0" align="start" side="bottom">
-            <Command dir="rtl">
-              <CommandInput placeholder="חיפוש..." className="font-hebrew" />
-              <CommandList className="max-h-[200px]">
-                <CommandEmpty className="font-hebrew py-4 text-center text-sm text-muted-foreground">
-                  לא נמצאו תוצאות
-                </CommandEmpty>
-                <CommandGroup>
-                  {subFilterOptions.map((option) => (
-                    <CommandItem
-                      key={option.value}
-                      value={option.label}
-                      onSelect={() => handleSubFilterSelect(option.value)}
-                      className="font-hebrew flex items-center gap-2 cursor-pointer"
-                    >
-                      <Check
-                        className={cn(
-                          'w-4 h-4 shrink-0',
-                          activeSubFilterValue === option.value ? 'opacity-100' : 'opacity-0'
-                        )}
-                      />
-                      {option.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      )}
-
-      {/* Level 3 — daf (ש"ס) or siman (שו"ע) */}
-      {showSubSubFilter && (
-        <Popover open={subComboboxOpen} onOpenChange={setSubComboboxOpen}>
-          <PopoverTrigger asChild>
-            <button
-              role="combobox"
-              aria-expanded={subComboboxOpen}
-              className="filter-chip flex items-center gap-2 min-w-[180px] justify-between"
-            >
-              <span className="truncate">
-                {getActiveSubSubFilterLabel() ||
-                  SUB_SUB_FILTER_LABELS[activeFilters.categoryType as 'shas' | 'shulchanAruch']}
-              </span>
-              <ChevronsUpDown className="w-4 h-4 shrink-0 opacity-50" />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[280px] p-0" align="start" side="bottom">
-            <Command dir="rtl">
-              <CommandInput placeholder="חיפוש..." className="font-hebrew" />
-              <CommandList className="max-h-[200px]">
-                <CommandEmpty className="font-hebrew py-4 text-center text-sm text-muted-foreground">
-                  לא נמצאו תוצאות
-                </CommandEmpty>
-                <CommandGroup>
-                  {subSubFilterOptions.map((option) => (
-                    <CommandItem
-                      key={option.value}
-                      value={option.label}
-                      onSelect={() => handleSubSubFilterSelect(option.value)}
-                      className="font-hebrew flex items-center gap-2 cursor-pointer"
-                    >
-                      <Check
-                        className={cn(
-                          'w-4 h-4 shrink-0',
-                          activeSubSubFilterValue === option.value ? 'opacity-100' : 'opacity-0'
-                        )}
-                      />
-                      {option.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+      {/* שורה 2 — תתי חיפוש לפי קטגוריה */}
+      {categoryType && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {categoryType === 'shas' && (
+            <ShasSubFilters masechtot={masechtot} activeFilters={activeFilters} onFiltersChange={onFiltersChange} />
+          )}
+          {categoryType === 'shulchanAruch' && (
+            <ShulchanAruchSubFilters shuSections={shuSections} activeFilters={activeFilters} onFiltersChange={onFiltersChange} />
+          )}
+          {categoryType === 'concepts' && (
+            <ConceptsSubFilters topics={topics} bookId={bookId} activeFilters={activeFilters} onFiltersChange={onFiltersChange} />
+          )}
+        </div>
       )}
     </div>
   );
