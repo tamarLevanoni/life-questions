@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { SearchBar } from '@/components/search/search-bar';
@@ -8,15 +8,17 @@ import { CategoryFilterBar } from '@/components/search/category-filter-bar';
 import { SearchResultsList } from '@/components/search/search-results-list';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
+import { useAuth } from '@/lib/auth-context';
 import type { Story, UiSearchFilters } from '@/lib/types';
 import { LogIn } from 'lucide-react';
-import Link from 'next/link';
 
 const PAGE_LIMIT = 10;
 
 export function SearchClient() {
   const router = useRouter();
   const { status } = useSession();
+  const { openLoginModal } = useAuth();
+  const isUnauthenticated = status === 'unauthenticated';
 
   const { stories, total, page, loading, searchStories, loadMoreStories } = useStoriesStore();
   const { masechtot, shuSections, topics, books } = useReferenceStore();
@@ -58,6 +60,12 @@ export function SearchClient() {
 
   const hasMore = stories.length < total;
 
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      openLoginModal();
+    }
+  }, [status, openLoginModal]);
+
   return (
     <div className="pt-24 pb-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -70,54 +78,55 @@ export function SearchClient() {
           </p>
         </div>
 
-        {status === 'unauthenticated' && (
-          <div className="glass-card p-4 rounded-xl mb-6 flex items-center justify-between gap-4 flex-wrap">
-            <p className="text-sm font-hebrew text-muted-foreground">
-              יש להתחבר על מנת לראות את כל התוכן באפליקציה. ההרשמה בחינם.
-            </p>
-            <Link
-              href="/api/auth/signin"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-hebrew font-medium hover:opacity-90 transition-opacity"
-            >
-              <LogIn className="w-4 h-4" />
-              התחברות
-            </Link>
+        <div className="relative">
+          <div className="mb-6">
+            <SearchBar
+              value={query}
+              onChange={setQuery}
+              onSearch={handleSearch}
+              isLoading={loading && stories.length === 0}
+              placeholder="מה אתה מחפש?"
+            />
           </div>
-        )}
 
-        <div className="mb-6">
-          <SearchBar
-            value={query}
-            onChange={setQuery}
-            onSearch={handleSearch}
-            isLoading={loading && stories.length === 0}
-            placeholder="מה אתה מחפש?"
+          <div className="mb-8">
+            <CategoryFilterBar
+              masechtot={masechtot}
+              shuSections={shuSections}
+              topics={topics}
+              books={books}
+              activeFilters={filters}
+              onFiltersChange={handleFiltersChange}
+            />
+          </div>
+
+          <SearchResultsList
+            stories={stories}
+            isLoading={loading}
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            onStoryClick={handleStoryClick}
+            emptyMessage={
+              hasSearched
+                ? 'לא נמצאו תוצאות לחיפוש זה'
+                : 'התחל לחפש כדי לראות תוצאות'
+            }
           />
-        </div>
 
-        <div className="mb-8">
-          <CategoryFilterBar
-            masechtot={masechtot}
-            shuSections={shuSections}
-            topics={topics}
-            books={books}
-            activeFilters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
+          {isUnauthenticated && (
+            <div
+              className="absolute inset-0 z-10 backdrop-blur-[1px] bg-background/20 rounded-xl cursor-not-allowed flex items-start justify-center pt-16"
+              onClick={openLoginModal}
+            >
+              <div className="glass-card px-6 py-4 rounded-xl text-center pointer-events-none">
+                <LogIn className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm font-hebrew text-muted-foreground">
+                  יש להתחבר כדי לחפש
+                </p>
+              </div>
+            </div>
+          )}
         </div>
-
-        <SearchResultsList
-          stories={stories}
-          isLoading={loading}
-          hasMore={hasMore}
-          onLoadMore={handleLoadMore}
-          onStoryClick={handleStoryClick}
-          emptyMessage={
-            hasSearched
-              ? 'לא נמצאו תוצאות לחיפוש זה'
-              : 'התחל לחפש כדי לראות תוצאות'
-          }
-        />
       </div>
     </div>
   );

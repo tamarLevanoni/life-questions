@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { backendFetch, requireAuth } from '@/lib/backend';
+import { backendFetch, requireSession } from '@/lib/backend';
 
 export async function POST(request: Request) {
-  const auth = await requireAuth();
+  const auth = await requireSession();
   if (auth instanceof NextResponse) return auth;
 
   const body = await request.json();
