@@ -90,7 +90,7 @@ export function SearchClient() {
             onChange={setQuery}
             onSearch={handleSearch}
             isLoading={loading && stories.length === 0}
-            placeholder="חיפוש לפי שם סיפור..."
+            placeholder="הקלד כאן כדי לחפש.."
           />
         </div>
 
@@ -104,20 +104,18 @@ export function SearchClient() {
           />
         </div>
 
-        {hasSearched && (
-          <SearchResultsList
-            stories={stories}
-            isLoading={loading}
-            hasMore={hasMore}
-            onLoadMore={handleLoadMore}
-            onStoryClick={handleStoryClick}
-            emptyMessage={
-              query || filters.masechetId || filters.shuSectionId || filters.topicId || filters.simanId || filters.daf !== undefined
-                ? 'לא נמצאו תוצאות לחיפוש זה'
-                : 'אין סיפורים להצגה'
-            }
-          />
-        )}
+        <SearchResultsList
+          stories={stories}
+          isLoading={loading}
+          hasMore={hasMore}
+          onLoadMore={handleLoadMore}
+          onStoryClick={handleStoryClick}
+          emptyMessage={
+            hasSearched
+              ? 'לא נמצאו תוצאות לחיפוש זה'
+              : 'התחל לחפש כדי לראות תוצאות'
+          }
+        />
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ export function SearchBar({
   value,
   onChange,
   onSearch,
-  placeholder = 'חיפוש לפי שם סיפור...',
+  placeholder,
   isLoading = false,
   className,
 }: SearchBarProps) {

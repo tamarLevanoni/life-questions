@@ -30,11 +30,12 @@ const features = [
 
 export default function Home() {
   const router = useRouter();
-  const { stories: featuredStories, searchStories } = useStoriesStore();
+  const { featuredStories, loadFeaturedStories } = useStoriesStore();
 
   useEffect(() => {
-    searchStories({ limit: 3 });
-  }, [searchStories]);
+    if(featuredStories.length>0) return;
+    loadFeaturedStories();
+  }, [loadFeaturedStories, featuredStories.length]);
 
   return (
     <main className="min-h-screen bg-background text-foreground" dir="rtl">

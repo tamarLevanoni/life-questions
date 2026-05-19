@@ -7,10 +7,13 @@ interface StoriesState {
   page: number;
   loading: boolean;
   error: string | null;
+  featuredStories: Story[];
+  loadFeaturedStories: () => Promise<void>;
   searchStories: (params: SearchParams) => Promise<void>;
   loadMoreStories: (params: SearchParams) => Promise<void>;
   reset: () => void;
 }
+
 
 function buildQuery(params: SearchParams): string {
   const q = new URLSearchParams();
@@ -32,6 +35,18 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
   page: 1,
   loading: false,
   error: null,
+  featuredStories: [],
+
+  loadFeaturedStories: async () => {
+    try {
+      const res = await fetch(`/api/stories?${buildQuery({ limit: 3, page: 1 })}`);
+      const body = await res.json();
+      if (!res.ok || !body.success) throw new Error(body.error ?? 'שגיאה בטעינת סיפורים');
+      set({ featuredStories: body.data.stories });
+    } catch {
+      // silent — featured stories are non-critical
+    }
+  },
 
   searchStories: async (params) => {
     set({ loading: true, error: null });
