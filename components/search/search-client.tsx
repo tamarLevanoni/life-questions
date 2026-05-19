@@ -64,7 +64,7 @@ export function SearchClient() {
     if (status === 'unauthenticated') {
       openLoginModal();
     }
-  }, [status, openLoginModal]);
+  }, [openLoginModal]);
 
   return (
     <div className="pt-24 pb-12 px-4">

@@ -14,10 +14,11 @@ import { useStoriesStore } from '@/lib/stores/stories-store';
 function ReferencePreloader() {
   const loadAll = useReferenceStore((s) => s.loadAll);
   const { loadFeaturedStories } = useStoriesStore();
-  useEffect(() => { loadAll(); }, [loadAll]);
   useEffect(() => {
+    if (window.opener) return;
+    loadAll();
     loadFeaturedStories();
-  }, [loadFeaturedStories]);
+  }, [loadAll, loadFeaturedStories]);
   return null;
 }
 

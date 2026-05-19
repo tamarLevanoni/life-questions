@@ -172,7 +172,7 @@ export function AppHeader() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => signOut()}
+                    onClick={() => signOut({ redirect: false }).then(() => router.push('/'))}
                     className="text-red-500 hover:text-red-600 cursor-pointer font-hebrew"
                   >
                     <LogOut className="w-4 h-4 ml-2" />
@@ -273,8 +273,8 @@ export function AppHeader() {
                 </div>
                 <button
                   onClick={() => {
-                    signOut();
                     setMobileMenuOpen(false);
+                    signOut({ redirect: false }).then(() => router.push('/'));
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors font-hebrew"
                 >
