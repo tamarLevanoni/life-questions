@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { SearchBar } from '@/components/search/search-bar';
@@ -9,7 +9,7 @@ import { SearchResultsList } from '@/components/search/search-results-list';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
 import { useAuth } from '@/lib/auth-context';
-import type { Story, UiSearchFilters } from '@/lib/types';
+import type { Story, UiSearchFilters, SearchBody } from '@/lib/types';
 import { LogIn } from 'lucide-react';
 
 const PAGE_LIMIT = 10;
@@ -28,16 +28,24 @@ export function SearchClient() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const buildApiParams = useCallback(
-    (uiFilters: UiSearchFilters) => ({
-      q: query || undefined,
-      bookId: uiFilters.bookId,
-      masechetId: uiFilters.masechetId,
-      daf: uiFilters.daf,
-      shuSectionId: uiFilters.shuSectionId,
-      simanId: uiFilters.simanId,
-      topicId: uiFilters.topicId,
-      limit: PAGE_LIMIT,
-    }),
+    (uiFilters: UiSearchFilters): SearchBody => {
+      const shasRefs = (uiFilters.sourceRefs ?? [])
+        .filter((r) => r.type === 'shas' && r.masechetId)
+        .map((r) => ({ masechetId: r.masechetId!, daf: r.daf }));
+
+      const shuRefs = (uiFilters.sourceRefs ?? [])
+        .filter((r) => r.type === 'shulchanAruch' && r.shuSectionId)
+        .map((r) => ({ shuSectionId: r.shuSectionId!, simanId: r.simanId, seif: r.seif }));
+
+      return {
+        q: query || undefined,
+        bookIds: uiFilters.bookIds?.length ? uiFilters.bookIds : undefined,
+        topicIds: uiFilters.topicIds?.length ? uiFilters.topicIds : undefined,
+        shasRefs: shasRefs.length ? shasRefs : undefined,
+        shuRefs: shuRefs.length ? shuRefs : undefined,
+        limit: PAGE_LIMIT,
+      };
+    },
     [query]
   );
 
@@ -59,12 +67,6 @@ export function SearchClient() {
   };
 
   const hasMore = stories.length < total;
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      openLoginModal();
-    }
-  }, [openLoginModal]);
 
   return (
     <div className="pt-24 pb-12 px-4">
@@ -102,8 +104,10 @@ export function SearchClient() {
 
           <SearchResultsList
             stories={stories}
+            books={books}
             isLoading={loading}
             hasMore={hasMore}
+            total={total}
             onLoadMore={handleLoadMore}
             onStoryClick={handleStoryClick}
             emptyMessage={

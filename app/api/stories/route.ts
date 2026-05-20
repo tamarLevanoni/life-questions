@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import { SEARCH_PARAM_KEYS, paginatedStoriesSchema } from '@/lib/types';
+import { paginatedStoriesSchema } from '@/lib/types';
+
+const LEGACY_PARAM_KEYS = ['q', 'bookId', 'masechetId', 'daf', 'shuSectionId', 'simanId', 'seif', 'topicId', 'page'] as const;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   const params = new URLSearchParams();
-  for (const key of SEARCH_PARAM_KEYS) {
+  for (const key of LEGACY_PARAM_KEYS) {
     const val = searchParams.get(key);
     if (val !== null) params.set(key, val);
   }

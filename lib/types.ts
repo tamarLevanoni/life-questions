@@ -129,29 +129,44 @@ export const paginatedStoriesSchema = z.object({
 });
 export type PaginatedStories = z.infer<typeof paginatedStoriesSchema>;
 
-export const searchParamsSchema = z.object({
-  q: z.string().optional(),
-  bookId: z.string().optional(),
-  masechetId: z.string().optional(),
-  daf: z.coerce.number().optional(),
-  shuSectionId: z.string().optional(),
-  simanId: z.string().optional(),
-  seif: z.coerce.number().optional(),
-  topicId: z.string().optional(),
-  page: z.coerce.number().optional(),
-  limit: z.coerce.number().optional(),
+export const shasRefBodySchema = z.object({
+  masechetId: z.string(),
+  daf: z.number().optional(),
 });
-export type SearchParams = z.infer<typeof searchParamsSchema>;
-export const SEARCH_PARAM_KEYS = Object.keys(searchParamsSchema.shape) as (keyof SearchParams)[];
+export const shuRefBodySchema = z.object({
+  shuSectionId: z.string(),
+  simanId: z.string().optional(),
+  seif: z.number().optional(),
+});
+export const searchBodySchema = z.object({
+  q: z.string().optional(),
+  bookIds: z.array(z.string()).optional(),
+  topicIds: z.array(z.string()).optional(),
+  shasRefs: z.array(shasRefBodySchema).optional(),
+  shuRefs: z.array(shuRefBodySchema).optional(),
+  concepts: z.array(z.string()).optional(),
+  page: z.number().optional(),
+  limit: z.number().optional(),
+});
+export type SearchBody = z.infer<typeof searchBodySchema>;
 
 // ==================== UI TYPES ====================
 
-export type CategoryType = 'shas' | 'shulchanAruch' | 'concepts';
+export interface UiSourceRef {
+  id: string;
+  type: 'shas' | 'shulchanAruch';
+  masechetId?: string;
+  daf?: number;
+  shuSectionId?: string;
+  simanId?: string;
+  seif?: number;
+}
 
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
   story: Story;
+  bookName?: string;
   onClick?: () => void;
   className?: string;
 }
@@ -175,13 +190,9 @@ export interface SearchBarProps {
 }
 
 export interface UiSearchFilters {
-  categoryType?: CategoryType;
-  bookId?: string;
-  masechetId?: string;
-  daf?: number;
-  shuSectionId?: string;
-  simanId?: string;
-  topicId?: string;
+  bookIds?: string[];
+  topicIds?: string[];
+  sourceRefs?: UiSourceRef[];
 }
 
 export interface CategoryFilterBarProps {
@@ -196,8 +207,10 @@ export interface CategoryFilterBarProps {
 
 export interface SearchResultsListProps {
   stories: Story[];
+  books: Book[];
   isLoading: boolean;
   hasMore: boolean;
+  total: number;
   onLoadMore: () => void;
   onStoryClick: (story: Story) => void;
   emptyMessage?: string;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Story, SearchParams } from '@/lib/types';
+import type { Story, SearchBody } from '@/lib/types';
 
 interface StoriesState {
   stories: Story[];
@@ -10,25 +10,17 @@ interface StoriesState {
   featuredStories: Story[];
   featuredLoaded: boolean;
   loadFeaturedStories: () => Promise<void>;
-  searchStories: (params: SearchParams) => Promise<void>;
-  loadMoreStories: (params: SearchParams) => Promise<void>;
+  searchStories: (params: SearchBody) => Promise<void>;
+  loadMoreStories: (params: SearchBody) => Promise<void>;
   reset: () => void;
 }
 
-
-function buildQuery(params: SearchParams): string {
-  const q = new URLSearchParams();
-  if (params.q) q.set('q', params.q);
-  if (params.bookId) q.set('bookId', params.bookId);
-  if (params.masechetId) q.set('masechetId', params.masechetId);
-  if (params.daf !== undefined) q.set('daf', String(params.daf));
-  if (params.shuSectionId) q.set('shuSectionId', params.shuSectionId);
-  if (params.simanId) q.set('simanId', params.simanId);
-  if (params.seif !== undefined) q.set('seif', String(params.seif));
-  if (params.topicId) q.set('topicId', params.topicId);
-  if (params.page) q.set('page', String(params.page));
-  if (params.limit) q.set('limit', String(params.limit));
-  return q.toString();
+function postSearch(body: SearchBody): Promise<Response> {
+  return fetch('/api/stories/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
 export const useStoriesStore = create<StoriesState>((set, get) => ({
@@ -43,7 +35,7 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
   loadFeaturedStories: async () => {
     if (get().featuredLoaded) return;
     try {
-      const res = await fetch(`/api/stories?${buildQuery({ limit: 3, page: 1 })}`);
+      const res = await postSearch({ limit: 3, page: 1 });
       const body = await res.json();
       if (!res.ok || !body.success) throw new Error(body.error ?? 'שגיאה בטעינת סיפורים');
       set({ featuredStories: body.data.stories, featuredLoaded: true });
@@ -55,7 +47,7 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
   searchStories: async (params) => {
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/stories?${buildQuery({ ...params, page: 1 })}`);
+      const res = await postSearch({ ...params, page: 1 });
       const body = await res.json();
       if (!res.ok || !body.success) throw new Error(body.error ?? 'שגיאה בטעינת סיפורים');
       set({ stories: body.data.stories, total: body.data.total, page: 1, loading: false });
@@ -68,7 +60,7 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
     const nextPage = get().page + 1;
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/stories?${buildQuery({ ...params, page: nextPage })}`);
+      const res = await postSearch({ ...params, page: nextPage });
       const body = await res.json();
       if (!res.ok || !body.success) throw new Error(body.error ?? 'שגיאה בטעינת סיפורים');
       set((state) => ({
