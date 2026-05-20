@@ -2,16 +2,10 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import type { CategoryFilterBarProps, UiSourceRef } from '@/lib/types';
-import { X, ChevronsUpDown, Check, Library, Lightbulb, Plus, Trash2 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import type { CategoryFilterBarProps, UiShasRef, UiShuRef } from '@/lib/types';
+import { X, Library, Lightbulb, Plus, Trash2 } from 'lucide-react';
 import { SearchCombobox } from './search-combobox';
 import { ShasSubFilters, ShulchanAruchSubFilters } from './category-sub-filters';
-
-const SOURCE_TYPES: { value: 'shas' | 'shulchanAruch'; label: string }[] = [
-  { value: 'shas', label: 'ש"ס' },
-  { value: 'shulchanAruch', label: 'שו"ע' },
-];
 
 export function CategoryFilterBar({
   masechtot, shuSections, topics, books,
@@ -19,9 +13,8 @@ export function CategoryFilterBar({
 }: CategoryFilterBarProps) {
   const [bookOpen, setBookOpen] = useState(false);
   const [topicOpen, setTopicOpen] = useState(false);
-  const [sourceTypeOpen, setSourceTypeOpen] = useState<Record<string, boolean>>({});
 
-  const { bookIds = [], topicIds = [], sourceRefs = [] } = activeFilters;
+  const { bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = activeFilters;
 
   const handleBookToggle = (id: string) => {
     const next = bookIds.includes(id) ? bookIds.filter((x) => x !== id) : [...bookIds, id];
@@ -40,25 +33,34 @@ export function CategoryFilterBar({
     onFiltersChange({ ...activeFilters, topicIds: next.length ? next : undefined });
   };
 
-  const handleAddSource = () => {
-    const newRef: UiSourceRef = { id: crypto.randomUUID(), type: 'shas' };
-    onFiltersChange({ ...activeFilters, sourceRefs: [...sourceRefs, newRef] });
+  const handleAddShas = () => {
+    const newRef: UiShasRef = { id: crypto.randomUUID() };
+    onFiltersChange({ ...activeFilters, shasRefs: [...shasRefs, newRef] });
   };
 
-  const handleRemoveSource = (idx: number) => {
-    const next = sourceRefs.filter((_, i) => i !== idx);
-    onFiltersChange({ ...activeFilters, sourceRefs: next.length ? next : undefined });
+  const handleAddShu = () => {
+    const newRef: UiShuRef = { id: crypto.randomUUID() };
+    onFiltersChange({ ...activeFilters, shuRefs: [...shuRefs, newRef] });
   };
 
-  const handleSourceTypeChange = (idx: number, type: 'shas' | 'shulchanAruch') => {
-    const next = sourceRefs.map((ref, i) => i === idx ? { id: ref.id, type } : ref);
-    onFiltersChange({ ...activeFilters, sourceRefs: next });
-    setSourceTypeOpen((prev) => ({ ...prev, [sourceRefs[idx].id]: false }));
+  const handleRemoveShas = (idx: number) => {
+    const next = shasRefs.filter((_, i) => i !== idx);
+    onFiltersChange({ ...activeFilters, shasRefs: next.length ? next : undefined });
   };
 
-  const handleSourceRefChange = (idx: number, updated: UiSourceRef) => {
-    const next = sourceRefs.map((ref, i) => i === idx ? updated : ref);
-    onFiltersChange({ ...activeFilters, sourceRefs: next });
+  const handleRemoveShu = (idx: number) => {
+    const next = shuRefs.filter((_, i) => i !== idx);
+    onFiltersChange({ ...activeFilters, shuRefs: next.length ? next : undefined });
+  };
+
+  const handleShasRefChange = (idx: number, updated: UiShasRef) => {
+    const next = shasRefs.map((ref, i) => i === idx ? updated : ref);
+    onFiltersChange({ ...activeFilters, shasRefs: next });
+  };
+
+  const handleShuRefChange = (idx: number, updated: UiShuRef) => {
+    const next = shuRefs.map((ref, i) => i === idx ? updated : ref);
+    onFiltersChange({ ...activeFilters, shuRefs: next });
   };
 
   const bookOptions = books.map((b) => ({ value: b.id, label: b.name }));
@@ -68,7 +70,7 @@ export function CategoryFilterBar({
   ).map((t) => ({ value: t.id, label: t.name }));
 
   const hasActiveFilters =
-    bookIds.length > 0 || topicIds.length > 0 || sourceRefs.length > 0;
+    bookIds.length > 0 || topicIds.length > 0 || shasRefs.length > 0 || shuRefs.length > 0;
 
   return (
     <div className={cn('space-y-3', className)} dir="rtl">
@@ -113,85 +115,59 @@ export function CategoryFilterBar({
         )}
       </div>
 
-      {/* שורות מקורות */}
-      <div className="space-y-2">
-        {sourceRefs.map((ref, idx) => (
-          <div key={ref.id} className="flex items-center gap-2 flex-wrap">
-            {/* בורר סוג מקור לשורה זו */}
-            <Popover
-              open={sourceTypeOpen[ref.id] ?? false}
-              onOpenChange={(v) => setSourceTypeOpen((prev) => ({ ...prev, [ref.id]: v }))}
-            >
-              <div className="relative">
-                <span className="absolute top-0 right-3 -translate-y-1/2 px-1 bg-background text-[10px] font-medium text-muted-foreground font-hebrew z-10 pointer-events-none">
-                  מקור
-                </span>
-                <PopoverTrigger asChild>
-                  <button
-                    role="combobox"
-                    className="filter-chip flex items-center justify-between gap-3 min-w-[120px]"
-                  >
-                    <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-hebrew font-medium rounded-full px-2 py-0.5">
-                      {SOURCE_TYPES.find((t) => t.value === ref.type)?.label}
-                    </span>
-                    <span className="flex items-center gap-2 shrink-0">
-                      <span className="w-px h-4 bg-border/60" />
-                      <ChevronsUpDown className="w-4 h-4 opacity-40" />
-                    </span>
-                  </button>
-                </PopoverTrigger>
-              </div>
-              <PopoverContent className="w-[140px] p-1" align="end" side="bottom">
-                <div dir="rtl" className="flex flex-col gap-0.5">
-                  {SOURCE_TYPES.map((type) => (
-                    <button
-                      key={type.value}
-                      onClick={() => handleSourceTypeChange(idx, type.value)}
-                      className={cn(
-                        'flex items-center gap-2 px-3 py-2 text-sm rounded-md w-full transition-colors hover:bg-accent',
-                        ref.type === type.value && 'bg-accent font-medium'
-                      )}
-                    >
-                      <Check className={cn('w-4 h-4 shrink-0', ref.type === type.value ? 'opacity-100' : 'opacity-0')} />
-                      <span>{type.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+      {/* שורות ש"ס */}
+      {shasRefs.map((ref, idx) => (
+        <div key={ref.id} className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-hebrew font-medium text-muted-foreground min-w-[28px]">ש"ס</span>
+          <ShasSubFilters
+            masechtot={masechtot}
+            sourceRef={ref}
+            onRefChange={(updated) => handleShasRefChange(idx, updated)}
+          />
+          <button
+            onClick={() => handleRemoveShas(idx)}
+            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent"
+            aria-label="הסר מקור"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
 
-            {ref.type === 'shas' && (
-              <ShasSubFilters
-                masechtot={masechtot}
-                sourceRef={ref}
-                onRefChange={(updated) => handleSourceRefChange(idx, updated)}
-              />
-            )}
-            {ref.type === 'shulchanAruch' && (
-              <ShulchanAruchSubFilters
-                shuSections={shuSections}
-                sourceRef={ref}
-                onRefChange={(updated) => handleSourceRefChange(idx, updated)}
-              />
-            )}
+      {/* שורות שו"ע */}
+      {shuRefs.map((ref, idx) => (
+        <div key={ref.id} className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-hebrew font-medium text-muted-foreground min-w-[28px]">שו"ע</span>
+          <ShulchanAruchSubFilters
+            shuSections={shuSections}
+            sourceRef={ref}
+            onRefChange={(updated) => handleShuRefChange(idx, updated)}
+          />
+          <button
+            onClick={() => handleRemoveShu(idx)}
+            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent"
+            aria-label="הסר מקור"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
 
-            <button
-              onClick={() => handleRemoveSource(idx)}
-              className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent"
-              aria-label="הסר מקור"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-
-        {/* כפתור הוספת מקור */}
+      {/* כפתורי הוספת מקור */}
+      <div className="flex items-center gap-2 flex-wrap">
         <button
-          onClick={handleAddSource}
+          onClick={handleAddShas}
           className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg transition-colors font-hebrew"
         >
           <Plus className="w-4 h-4" />
-          הוספת מקור
+          הוספת ש"ס
+        </button>
+        <button
+          onClick={handleAddShu}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border rounded-lg transition-colors font-hebrew"
+        >
+          <Plus className="w-4 h-4" />
+          הוספת שו"ע
         </button>
       </div>
     </div>

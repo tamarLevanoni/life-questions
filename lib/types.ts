@@ -152,11 +152,14 @@ export type SearchBody = z.infer<typeof searchBodySchema>;
 
 // ==================== UI TYPES ====================
 
-export interface UiSourceRef {
+export interface UiShasRef {
   id: string;
-  type: 'shas' | 'shulchanAruch';
   masechetId?: string;
   daf?: number;
+}
+
+export interface UiShuRef {
+  id: string;
   shuSectionId?: string;
   simanId?: string;
   seif?: number;
@@ -192,7 +195,8 @@ export interface SearchBarProps {
 export interface UiSearchFilters {
   bookIds?: string[];
   topicIds?: string[];
-  sourceRefs?: UiSourceRef[];
+  shasRefs?: UiShasRef[];
+  shuRefs?: UiShuRef[];
 }
 
 export interface CategoryFilterBarProps {

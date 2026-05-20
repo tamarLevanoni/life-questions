@@ -10,6 +10,7 @@ import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
 import { useAuth } from '@/lib/auth-context';
 import type { Story, UiSearchFilters, SearchBody } from '@/lib/types';
+
 import { LogIn } from 'lucide-react';
 
 const PAGE_LIMIT = 10;
@@ -29,12 +30,12 @@ export function SearchClient() {
 
   const buildApiParams = useCallback(
     (uiFilters: UiSearchFilters): SearchBody => {
-      const shasRefs = (uiFilters.sourceRefs ?? [])
-        .filter((r) => r.type === 'shas' && r.masechetId)
+      const shasRefs = (uiFilters.shasRefs ?? [])
+        .filter((r) => r.masechetId)
         .map((r) => ({ masechetId: r.masechetId!, daf: r.daf }));
 
-      const shuRefs = (uiFilters.sourceRefs ?? [])
-        .filter((r) => r.type === 'shulchanAruch' && r.shuSectionId)
+      const shuRefs = (uiFilters.shuRefs ?? [])
+        .filter((r) => r.shuSectionId)
         .map((r) => ({ shuSectionId: r.shuSectionId!, simanId: r.simanId, seif: r.seif }));
 
       return {

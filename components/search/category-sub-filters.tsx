@@ -1,20 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import type { CategoryFilterBarProps, UiSourceRef } from '@/lib/types';
+import type { CategoryFilterBarProps, UiShasRef, UiShuRef } from '@/lib/types';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 import { SearchCombobox, type FilterOption } from './search-combobox';
 
 type ShasSubProps = {
   masechtot: CategoryFilterBarProps['masechtot'];
-  sourceRef: UiSourceRef;
-  onRefChange: (updated: UiSourceRef) => void;
+  sourceRef: UiShasRef;
+  onRefChange: (updated: UiShasRef) => void;
 };
 
 type ShuSubProps = {
   shuSections: CategoryFilterBarProps['shuSections'];
-  sourceRef: UiSourceRef;
-  onRefChange: (updated: UiSourceRef) => void;
+  sourceRef: UiShuRef;
+  onRefChange: (updated: UiShuRef) => void;
 };
 
 export function ShasSubFilters({ masechtot, sourceRef, onRefChange }: ShasSubProps) {
