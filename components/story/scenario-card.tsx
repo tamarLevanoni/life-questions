@@ -28,7 +28,7 @@ export function ScenarioCard({ story, bookName, topicName, onClick, className }:
           <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
             <span className="text-xs flex items-center gap-1">
               <span className="font-semibold text-foreground/70">{bookName}</span>
-              {bookName && story.topic && (
+              {bookName && topicName && (
                 <span className="text-muted-foreground/30 mx-0.5">›</span>
               )}
               <span className="text-muted-foreground/60">{topicName}</span>
