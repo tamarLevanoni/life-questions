@@ -116,6 +116,7 @@ export const storySchema = z.object({
   topic: topicSchema,
   shasRefs: z.array(shasRefSchema),
   shuRefs: z.array(shuRefSchema),
+  sourceReferencesText: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
