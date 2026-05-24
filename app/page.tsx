@@ -5,6 +5,7 @@ import { AppHeader } from '@/components/layout/app-header';
 import { Footer } from '@/components/layout/footer';
 import { ScenarioCard } from '@/components/story/scenario-card';
 import { useStoriesStore } from '@/lib/stores/stories-store';
+import { useReferenceStore } from '@/lib/stores/reference-store';
 import { useRouter } from 'next/navigation';
 import { Search, BookOpen, Users, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -30,6 +31,7 @@ const features = [
 export default function Home() {
   const router = useRouter();
   const { featuredStories } = useStoriesStore();
+  const { books, topics } = useReferenceStore();
 
   return (
     <main className="min-h-screen bg-background text-foreground" dir="rtl">
@@ -217,6 +219,8 @@ export default function Home() {
               >
                 <ScenarioCard
                   story={story}
+                  bookName={books.find((b) => b.id === story.bookId)?.name}
+                  topicName={topics.find((t) => t.id === story.topicId)?.name}
                   onClick={() => router.push(`/story/${story.id}`)}
                 />
               </motion.div>

@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import type { Story, SearchBody } from '@/lib/types';
+import type { StoryCard, SearchBody } from '@/lib/types';
 
 interface StoriesState {
-  stories: Story[];
+  stories: StoryCard[];
   total: number;
   page: number;
   loading: boolean;
   error: string | null;
-  featuredStories: Story[];
+  featuredStories: StoryCard[];
   featuredLoaded: boolean;
   loadFeaturedStories: () => Promise<void>;
   searchStories: (params: SearchBody) => Promise<void>;
@@ -45,7 +45,7 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
   },
 
   searchStories: async (params) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, stories: [], total: 0, page: 1 });
     try {
       const res = await postSearch({ ...params, page: 1 });
       const body = await res.json();

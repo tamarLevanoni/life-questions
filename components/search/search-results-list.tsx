@@ -7,8 +7,11 @@ import { Loader2, SearchX } from 'lucide-react';
 
 export function SearchResultsList({
   stories,
+  books,
+  topics,
   isLoading,
   hasMore,
+  total,
   onLoadMore,
   onStoryClick,
   emptyMessage = 'לא נמצאו תוצאות',
@@ -37,12 +40,21 @@ export function SearchResultsList({
 
   return (
     <div className="space-y-4" dir="rtl">
+      {/* Results count */}
+      {total > 0 && (
+        <p className="text-sm text-muted-foreground font-hebrew">
+          מציג {stories.length} מתוך {total} תוצאות
+        </p>
+      )}
+
       {/* Results list */}
       <div className="grid gap-4">
         {stories.map((story) => (
           <ScenarioCard
             key={story.id}
             story={story}
+            bookName={books.find((b) => b.id === story.bookId)?.name}
+            topicName={topics.find((t) => t.id === story.topicId)?.name}
             onClick={() => onStoryClick(story)}
           />
         ))}

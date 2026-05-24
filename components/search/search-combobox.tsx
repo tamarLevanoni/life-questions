@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { X, ChevronsUpDown, Check } from 'lucide-react';
+import { X, ChevronsUpDown, Square, CheckSquare } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export interface FilterOption { value: string; label: string }
@@ -10,7 +10,8 @@ export interface FilterOption { value: string; label: string }
 export function SearchCombobox({
   open, onOpenChange, fieldLabel, label, icon, minWidth = 180,
   activeValue, activeValues, onClear, options, onSelect, onSelectMulti,
-  placeholder, popoverWidth, searchable = true,
+  placeholder, popoverWidth, searchable = true, externalChips = false,
+  fullWidth = false,
 }: {
   open: boolean; onOpenChange: (v: boolean) => void;
   fieldLabel?: string; label: string; icon?: React.ReactNode; minWidth?: number;
@@ -18,6 +19,7 @@ export function SearchCombobox({
   onClear: () => void;
   options: FilterOption[]; onSelect?: (value: string) => void; onSelectMulti?: (value: string) => void;
   placeholder: string; popoverWidth: string; searchable?: boolean;
+  externalChips?: boolean; fullWidth?: boolean;
 }) {
   const [search, setSearch] = useState('');
 
@@ -34,14 +36,13 @@ export function SearchCombobox({
   const handleSelect = (value: string) => {
     if (isMulti) {
       onSelectMulti?.(value);
-      // במצב multi — שמור פתוח לבחירת פריטים נוספים
     } else {
       onSelect?.(value);
       setSearch('');
     }
   };
 
-  const hasActive = isMulti ? (activeValues?.length ?? 0) > 0 : !!activeValue;
+  const showChipsInside = isMulti && !externalChips && activeValues && activeValues.length > 0;
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
@@ -55,24 +56,26 @@ export function SearchCombobox({
           <button
             role="combobox"
             aria-expanded={open}
-            className="filter-chip flex items-center justify-between gap-3"
-            style={{ minWidth }}
+            className={cn('filter-chip flex items-center justify-between gap-3', fullWidth && 'w-full')}
+            style={fullWidth ? undefined : { minWidth, maxWidth: showChipsInside ? 260 : undefined }}
           >
-            <span className="flex items-center gap-2 truncate flex-1 flex-wrap">
+            <span className="flex items-center gap-2 min-w-0 flex-1">
               {icon}
-              {isMulti && activeValues && activeValues.length > 0 ? (
-                activeValues.map((v) => {
-                  const lbl = options.find((o) => o.value === v)?.label ?? v;
-                  return (
-                    <span key={v} className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-hebrew font-medium rounded-full px-2 py-0.5">
-                      <span className="truncate max-w-[100px]">{lbl}</span>
-                      <X
-                        className="w-3 h-3 shrink-0 opacity-60 hover:opacity-100"
-                        onClick={(e) => { e.stopPropagation(); onSelectMulti?.(v); }}
-                      />
-                    </span>
-                  );
-                })
+              {showChipsInside ? (
+                <span className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+                  {activeValues!.map((v) => {
+                    const lbl = options.find((o) => o.value === v)?.label ?? v;
+                    return (
+                      <span key={v} className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-hebrew font-medium rounded-full px-2 py-0.5 shrink-0">
+                        <span className="truncate max-w-[100px]">{lbl}</span>
+                        <X
+                          className="w-3 h-3 shrink-0 opacity-60 hover:opacity-100"
+                          onClick={(e) => { e.stopPropagation(); onSelectMulti?.(v); }}
+                        />
+                      </span>
+                    );
+                  })}
+                </span>
               ) : !isMulti && activeValue ? (
                 <span className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-hebrew font-medium rounded-full px-2 py-0.5">
                   <span className="truncate max-w-[140px]">{label}</span>
@@ -86,12 +89,6 @@ export function SearchCombobox({
               )}
             </span>
             <span className="flex items-center gap-2 shrink-0">
-              {hasActive && isMulti && (
-                <X
-                  className="w-3.5 h-3.5 opacity-40 hover:opacity-100"
-                  onClick={(e) => { e.stopPropagation(); onClear(); }}
-                />
-              )}
               <span className="w-px h-4 bg-border/60" />
               <ChevronsUpDown className="w-4 h-4 opacity-40" />
             </span>
@@ -120,9 +117,16 @@ export function SearchCombobox({
                   <button
                     key={opt.value}
                     onClick={() => handleSelect(opt.value)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm rounded-md w-full transition-colors hover:bg-accent font-hebrew"
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 text-sm rounded-md w-full transition-colors hover:bg-accent font-hebrew',
+                      !isMulti && isChecked && 'bg-primary/10 text-primary font-medium'
+                    )}
                   >
-                    <Check className={cn('w-4 h-4 shrink-0', isChecked ? 'opacity-100' : 'opacity-0')} />
+                    {isMulti && (
+                      isChecked
+                        ? <CheckSquare className="w-4 h-4 shrink-0 text-primary" />
+                        : <Square className="w-4 h-4 shrink-0 text-muted-foreground/50" />
+                    )}
                     {opt.label}
                   </button>
                 );

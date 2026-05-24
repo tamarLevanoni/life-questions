@@ -87,6 +87,18 @@ export const topicSchema = z.object({
 });
 export type Topic = z.infer<typeof topicSchema>;
 
+export const storyCardSchema = z.object({
+  id: z.string(),
+  bookId: z.string(),
+  storyOrder: z.number(),
+  topicId: z.string(),
+  title: z.string(),
+  legalQuestion: z.string(),
+  videoUrl: z.string().nullable(),
+  shuRefs: z.array(shuRefSchema),
+});
+export type StoryCard = z.infer<typeof storyCardSchema>;
+
 export const storySchema = z.object({
   id: z.string(),
   bookId: z.string(),
@@ -129,6 +141,14 @@ export const paginatedStoriesSchema = z.object({
 });
 export type PaginatedStories = z.infer<typeof paginatedStoriesSchema>;
 
+export const paginatedStoryCardsSchema = z.object({
+  stories: z.array(storyCardSchema),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+});
+export type PaginatedStoryCards = z.infer<typeof paginatedStoryCardsSchema>;
+
 export const shasRefBodySchema = z.object({
   masechetId: z.string(),
   daf: z.number().optional(),
@@ -168,8 +188,9 @@ export interface UiShuRef {
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
-  story: Story;
+  story: StoryCard;
   bookName?: string;
+  topicName?: string;
   onClick?: () => void;
   className?: string;
 }
@@ -210,13 +231,14 @@ export interface CategoryFilterBarProps {
 }
 
 export interface SearchResultsListProps {
-  stories: Story[];
+  stories: StoryCard[];
   books: Book[];
+  topics: Topic[];
   isLoading: boolean;
   hasMore: boolean;
   total: number;
   onLoadMore: () => void;
-  onStoryClick: (story: Story) => void;
+  onStoryClick: (story: StoryCard) => void;
   emptyMessage?: string;
 }
 

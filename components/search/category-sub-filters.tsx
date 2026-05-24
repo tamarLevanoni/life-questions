@@ -9,15 +9,19 @@ type ShasSubProps = {
   masechtot: CategoryFilterBarProps['masechtot'];
   sourceRef: UiShasRef;
   onRefChange: (updated: UiShasRef) => void;
+  usedDafs?: { masechetId: string; daf: number }[];
+  className?: string;
 };
 
 type ShuSubProps = {
   shuSections: CategoryFilterBarProps['shuSections'];
   sourceRef: UiShuRef;
   onRefChange: (updated: UiShuRef) => void;
+  usedSimanim?: { shuSectionId: string; simanId: string }[];
+  className?: string;
 };
 
-export function ShasSubFilters({ masechtot, sourceRef, onRefChange }: ShasSubProps) {
+export function ShasSubFilters({ masechtot, sourceRef, onRefChange, usedDafs = [], className }: ShasSubProps) {
   const [masechetOpen, setMasechetOpen] = useState(false);
   const [dafOpen, setDafOpen] = useState(false);
 
@@ -27,11 +31,15 @@ export function ShasSubFilters({ masechtot, sourceRef, onRefChange }: ShasSubPro
 
   const dafOptions: FilterOption[] = (() => {
     const pages = masechtot.find((m) => m.id === activeMasechet)?.pages ?? [];
+    const takenDafs = new Set(
+      usedDafs.filter((u) => u.masechetId === activeMasechet).map((u) => u.daf)
+    );
     const seen = new Set<number>();
     return pages.flatMap((p) => {
       if (seen.has(p.daf)) return [];
       seen.add(p.daf);
-      return [{ value: String(p.daf), label: `דף ${toHebrewNumeral(p.daf)}` }];
+      if (takenDafs.has(p.daf)) return [];
+      return [{ value: String(p.daf), label: toHebrewNumeral(p.daf) }];
     });
   })();
   const activeDaf = sourceRef.daf !== undefined ? String(sourceRef.daf) : undefined;
@@ -47,7 +55,7 @@ export function ShasSubFilters({ masechtot, sourceRef, onRefChange }: ShasSubPro
   };
 
   return (
-    <>
+    <div className={className ?? 'flex items-center gap-2'}>
       <SearchCombobox
         open={masechetOpen} onOpenChange={setMasechetOpen}
         fieldLabel="מסכת"
@@ -55,22 +63,22 @@ export function ShasSubFilters({ masechtot, sourceRef, onRefChange }: ShasSubPro
         onClear={() => handleMasechetSelect(activeMasechet!)}
         options={masechetOptions} onSelect={handleMasechetSelect}
         placeholder="חיפוש מסכת..." popoverWidth="w-[250px]"
+        fullWidth
       />
-      {activeMasechet && (
-        <SearchCombobox
-          open={dafOpen} onOpenChange={setDafOpen}
-          fieldLabel="דף"
-          label={activeDafLabel ?? 'בחרו דף...'} activeValue={activeDaf}
-          onClear={() => handleDafSelect(activeDaf!)}
-          options={dafOptions} onSelect={handleDafSelect}
-          placeholder="חיפוש דף..." popoverWidth="w-[280px]"
-        />
-      )}
-    </>
+      <SearchCombobox
+        open={dafOpen} onOpenChange={setDafOpen}
+        fieldLabel="דף"
+        label={activeDafLabel ?? 'בחרו דף...'} activeValue={activeDaf}
+        onClear={() => handleDafSelect(activeDaf!)}
+        options={activeMasechet ? dafOptions : []} onSelect={handleDafSelect}
+        placeholder="חיפוש דף..." popoverWidth="w-[200px]"
+        fullWidth
+      />
+    </div>
   );
 }
 
-export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange }: ShuSubProps) {
+export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange, usedSimanim = [], className }: ShuSubProps) {
   const [sectionOpen, setSectionOpen] = useState(false);
   const [simanOpen, setSimanOpen] = useState(false);
 
@@ -80,10 +88,12 @@ export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange }:
 
   const simanOptions: FilterOption[] = (() => {
     const section = shuSections.find((s) => s.id === activeSection);
-    return (section?.simanim ?? []).map((s) => ({
-      value: s.id,
-      label: `סימן ${toHebrewNumeral(s.siman)}${s.title ? ` – ${s.title}` : ''}`,
-    }));
+    const takenSimanim = new Set(
+      usedSimanim.filter((u) => u.shuSectionId === activeSection).map((u) => u.simanId)
+    );
+    return (section?.simanim ?? [])
+      .filter((s) => !takenSimanim.has(s.id))
+      .map((s) => ({ value: s.id, label: toHebrewNumeral(s.siman) }));
   })();
   const activeSiman = sourceRef.simanId;
   const activeSimanLabel = simanOptions.find((o) => o.value === activeSiman)?.label;
@@ -98,7 +108,7 @@ export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange }:
   };
 
   return (
-    <>
+    <div className={className ?? 'flex items-center gap-2'}>
       <SearchCombobox
         open={sectionOpen} onOpenChange={setSectionOpen}
         fieldLabel="חלק"
@@ -106,17 +116,17 @@ export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange }:
         onClear={() => handleSectionSelect(activeSection!)}
         options={sectionOptions} onSelect={handleSectionSelect}
         placeholder="חיפוש חלק..." popoverWidth="w-[250px]"
+        fullWidth
       />
-      {activeSection && (
-        <SearchCombobox
-          open={simanOpen} onOpenChange={setSimanOpen}
-          fieldLabel="סימן"
-          label={activeSimanLabel ?? 'בחרו סימן...'} activeValue={activeSiman}
-          onClear={() => handleSimanSelect(activeSiman!)}
-          options={simanOptions} onSelect={handleSimanSelect}
-          placeholder="חיפוש סימן..." popoverWidth="w-[280px]"
-        />
-      )}
-    </>
+      <SearchCombobox
+        open={simanOpen} onOpenChange={setSimanOpen}
+        fieldLabel="סימן"
+        label={activeSimanLabel ?? 'בחרו סימן...'} activeValue={activeSiman}
+        onClear={() => handleSimanSelect(activeSiman!)}
+        options={activeSection ? simanOptions : []} onSelect={handleSimanSelect}
+        placeholder="חיפוש סימן..." popoverWidth="w-[280px]"
+        fullWidth
+      />
+    </div>
   );
 }

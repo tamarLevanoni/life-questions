@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { backendFetch } from '@/lib/backend-fetch';
-import { searchBodySchema, paginatedStoriesSchema } from '@/lib/types';
+import { searchBodySchema, paginatedStoryCardsSchema } from '@/lib/types';
 
 export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: error ?? 'Backend error' }, { status });
   }
 
-  const result = paginatedStoriesSchema.safeParse(data);
+  const result = paginatedStoryCardsSchema.safeParse(data);
   if (!result.success) {
     return NextResponse.json({ success: false, error: 'Backend returned unexpected data' }, { status: 502 });
   }
