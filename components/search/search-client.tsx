@@ -13,7 +13,8 @@ import type {
   UiSearchFilters, SearchBody,
   Book, Topic, MasechetWithPages, ShuSectionWithSimanim,
 } from '@/lib/types';
-import { LogIn, X } from 'lucide-react';
+import { LogIn, X, SlidersHorizontal } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 
 interface FilterTag {
@@ -137,6 +138,13 @@ export function SearchClient() {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<UiSearchFilters>({});
   const [hasSearched, setHasSearched] = useState(false);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+
+  const activeFiltersCount =
+    (filters.bookIds?.length ?? 0) +
+    (filters.topicIds?.length ?? 0) +
+    (filters.shasRefs?.filter((r) => r.masechetId)?.length ?? 0) +
+    (filters.shuRefs?.filter((r) => r.shuSectionId)?.length ?? 0);
 
   const buildApiParams = useCallback(
     (uiFilters: UiSearchFilters): SearchBody => {
@@ -190,8 +198,8 @@ export function SearchClient() {
         </div>
 
         <div className="flex gap-6 items-start" dir="rtl">
-          {/* סיידבר פילטרים */}
-          <aside className="w-72 shrink-0 sticky top-24">
+          {/* סיידבר פילטרים — דסקטופ בלבד */}
+          <aside className="hidden md:block w-72 shrink-0 sticky top-24">
             <div className="rounded-xl border border-border bg-card p-4">
               <CategoryFilterBar
                 masechtot={masechtot}
@@ -205,6 +213,30 @@ export function SearchClient() {
             </div>
           </aside>
 
+          {/* Drawer פילטרים — מובייל בלבד */}
+          <Sheet open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
+            <SheetContent
+              side="bottom"
+              className="h-[85vh] rounded-t-2xl overflow-y-auto"
+              dir="rtl"
+            >
+              <SheetHeader>
+                <SheetTitle className="font-hebrew text-right">סנן תוצאות</SheetTitle>
+              </SheetHeader>
+              <div className="px-4 pb-6">
+                <CategoryFilterBar
+                  masechtot={masechtot}
+                  shuSections={shuSections}
+                  topics={topics}
+                  books={books}
+                  activeFilters={filters}
+                  onFiltersChange={setFilters}
+                  onSearch={() => { handleSearch(); setFilterDrawerOpen(false); }}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+
           {/* אזור תוצאות */}
           <div className="flex-1 min-w-0 space-y-4 relative">
             <SearchBar
@@ -214,6 +246,20 @@ export function SearchClient() {
               isLoading={loading && stories.length === 0}
               placeholder="מה אתה מחפש?"
             />
+
+            {/* כפתור סנן — מובייל בלבד */}
+            <button
+              className="md:hidden flex items-center gap-2 text-sm font-hebrew border border-border rounded-lg px-3 py-2 bg-card hover:bg-accent transition-colors"
+              onClick={() => setFilterDrawerOpen(true)}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              סנן תוצאות
+              {activeFiltersCount > 0 && (
+                <span className="bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5 leading-none">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
 
             <ActiveFilterTags
               filters={filters}
