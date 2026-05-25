@@ -55,3 +55,24 @@ export type OnboardingFormData = z.infer<typeof onboardingSchema>;
 
 // טיפוס Occupation נגזר מה-enum — מקור אמת אחד
 export type Occupation = z.infer<typeof occupationEnum>;
+
+// profileEditSchema — כמו onboardingSchema אבל ללא ה-refine על marketingConsent
+// (בעריכה מותר לבטל הסכמה שיווקית, לא רק לאשר)
+export const profileEditSchema = userDataSchema
+  .pick({
+    firstName: true,
+    lastName: true,
+    institutionName: true,
+    phone: true,
+    occupations: true,
+    marketingConsent: true,
+  })
+  .extend({
+    firstName: z.string().min(2, 'שם פרטי חייב להכיל לפחות 2 תווים'),
+    lastName: z.string().min(2, 'שם משפחה חייב להכיל לפחות 2 תווים'),
+    phone: z.string().min(9, 'מספר טלפון לא תקין'),
+    occupations: z.array(occupationEnum).min(1, 'יש לבחור לפחות עיסוק אחד'),
+    marketingConsent: z.boolean(),
+  });
+
+export type ProfileEditFormData = z.infer<typeof profileEditSchema>;
