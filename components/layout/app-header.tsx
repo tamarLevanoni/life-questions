@@ -28,6 +28,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const displayName = [session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(' ') || session?.user?.name || '';
 
   useEffect(() => {
     setMounted(true);
@@ -140,10 +141,10 @@ export function AppHeader() {
                     <Avatar className="w-9 h-9 border-2 border-[#14B8A6]/30">
                       <AvatarImage
                         src={session.user.image || undefined}
-                        alt={session.user.name || 'User'}
+                        alt={displayName || 'User'}
                       />
                       <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-sm font-medium">
-                        {session.user.name?.[0]?.toUpperCase() || 'U'}
+                        {displayName?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                   </button>
@@ -154,7 +155,7 @@ export function AppHeader() {
                 >
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium text-foreground font-hebrew">
-                      {session.user.name}
+                      {displayName}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {session.user.email}
@@ -256,15 +257,15 @@ export function AppHeader() {
                   <Avatar className="w-8 h-8 border-2 border-[#14B8A6]/30">
                     <AvatarImage
                       src={session.user.image || undefined}
-                      alt={session.user.name || 'User'}
+                      alt={displayName || 'User'}
                     />
                     <AvatarFallback className="bg-gradient-to-br from-[#14B8A6] to-[#0D9488] text-white text-xs font-medium">
-                      {session.user.name?.[0]?.toUpperCase() || 'U'}
+                      {displayName?.[0]?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground truncate font-hebrew">
-                      {session.user.name}
+                      {displayName}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {session.user.email}

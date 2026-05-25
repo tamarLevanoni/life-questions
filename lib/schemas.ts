@@ -76,3 +76,19 @@ export const profileEditSchema = userDataSchema
   });
 
 export type ProfileEditFormData = z.infer<typeof profileEditSchema>;
+
+// ==================== CONTACT ====================
+
+export const contactCategoryEnum = z.enum(['general', 'bug', 'collaboration']);
+export type ContactCategory = z.infer<typeof contactCategoryEnum>;
+
+export const contactSchema = z.object({
+  name:     z.string().min(2, 'שם חייב להכיל לפחות 2 תווים'),
+  email:    z.email('אימייל לא תקין'),
+  category: contactCategoryEnum,
+  subject:  z.string().min(3, 'נושא חייב להכיל לפחות 3 תווים'),
+  message:  z.string().min(10, 'ההודעה חייבת להכיל לפחות 10 תווים'),
+  pageUrl:  z.string().optional(),
+});
+
+export type ContactFormData = z.infer<typeof contactSchema>;
