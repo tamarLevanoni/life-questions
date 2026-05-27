@@ -79,10 +79,20 @@ export type ProfileEditFormData = z.infer<typeof profileEditSchema>;
 
 // ==================== CONTACT ====================
 
-export const contactCategoryEnum = z.enum(['general', 'bug', 'collaboration']);
+export const contactCategoryEnum = z.enum(['general', 'bug', 'collaboration', 'story_question']);
 export type ContactCategory = z.infer<typeof contactCategoryEnum>;
 
-export const contactSchema = z.object({
+const storySchema = z.object({
+  id:            z.string(),
+  title:         z.string(),
+  storyBody:     z.string(),
+  legalQuestion: z.string(),
+  shortAnswer:   z.string(),
+  expansion:     z.string().optional(),
+});
+
+// סכמת טופס — ללא story ו-superRefine (story מוזרק בשכבת ה-onSubmit אחרי validation)
+export const contactFormSchema = z.object({
   name:     z.string().min(2, 'שם חייב להכיל לפחות 2 תווים'),
   email:    z.email('אימייל לא תקין'),
   category: contactCategoryEnum,
@@ -90,5 +100,20 @@ export const contactSchema = z.object({
   message:  z.string().min(10, 'ההודעה חייבת להכיל לפחות 10 תווים'),
   pageUrl:  z.string().optional(),
 });
+
+export type ContactFormValues = z.infer<typeof contactFormSchema>;
+
+// סכמת API — כולל story ו-superRefine לאימות בצד השרת
+export const contactSchema = contactFormSchema
+  .extend({ story: storySchema.optional() })
+  .superRefine((data, ctx) => {
+    if (data.category === 'story_question' && !data.story) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['story'],
+        message: 'story הוא שדה חובה עבור קטגוריית story_question',
+      });
+    }
+  });
 
 export type ContactFormData = z.infer<typeof contactSchema>;

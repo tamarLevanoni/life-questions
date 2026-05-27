@@ -16,6 +16,7 @@ import {
   Video,
   BookOpen,
   Scale,
+  MessageSquare,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -268,6 +269,22 @@ export default function StoryPage() {
               />
             </motion.div>
           )}
+
+          {/* Ask follow-up question */}
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <Link
+              href={`/contact?category=story_question&storyId=${storyId}&storyTitle=${encodeURIComponent(story.title)}`}
+              className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border border-teal-200 dark:border-teal-800 text-sm font-medium font-hebrew text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-colors"
+            >
+              <MessageSquare className="w-4 h-4" />
+              שאל שאלה בהמשך לסיפור זה
+            </Link>
+          </motion.div>
 
           {/* Navigation */}
           {(prevId || nextId) && (
