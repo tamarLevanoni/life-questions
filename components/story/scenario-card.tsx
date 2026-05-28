@@ -6,7 +6,7 @@ import { Video } from 'lucide-react';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 
 export function ScenarioCard({ story, bookName, topicName, onClick, className }: ScenarioCardProps) {
-  const shuRef = story.shuRefs.find((r) => r.shuSiman.title) ?? story.shuRefs[0];
+  const shuSiman = story.centralShuSiman;
 
   return (
     <article
@@ -53,21 +53,21 @@ export function ScenarioCard({ story, bookName, topicName, onClick, className }:
           </p>
 
           {/* Source references */}
-          {shuRef && (
+          {shuSiman && (
             <div className="flex items-center gap-2 pt-1 text-xs flex-wrap">
               <span className={cn(
                 'px-3 py-1 rounded-full font-medium',
                 'bg-teal-50 text-teal-700 border border-teal-200',
                 'dark:bg-teal-900/20 dark:text-teal-300 dark:border-teal-700/40'
               )}>
-                {shuRef.shuSiman.section.name}
+                {shuSiman.section.name}
               </span>
               <span className="text-muted-foreground/60">
-                סימן {toHebrewNumeral(shuRef.shuSiman.siman)}
-                {shuRef.shuSiman.title && (
+                סימן {toHebrewNumeral(shuSiman.siman)}
+                {shuSiman.title && (
                   <>
                     <span className="mx-1.5 opacity-40">·</span>
-                    {shuRef.shuSiman.title}
+                    {shuSiman.title}
                   </>
                 )}
               </span>

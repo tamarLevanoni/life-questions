@@ -96,6 +96,7 @@ export const storyCardSchema = z.object({
   legalQuestion: z.string(),
   videoUrl: z.string().nullable(),
   shuRefs: z.array(shuRefSchema),
+  centralShuSiman: shuSimanSchema.nullable(),
 });
 export type StoryCard = z.infer<typeof storyCardSchema>;
 
@@ -116,6 +117,7 @@ export const storySchema = z.object({
   topic: topicSchema,
   shasRefs: z.array(shasRefSchema),
   shuRefs: z.array(shuRefSchema),
+  centralShuSiman: shuSimanSchema.nullable(),
   sourceReferencesText: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),

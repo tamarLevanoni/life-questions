@@ -89,12 +89,7 @@ export default function StoryPage() {
   const nextId = story.neighbors?.next?.id ?? null;
   const book = books.find((b) => b.id === story.bookId);
 
-  const shuRefsInBreadcrumb = story.shuRefs.filter(
-    (r) => r.shuSiman.title && !r.seif
-  );
-  const shuRefsInSources = story.shuRefs.filter(
-    (r) => !r.shuSiman.title || r.seif
-  );
+  const centralShuSiman = story.centralShuSiman;
 
   return (
     <main className="min-h-screen bg-background" dir="rtl">
@@ -127,12 +122,12 @@ export default function StoryPage() {
               <span>{book?.name ?? '...'}</span>
               <span>›</span>
               <span>{story.topic.name}</span>
-              {shuRefsInBreadcrumb.map((ref) => (
-                <span key={`bc-${ref.shuSimanId}`} className="contents">
+              {centralShuSiman && (
+                <span className="contents">
                   <span>›</span>
-                  <span>סימן {toHebrewNumeral(ref.shuSiman.siman)} - {ref.shuSiman.title}</span>
+                  <span>סימן {toHebrewNumeral(centralShuSiman.siman)}{centralShuSiman.title ? ` - ${centralShuSiman.title}` : ''}</span>
                 </span>
-              ))}
+              )}
               {story.videoUrl && (
                 <>
                   <span>·</span>
@@ -166,7 +161,7 @@ export default function StoryPage() {
             </div>
 
             {/* Sources */}
-            {(story.shasRefs.length > 0 || shuRefsInSources.length > 0 || story.sourceReferencesText) && (
+            {(story.shasRefs.length > 0 || story.shuRefs.length > 0 || story.sourceReferencesText) && (
               <div className="mt-6 pt-4 border-t border-border/50">
                 <span className="text-xs text-muted-foreground font-hebrew font-medium">מקורות:</span>
                 <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -179,7 +174,7 @@ export default function StoryPage() {
                       {ref.shasPage.masechet.name} {toHebrewNumeral(ref.shasPage.daf)}{ref.shasPage.amud ? `, ${ref.shasPage.amud}` : ''}
                     </span>
                   ))}
-                  {shuRefsInSources.map((ref) => (
+                  {story.shuRefs.map((ref) => (
                     <span
                       key={`shu-${ref.shuSimanId}-${ref.seif}`}
                       className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-hebrew inline-flex items-center gap-1"
@@ -188,7 +183,7 @@ export default function StoryPage() {
                       {ref.shuSiman.section.name} סימן {toHebrewNumeral(ref.shuSiman.siman)}{ref.seif ? ` סע׳ ${toHebrewNumeral(ref.seif)}` : ''}
                     </span>
                   ))}
-                  {story.sourceReferencesText?.split(';').map((src, i) => (
+                  {!!story.sourceReferencesText && story.sourceReferencesText.split(';').map((src, i) => (
                     <span
                       key={`src-${i}`}
                       className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-hebrew"
