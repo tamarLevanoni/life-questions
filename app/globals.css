@@ -383,10 +383,6 @@
   overflow: hidden;
 }
 
-/* ========== SMOOTH SCROLLING ========== */
-html {
-  scroll-behavior: smooth;
-}
 
 /* ========== CUSTOM SCROLLBAR ========== */
 .dark ::-webkit-scrollbar {
