@@ -1,128 +1,180 @@
-# שאלות מהחיים | Life Questions
+# Life Questions
 
 <div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=for-the-badge&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)
 ![Bun](https://img.shields.io/badge/Bun-Runtime-orange?style=for-the-badge&logo=bun)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-blue?style=for-the-badge&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?style=for-the-badge&logo=tailwind-css)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-### לומדים מהחיים, מבינים את התורה
-
-אפליקציה לתוכן תורני עם סיפורים, שאלות ותשובות מעמיקות.
+Torah-learning content through real-life stories, questions, short answers, and source-based expansions.
 
 </div>
 
 ---
 
-## אודות הפרויקט
+## Source Of Truth
 
-**שאלות מהחיים** היא פלטפורמה ייחודית המציגה תוכן תורני בצורה מרתקת ונגישה.
-דרך סיפורים ושאלות מעוררות מחשבה, אנו מקשרים בין החיים היומיומיים לבין חכמת התורה.
+The long-lived project specifications live in [docs/specs](docs/specs). This README is only a quick-start and orientation document. If anything here conflicts with the specs, the specs win.
 
-### מודל התוכן
-
-כל תוכן עוקב אחרי ההיררכיה הבאה:
-- **סיפור** - סיפור קצר ומעניין מהחיים
-- **שאלה** - שאלה מעוררת מחשבה הנובעת מהסיפור
-- **תשובה קצרה** - הבנה ראשונית (מוסתרת בהתחלה)
-- **הרחבה** - מקורות מעמיקים מהש"ס והשולחן ערוך
-
-### קטגוריות
-
-התוכן ניתן לתיוג לפי:
-- **סדר הש"ס** - מסכת, פרק, דף
-- **שולחן ערוך** - חלק, סימן, סעיף
-- **מושגים** - נושא, מושג
+Migration and refactor plans live in [docs/planning](docs/planning).
 
 ---
 
-## טכנולוגיות
+## Product Model
 
-| טכנולוגיה | תיאור |
-|-----------|--------|
-| **Next.js 16** | App Router, React Server Components |
-| **React 19** | הגרסה האחרונה עם ביצועים משופרים |
-| **Bun** | מנהל חבילות מהיר פי 30 |
-| **TypeScript 5** | בטיחות טיפוסים מלאה |
-| **Tailwind CSS 4** | עיצוב מודרני עם OKLch |
-| **Shadcn/ui** | קומפוננטות נגישות ויפות |
-| **NextAuth.js** | אימות עם Google OAuth |
+Each story follows this content hierarchy:
+
+- **Story**: a short real-life scenario.
+- **Legal question**: the halachic question raised by the story.
+- **Short answer**: public, concise answer.
+- **Expansion**: deeper explanation and sources, gated for authenticated users when present.
+
+Content can be organized by:
+
+- **Seder HaShas**: masechet, daf, amud.
+- **Shulchan Aruch**: section, siman, seif.
+- **Concepts**: indexed or AI-assisted concepts.
+- **Books and topics**: product-level content organization.
 
 ---
 
-## התקנה
+## Stack
+
+| Area | Technology |
+|------|------------|
+| Framework | Next.js 16 App Router with Cache Components |
+| UI | React 19, Tailwind CSS 4, Shadcn/ui |
+| State | Zustand 5 |
+| Auth | NextAuth v4, Google OAuth, JWT session |
+| Forms | react-hook-form + Zod 4 |
+| Motion | Framer Motion through project primitives |
+| Runtime/package manager | Bun only |
+
+Do not use npm or yarn for project commands.
+
+---
+
+## Architecture At A Glance
+
+```text
+RSC page.tsx -> lib/server/* -> backendFetch -> Core API
+                                                    ^
+client store -> app/api/* BFF -> lib/server/* ------+
+```
+
+Key rules:
+
+- `page.tsx` stays a Server Component.
+- Page data loads through `lib/server/*`, not through client `useEffect`.
+- Client stores call BFF routes through `lib/api-client.ts`.
+- The BFF exists for client mutations and user-driven refetches only.
+- Core API endpoints and payloads are defined in [docs/specs/11-core-api-contract.md](docs/specs/11-core-api-contract.md).
+
+---
+
+## Getting Started
 
 ```bash
-# שכפול הפרויקט
 git clone <repository-url>
 cd life-questions
-
-# התקנת תלויות
 bun install
-
-# הגדרת משתני סביבה
 cp .env.example .env.local
-
-# הפעלת שרת פיתוח
-bun run dev
+bun dev
 ```
+
+The development server runs at [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## הגדרת Google OAuth
+## Environment
 
-1. היכנסו ל-[Google Cloud Console](https://console.cloud.google.com/)
-2. צרו פרויקט חדש או בחרו קיים
-3. נווטו ל-**APIs & Services > Credentials**
-4. לחצו **Create Credentials > OAuth client ID**
-5. בחרו **Web application**
-6. הוסיפו redirect URI: `http://localhost:3000/api/auth/callback/google`
-7. העתיקו את הפרטים ל-`.env.local`:
+Required local variables are documented in [.env.example](.env.example):
 
 ```env
-GOOGLE_CLIENT_ID=your-client-id
-GOOGLE_CLIENT_SECRET=your-client-secret
-NEXTAUTH_SECRET=generate-with-openssl-rand-base64-32
+NEXTAUTH_SECRET=your-secret-here
 NEXTAUTH_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+BACKEND_API_URL=http://localhost:4000
+INTERNAL_API_SECRET=your-internal-api-secret
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
----
-
-## סקריפטים
+Generate `NEXTAUTH_SECRET` with:
 
 ```bash
-bun run dev      # שרת פיתוח
-bun run build    # בנייה לפרודקשן
-bun run start    # הפעלת פרודקשן
-bun run lint     # בדיקת קוד
+openssl rand -base64 32
+```
+
+For Google OAuth, add this redirect URI in Google Cloud Console:
+
+```text
+http://localhost:3000/api/auth/callback/google
 ```
 
 ---
 
-## מבנה הפרויקט
+## Scripts
 
-```
-life-questions/
-├── app/                    # דפי האפליקציה
-│   ├── api/auth/          # נתיבי אימות
-│   ├── globals.css        # סגנונות גלובליים
-│   ├── layout.tsx         # Layout ראשי
-│   └── page.tsx           # דף הבית
-├── components/
-│   ├── layout/            # Navbar, Footer
-│   ├── sections/          # סקשנים של הדף
-│   └── ui/                # קומפוננטות Shadcn
-├── lib/
-│   ├── blog.ts            # נתוני בלוג
-│   └── utils.ts           # פונקציות עזר
-└── public/                # קבצים סטטיים
+```bash
+bun dev              # local dev server
+bun build            # production build
+bun start            # production server
+bun lint             # ESLint
+bunx tsc --noEmit    # TypeScript check
 ```
 
 ---
 
-## רישיון
+## Project Structure
 
-MIT License - ראו [LICENSE](LICENSE) לפרטים.
+```text
+app/
+  api/                        # BFF route handlers
+  <route>/page.tsx            # Server Component pages
+  <route>/_components/        # route-local views, hooks, sections
+  layout.tsx
+  providers.tsx
+  sitemap.ts
+  robots.ts
+components/
+  common/                     # PageShell, StoreHydrator, MotionFadeIn, skeletons
+  ui/                         # Shadcn primitives and project UI primitives
+  layout/                     # AppHeader, Footer
+  providers/                  # global client side-effects
+  story/
+  auth/
+lib/
+  server/                     # server-only Core API access
+  stores/                     # Zustand stores
+  schemas.ts
+  types.ts
+  api-client.ts
+  backend-fetch.ts
+docs/specs/                   # long-lived source of truth
+docs/planning/                # temporary migration/refactor plans
+proxy.ts                      # protected-route gate
+public/
+```
+
+---
+
+## Documentation Map
+
+- [Architecture](docs/specs/01-architecture.md)
+- [Server Access](docs/specs/02-server-access.md)
+- [Stores & Cache](docs/specs/03-stores-and-cache.md)
+- [Route Structure](docs/specs/04-route-structure.md)
+- [Auth](docs/specs/05-auth.md)
+- [Design System](docs/specs/06-design-system.md)
+- [Domain Model](docs/specs/07-domain-model.md)
+- [Core API Contract](docs/specs/11-core-api-contract.md)
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE).

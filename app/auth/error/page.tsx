@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldAlert, Home } from 'lucide-react';
+import { GlassCard } from '@/components/ui/glass-card';
 
 const ERROR_MESSAGES: Record<string, string> = {
   Configuration: 'בעיית הגדרות בשרת. אנא פנה למנהל המערכת.',
@@ -19,7 +20,7 @@ function AuthErrorContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
-      <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center space-y-4">
+      <GlassCard className="p-8 max-w-md w-full text-center space-y-4">
         <div className="mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
           <ShieldAlert className="w-6 h-6 text-destructive" />
         </div>
@@ -32,7 +33,7 @@ function AuthErrorContent() {
           <Home className="w-4 h-4" />
           חזרה לדף הבית
         </Link>
-      </div>
+      </GlassCard>
     </div>
   );
 }
@@ -41,9 +42,9 @@ export default function AuthErrorPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
-        <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center">
+        <GlassCard className="p-8 max-w-md w-full text-center">
           <p className="text-muted-foreground font-hebrew text-sm">טוען...</p>
-        </div>
+        </GlassCard>
       </div>
     }>
       <AuthErrorContent />

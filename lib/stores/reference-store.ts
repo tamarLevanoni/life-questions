@@ -2,15 +2,19 @@ import { create } from 'zustand';
 import { apiCall } from '@/lib/api-client';
 import type { Book, MasechetWithPages, ShuSectionWithSimanim, Topic } from '@/lib/types';
 
-interface ReferenceState {
+export type ReferenceBundle = {
   masechtot: MasechetWithPages[];
   shuSections: ShuSectionWithSimanim[];
   topics: Topic[];
   books: Book[];
+};
+
+interface ReferenceState extends ReferenceBundle {
   loaded: boolean;
   loading: boolean;
   error: string | null;
   loadAll: () => Promise<void>;
+  hydrate: (bundle: ReferenceBundle) => void;
 }
 
 export const useReferenceStore = create<ReferenceState>((set, get) => ({
@@ -37,4 +41,7 @@ export const useReferenceStore = create<ReferenceState>((set, get) => ({
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
   },
+
+  hydrate: (bundle) =>
+    set({ ...bundle, loaded: true, loading: false, error: null }),
 }));

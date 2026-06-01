@@ -191,7 +191,7 @@ export interface UiShuRef {
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
-  story: StoryCard;
+  story: StoryCard | Story;
   bookName?: string;
   topicName?: string;
   onClick?: () => void;

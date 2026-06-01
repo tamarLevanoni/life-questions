@@ -42,3 +42,6 @@ next-env.d.ts
 
 # boilerplate reference files
 /_boilerplate-reference/
+
+# claude code worktrees (temporary, auto-generated)
+.claude/worktrees/

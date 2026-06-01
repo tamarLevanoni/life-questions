@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { Home, Search } from 'lucide-react';
+import { GlassCard } from '@/components/ui/glass-card';
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
-      <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center space-y-4">
+      <GlassCard className="p-8 max-w-md w-full text-center space-y-4">
         <p className="text-6xl font-bold bg-linear-to-l from-brand-teal via-[#06B6D4] to-brand-blue bg-clip-text text-transparent">
           404
         </p>
@@ -28,7 +29,7 @@ export default function NotFound() {
             חיפוש
           </Link>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

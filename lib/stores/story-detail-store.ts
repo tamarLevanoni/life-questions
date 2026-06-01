@@ -8,6 +8,8 @@ interface StoryDetailState {
   loading: boolean;
   error: string | null;
   fetchStory: (id: string) => Promise<void>;
+  hydrate: (story: StoryWithNeighbors) => void;
+  prime: (story: StoryWithNeighbors) => void;
   clear: () => void;
 }
 
@@ -35,6 +37,22 @@ export const useStoryDetailStore = create<StoryDetailState>((set, get) => ({
       set({ loading: false, error: err instanceof Error ? err.message : 'הסיפור לא נמצא' });
     }
   },
+
+  hydrate: (story) =>
+    set((s) => ({
+      story,
+      loading: false,
+      error: null,
+      storyCache: new Map(s.storyCache).set(story.id, story),
+    })),
+
+  prime: (story) =>
+    set((s) => ({
+      story,
+      loading: false,
+      error: null,
+      storyCache: new Map(s.storyCache).set(story.id, story),
+    })),
 
   clear: () => set({ story: null, loading: false, error: null }),
 }));

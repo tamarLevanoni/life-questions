@@ -1,3 +1,4 @@
+// Transitional name: will be renamed to useSearchResultsStore. Featured stories are NOT part of this store.
 import { create } from 'zustand';
 import { apiCall } from '@/lib/api-client';
 import type { StoryCard, SearchBody, PaginatedStoryCards } from '@/lib/types';
@@ -12,6 +13,8 @@ interface StoriesState {
   featuredLoaded: boolean;
   featuredError: string | null;
   loadFeaturedStories: () => Promise<void>;
+  hydrateFeatured: (stories: StoryCard[]) => void;
+  hydrateSearch: (result: PaginatedStoryCards) => void;
   searchStories: (params: SearchBody) => Promise<void>;
   loadMoreStories: (params: SearchBody) => Promise<void>;
   reset: () => void;
@@ -79,6 +82,12 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
   },
+
+  hydrateFeatured: (stories) =>
+    set({ featuredStories: stories, featuredLoaded: true, featuredError: null }),
+
+  hydrateSearch: (result) =>
+    set({ stories: result.stories, total: result.total, page: 1, loading: false, error: null }),
 
   reset: () => set({ stories: [], total: 0, page: 1, loading: false, error: null }),
 }));
