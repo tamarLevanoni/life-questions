@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Heebo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Footer } from "@/components/layout/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
   keywords: ["שאלות מהחיים", "תורה", "יהדות", "סיפורים", "שאלות ותשובות", "לימוד תורה"],
   icons: {
     icon: [
-      { url: "/round-avatar.svg", type: "image/svg+xml" },
+      { url: "/logo.svg", type: "image/svg+xml" },
     ],
-    apple: "/round-avatar.svg",
+    apple: "/logo.svg",
   },
   openGraph: {
     title: "שאלות מהחיים | Life Questions",
@@ -52,7 +53,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { AppHeader } from '@/components/layout/app-header';
-import { Footer } from '@/components/layout/footer';
 import { ScenarioCard } from '@/components/story/scenario-card';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
@@ -268,7 +267,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }
