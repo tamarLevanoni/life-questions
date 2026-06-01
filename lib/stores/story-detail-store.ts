@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { apiCall } from '@/lib/api-client';
 import type { StoryWithNeighbors } from '@/lib/types';
 
 interface StoryDetailState {
@@ -22,22 +23,16 @@ export const useStoryDetailStore = create<StoryDetailState>((set, get) => ({
       set({ story: cached, loading: false, error: null });
       return;
     }
-
     set({ loading: true, error: null });
     try {
-      const res = await fetch(`/api/stories/${id}`);
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok || !body.success) {
-        throw new Error(body.error ?? 'הסיפור לא נמצא');
-      }
-      const data = body.data as StoryWithNeighbors;
+      const data = await apiCall<StoryWithNeighbors>(`/api/stories/${id}`);
       set((s) => ({
         story: data,
         loading: false,
         storyCache: new Map(s.storyCache).set(id, data),
       }));
     } catch (err) {
-      set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
+      set({ loading: false, error: err instanceof Error ? err.message : 'הסיפור לא נמצא' });
     }
   },
 

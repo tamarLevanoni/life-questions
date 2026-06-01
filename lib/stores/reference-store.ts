@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { apiCall } from '@/lib/api-client';
 import type { Book, MasechetWithPages, ShuSectionWithSimanim, Topic } from '@/lib/types';
 
 interface ReferenceState {
@@ -24,37 +25,14 @@ export const useReferenceStore = create<ReferenceState>((set, get) => ({
   loadAll: async () => {
     if (get().loaded || get().loading) return;
     set({ loading: true, error: null });
-
     try {
-      const [masechtotRes, shuSectionsRes, topicsRes, booksRes] = await Promise.all([
-        fetch('/api/reference/masechtot'),
-        fetch('/api/reference/shu-sections'),
-        fetch('/api/reference/topics'),
-        fetch('/api/reference/books'),
+      const [masechtot, shuSections, topics, books] = await Promise.all([
+        apiCall<MasechetWithPages[]>('/api/reference/masechtot'),
+        apiCall<ShuSectionWithSimanim[]>('/api/reference/shu-sections'),
+        apiCall<Topic[]>('/api/reference/topics'),
+        apiCall<Book[]>('/api/reference/books'),
       ]);
-
-      const [masechtotBody, shuSectionsBody, topicsBody, booksBody] = await Promise.all([
-        masechtotRes.json(),
-        shuSectionsRes.json(),
-        topicsRes.json(),
-        booksRes.json(),
-      ]);
-
-      if (!masechtotRes.ok || !masechtotBody.success ||
-          !shuSectionsRes.ok || !shuSectionsBody.success ||
-          !topicsRes.ok || !topicsBody.success ||
-          !booksRes.ok || !booksBody.success) {
-        throw new Error('שגיאה בטעינת נתוני עזר');
-      }
-
-      set({
-        masechtot: masechtotBody.data as MasechetWithPages[],
-        shuSections: shuSectionsBody.data as ShuSectionWithSimanim[],
-        topics: topicsBody.data as Topic[],
-        books: booksBody.data as Book[],
-        loaded: true,
-        loading: false,
-      });
+      set({ masechtot, shuSections, topics, books, loaded: true, loading: false });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
