@@ -277,7 +277,7 @@ export default function StoryPage() {
               className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border border-teal-200 dark:border-teal-800 text-sm font-medium font-hebrew text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-colors"
             >
               <MessageSquare className="w-4 h-4" />
-              שאל שאלה בהמשך לסיפור זה
+              שאל שאלה/דווח על טעות בהמשך לסיפור זה
             </Link>
           </motion.div>
 
