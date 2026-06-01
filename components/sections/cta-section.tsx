@@ -16,7 +16,7 @@ const socialLinks: {
 
 export function CTASection() {
   return (
-    <section className="py-24 px-6 bg-gradient-to-b from-[#1C1C1E] to-[#0C0C0E] text-white">
+    <section className="py-24 px-6 bg-linear-to-b from-brand-dark to-[#0C0C0E] text-white">
       <div className="max-w-4xl mx-auto text-center">
         {/* Main CTA */}
         <motion.div
@@ -26,7 +26,7 @@ export function CTASection() {
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF9100]/20 text-[#FF9100] text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-orange/20 text-brand-orange text-sm font-medium mb-6">
             <Star className="w-4 h-4" />
             הצטרפו אלינו
           </div>
@@ -43,15 +43,15 @@ export function CTASection() {
             href="#"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-[#1C1C1E] font-semibold text-lg hover:bg-white/90 transition-colors"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-white text-brand-dark font-semibold text-lg hover:bg-white/90 transition-colors"
           >
-            <Star className="w-5 h-5 text-[#FF9100]" />
+            <Star className="w-5 h-5 text-brand-orange" />
             התחל ללמוד
           </motion.a>
         </motion.div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-16" />
+        <div className="w-full h-px bg-linear-to-r from-transparent via-white/20 to-transparent mb-16" />
 
         {/* Connect Section */}
         <motion.div

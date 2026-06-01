@@ -156,7 +156,7 @@ export function ContactForm({ storyId, storyTitle }: ContactFormProps) {
         {/* הקשר סיפור */}
         {fromStory && category === 'story_question' && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800">
-            <BookOpen className="w-4 h-4 text-teal-600 dark:text-teal-400 flex-shrink-0" />
+            <BookOpen className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
             <p className="text-sm font-hebrew text-teal-700 dark:text-teal-300 truncate">
               שאלת המשך על: <span className="font-semibold">{storyTitle}</span>
             </p>
@@ -174,7 +174,7 @@ export function ContactForm({ storyId, storyTitle }: ContactFormProps) {
                 onClick={() => handleCategoryChange(value)}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium font-hebrew transition-all ${
                   category === value
-                    ? 'bg-gradient-to-l from-[#14B8A6] to-[#00C2FF] text-white shadow-sm'
+                    ? 'bg-linear-to-l from-brand-teal to-brand-blue text-white shadow-sm'
                     : 'bg-muted text-muted-foreground hover:bg-muted/70'
                 }`}
               >
@@ -229,7 +229,7 @@ export function ContactForm({ storyId, storyTitle }: ContactFormProps) {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full gap-2 font-hebrew bg-gradient-to-l from-[#14B8A6] to-[#00C2FF] text-white border-0 hover:opacity-90"
+          className="w-full gap-2 font-hebrew bg-linear-to-l from-brand-teal to-brand-blue text-white border-0 hover:opacity-90"
         >
           <Send className="w-4 h-4" />
           {isSubmitting ? 'שולח...' : 'שלח פנייה'}

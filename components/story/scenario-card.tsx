@@ -21,7 +21,7 @@ export function ScenarioCard({ story, bookName, topicName, onClick, className }:
     >
       <div className="flex">
         {/* Accent line — מתרחב ב-hover */}
-        <div className="w-[4px] hover:w-[6px] shrink-0 rounded-r-full bg-gradient-to-b from-primary via-primary/60 to-primary/20 transition-all duration-150" />
+        <div className="w-[4px] hover:w-[6px] shrink-0 rounded-r-full bg-linear-to-b from-primary via-primary/60 to-primary/20 transition-all duration-150" />
 
         <div className="flex flex-col gap-3 px-4 py-4 flex-1">
           {/* Breadcrumb: book › topic */}

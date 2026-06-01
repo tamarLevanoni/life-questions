@@ -30,7 +30,7 @@ export function HeroSection() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-4xl md:text-6xl font-bold font-hebrew mb-6">
-            <span className="bg-gradient-to-l from-[#14B8A6] via-[#06B6D4] to-[#00C2FF] bg-clip-text text-transparent">
+            <span className="bg-linear-to-l from-brand-teal via-[#06B6D4] to-brand-blue bg-clip-text text-transparent">
               שאלות מהחיים
             </span>
           </h1>

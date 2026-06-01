@@ -41,7 +41,7 @@ export function PreferencesSection({
         ) : (
           <div className="flex items-center gap-3">
             <div
-              className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+              className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
                 user?.marketingConsent ? 'bg-teal-500 border-teal-500' : 'border-muted-foreground/40'
               }`}
             >

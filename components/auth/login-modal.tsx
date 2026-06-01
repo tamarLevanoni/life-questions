@@ -99,7 +99,7 @@ export function LoginModal() {
         dir="rtl"
       >
         <DialogHeader className="text-center">
-          <DialogTitle className="text-2xl font-bold font-hebrew bg-gradient-to-l from-[#14B8A6] via-[#06B6D4] to-[#00C2FF] bg-clip-text text-transparent">
+          <DialogTitle className="text-2xl font-bold font-hebrew bg-linear-to-l from-brand-teal via-[#06B6D4] to-brand-blue bg-clip-text text-transparent">
             שאלות מהחיים
           </DialogTitle>
           <DialogDescription className="text-muted-foreground font-hebrew">

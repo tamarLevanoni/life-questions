@@ -51,7 +51,7 @@ export function OccupationsSection({
                   className={cn(
                     'px-4 py-2 rounded-full text-sm font-medium font-hebrew transition-all',
                     isSelected
-                      ? 'bg-gradient-to-l from-[#14B8A6] to-[#00C2FF] text-white shadow-sm'
+                      ? 'bg-linear-to-l from-brand-teal to-brand-blue text-white shadow-sm'
                       : 'bg-muted text-muted-foreground hover:bg-muted/70'
                   )}
                 >

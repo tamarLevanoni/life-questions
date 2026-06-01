@@ -17,11 +17,11 @@ interface ProjectCardProps {
 
 const gradientStyles = {
   pink: 'from-[#FF4D8E] to-[#8B5CF6]',
-  blue: 'from-[#3B82F6] to-[#00C2FF]',
-  orange: 'from-[#FF9100] to-[#FF4D8E]',
-  purple: 'from-[#8B5CF6] to-[#00C2FF]',
-  teal: 'from-[#14B8A6] to-[#06B6D4]',
-  brand: 'from-[#FF4D8E] via-[#8B5CF6] to-[#00C2FF]',
+  blue: 'from-[#3B82F6] to-brand-blue',
+  orange: 'from-brand-orange to-[#FF4D8E]',
+  purple: 'from-[#8B5CF6] to-brand-blue',
+  teal: 'from-brand-teal to-[#06B6D4]',
+  brand: 'from-[#FF4D8E] via-[#8B5CF6] to-brand-blue',
 };
 
 export function ProjectCard({
@@ -60,7 +60,7 @@ export function ProjectCard({
             />
           ) : (
             <div className={cn(
-              'w-full h-full bg-gradient-to-br flex items-center justify-center relative',
+              'w-full h-full bg-linear-to-br flex items-center justify-center relative',
               gradientStyles[gradient]
             )}>
               {/* Dot pattern overlay */}

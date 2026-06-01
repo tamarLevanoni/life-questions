@@ -35,7 +35,7 @@ function ContactInfoCard() {
       <div className="space-y-4">
         {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
           <div key={label} className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/30 flex items-center justify-center shrink-0">
               <Icon className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             </div>
             <div>
@@ -70,7 +70,7 @@ function ProjectsCard() {
                 {project.description}
               </p>
             </div>
-            <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-500 transition-colors flex-shrink-0 mt-0.5" />
+            <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-teal-500 transition-colors shrink-0 mt-0.5" />
           </a>
         ))}
       </div>

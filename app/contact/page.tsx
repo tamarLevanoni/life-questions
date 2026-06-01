@@ -18,7 +18,7 @@ function ContactPageContent() {
 
         {/* Hero */}
         <div className="max-w-5xl mx-auto mb-10 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold font-hebrew bg-gradient-to-l from-[#14B8A6] to-[#00C2FF] bg-clip-text text-transparent mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold font-hebrew bg-linear-to-l from-brand-teal to-brand-blue bg-clip-text text-transparent mb-3">
             צור קשר
           </h1>
           <p className="text-muted-foreground font-hebrew text-base max-w-xl mx-auto">

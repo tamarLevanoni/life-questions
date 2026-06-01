@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
       <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center space-y-4">
-        <p className="text-6xl font-bold bg-gradient-to-l from-[#14B8A6] via-[#06B6D4] to-[#00C2FF] bg-clip-text text-transparent">
+        <p className="text-6xl font-bold bg-linear-to-l from-brand-teal via-[#06B6D4] to-brand-blue bg-clip-text text-transparent">
           404
         </p>
         <h2 className="text-xl font-bold font-hebrew">הדף לא נמצא</h2>

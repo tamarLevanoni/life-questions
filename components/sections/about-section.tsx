@@ -55,7 +55,7 @@ const itemVariants = {
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-24 px-6 relative bg-[#F2F2F7]">
+    <section id="about" className="py-24 px-6 relative bg-brand-gray-100">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
         <motion.div
@@ -65,10 +65,10 @@ export function AboutSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-[#1C1C1E] mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-brand-dark mb-4">
             About
           </h2>
-          <p className="text-[#1C1C1E]/60 text-lg max-w-2xl mx-auto">
+          <p className="text-brand-dark/60 text-lg max-w-2xl mx-auto">
             Passionate about building AI solutions that make a real impact
           </p>
         </motion.div>
@@ -81,15 +81,15 @@ export function AboutSection() {
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6 }}
           >
-            <div className="glass-light shadow-glass rounded-[16px] p-8">
+            <div className="glass-light shadow-glass rounded-card p-8">
               {/* Section Header */}
               <div className="mb-8">
-                <h3 className="text-2xl font-bold text-[#1C1C1E] mb-1">על הפרויקט</h3>
+                <h3 className="text-2xl font-bold text-brand-dark mb-1">על הפרויקט</h3>
                 <p className="text-[#FF4D8E] font-medium mb-2">לומדים מהחיים, מבינים את התורה</p>
               </div>
 
               {/* Bio Text */}
-              <div className="space-y-4 text-[#1C1C1E]/70 leading-relaxed" dir="rtl">
+              <div className="space-y-4 text-brand-dark/70 leading-relaxed" dir="rtl">
                 <p>
                   שאלות מהחיים היא פלטפורמה ייחודית המציגה תוכן תורני בצורה מרתקת ונגישה.
                   דרך סיפורים ושאלות מעוררות מחשבה, אנו מקשרים בין החיים היומיומיים לבין חכמת התורה.
@@ -105,11 +105,11 @@ export function AboutSection() {
               </div>
 
               {/* Quick Links */}
-              <div className="mt-8 pt-6 border-t border-[#1C1C1E]/10">
+              <div className="mt-8 pt-6 border-t border-brand-dark/10">
                 <div className="flex flex-wrap gap-3">
                   <a
                     href="#"
-                    className="px-4 py-2 rounded-full bg-[#1C1C1E] text-sm text-white hover:bg-[#1C1C1E]/90 transition-colors"
+                    className="px-4 py-2 rounded-full bg-brand-dark text-sm text-white hover:bg-brand-dark/90 transition-colors"
                   >
                     התחל ללמוד
                   </a>
@@ -127,7 +127,7 @@ export function AboutSection() {
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.6 }}
             >
-              <h3 className="text-xl font-semibold text-[#1C1C1E] mb-6">Skills</h3>
+              <h3 className="text-xl font-semibold text-brand-dark mb-6">Skills</h3>
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -149,7 +149,7 @@ export function AboutSection() {
                             style={{ color: skill.color }}
                           />
                         </div>
-                        <span className="text-sm font-medium text-[#1C1C1E]/70">
+                        <span className="text-sm font-medium text-brand-dark/70">
                           {skill.label}
                         </span>
                       </div>
@@ -166,7 +166,7 @@ export function AboutSection() {
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h3 className="text-xl font-semibold text-[#1C1C1E] mb-6">My Journey</h3>
+              <h3 className="text-xl font-semibold text-brand-dark mb-6">My Journey</h3>
               <div className="space-y-1">
                 {timeline.map((item, index) => (
                   <motion.div
@@ -179,7 +179,7 @@ export function AboutSection() {
                   >
                     {/* Timeline line */}
                     {index < timeline.length - 1 && (
-                      <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-gradient-to-b from-[#FF4D8E] to-[#FF4D8E]/20" />
+                      <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-linear-to-b from-[#FF4D8E] to-[#FF4D8E]/20" />
                     )}
 
                     {/* Timeline dot */}
@@ -190,8 +190,8 @@ export function AboutSection() {
                     {/* Content */}
                     <div className="pt-0.5">
                       <span className="text-[#FF4D8E] text-sm font-medium">{item.year}</span>
-                      <h4 className="text-[#1C1C1E] font-semibold mt-1">{item.title}</h4>
-                      <p className="text-[#1C1C1E]/50 text-sm mt-1">{item.description}</p>
+                      <h4 className="text-brand-dark font-semibold mt-1">{item.title}</h4>
+                      <p className="text-brand-dark/50 text-sm mt-1">{item.description}</p>
                     </div>
                   </motion.div>
                 ))}
