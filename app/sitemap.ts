@@ -6,7 +6,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://life-questions.exa
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: 'weekly', priority: 1 },
-    { url: `${SITE_URL}/search`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${SITE_URL}/search`, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${SITE_URL}/contact`, changeFrequency: 'monthly', priority: 0.3 },
   ];
 
