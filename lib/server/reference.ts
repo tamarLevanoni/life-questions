@@ -58,9 +58,6 @@ export type ReferenceBundle = {
 };
 
 export async function getReference(): Promise<ReferenceBundle> {
-  'use cache';
-  cacheTag('reference');
-  cacheLife('hours');
   const [masechtot, shuSections, topics, books] = await Promise.all([
     getMasechtot(),
     getShuSections(),

@@ -2,9 +2,9 @@ import 'server-only';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
 import { backendFetch } from '@/lib/backend-fetch';
-import type { UserData } from '@/lib/schemas';
+import { userDataSchema, type UserData } from '@/lib/schemas';
 import type { RegisterBody } from '@/lib/types';
-import { BackendError } from './errors';
+import { BackendError, SchemaError } from './errors';
 
 export async function requireSessionUser() {
   const session = await getServerSession(authOptions);
@@ -21,28 +21,35 @@ export async function requireGoogleSession() {
 export async function getCurrentUser(): Promise<UserData | null> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.googleId) return null;
-  const { data, ok } = await backendFetch<UserData>(
+  const { data, ok } = await backendFetch(
     `/api/users/google/${session.user.googleId}`
   );
-  return ok ? data : null;
+  if (!ok) return null;
+  const parsed = userDataSchema.safeParse(data);
+  if (!parsed.success) throw new SchemaError();
+  return parsed.data;
 }
 
 export async function updateCurrentUser(partial: unknown): Promise<UserData> {
   const user = await requireSessionUser();
-  const { data, ok, status, error } = await backendFetch<UserData>(
+  const { data, ok, status, error } = await backendFetch(
     `/api/users/profile/${user.id}`,
     { method: 'PATCH', body: JSON.stringify(partial) }
   );
-  if (!ok || !data) throw new BackendError(status, error ?? 'Backend error');
-  return data;
+  if (!ok) throw new BackendError(status, error ?? 'Backend error');
+  const parsed = userDataSchema.safeParse(data);
+  if (!parsed.success) throw new SchemaError();
+  return parsed.data;
 }
 
 export async function registerUser(body: RegisterBody): Promise<UserData> {
   await requireGoogleSession();
-  const { data, ok, status, error } = await backendFetch<UserData>('/api/users', {
+  const { data, ok, status, error } = await backendFetch('/api/users', {
     method: 'POST',
     body: JSON.stringify(body),
   });
-  if (!ok || !data) throw new BackendError(status, error ?? 'Backend error');
-  return data;
+  if (!ok) throw new BackendError(status, error ?? 'Backend error');
+  const parsed = userDataSchema.safeParse(data);
+  if (!parsed.success) throw new SchemaError();
+  return parsed.data;
 }

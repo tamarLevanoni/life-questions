@@ -42,7 +42,7 @@ client store ──► /api/* (BFF) ──► lib/server/* ───────
 
 The BFF (`app/api/*`) exists only for client mutations and user-driven re-fetches. Never add a BFF endpoint just so a store can self-load on mount.
 
-`lib/backend-fetch.ts` (`'server-only'`) is the single fetch wrapper: attaches `INTERNAL_API_SECRET`, unwraps `StandardResponse`, and accepts `next: { revalidate, tags }`. Every file in `lib/server/*` imports `'server-only'`.
+`lib/backend-fetch.ts` (`'server-only'`) is the single fetch wrapper: attaches `INTERNAL_API_SECRET` and unwraps `StandardResponse`. Caching is opt-in via `'use cache'` at the caller (see Caching section) — do not pass `next: { revalidate, tags }` to `backendFetch`. Every file in `lib/server/*` imports `'server-only'`.
 
 Every BFF route uses `runRoute(() => …)` from `lib/server/errors.ts`.
 
