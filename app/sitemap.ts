@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getStoriesByQuery } from '@/lib/server/stories';
+import { searchStories } from '@/lib/server/stories';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://life-questions.example';
 
@@ -11,8 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const params = new URLSearchParams({ limit: '1000', page: '1' });
-    const result = await getStoriesByQuery(params);
+    const result = await searchStories({ limit: 1000, page: 1 });
     const storyUrls = result.stories.map((s) => ({
       url: `${SITE_URL}/story/${s.id}`,
       changeFrequency: 'monthly' as const,

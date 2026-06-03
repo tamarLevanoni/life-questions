@@ -204,7 +204,7 @@ The core API endpoint `GET /api/stories/featured` returns three randomly selecte
 These are known gaps where the current code does not yet match the table above. They are intentionally listed here so any change in this area updates both the code and the spec together.
 
 - **`getStory` lacks persistent cache.** [lib/server/stories.ts](../../lib/server/stories.ts) currently uses only `react.cache()`. Target: an inner fetcher wrapped in `'use cache' + cacheLife('days') + cacheTag('story') + cacheTag(\`story:${id}\`)`, with `react.cache()` on the outside for per-request dedup.
-- **Sitemap is uncached.** [app/sitemap.ts](../../app/sitemap.ts) calls `getStoriesByQuery` directly with no cache. Target: wrap the story-list call in `'use cache' + cacheLife('hours')`.
+- **Sitemap is uncached.** [app/sitemap.ts](../../app/sitemap.ts) calls `searchStories` directly with no cache. Target: wrap the story-list call in `'use cache' + cacheLife('hours')`.
 
 ---
 

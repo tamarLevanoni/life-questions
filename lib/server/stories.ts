@@ -6,12 +6,10 @@ import { backendFetch } from '@/lib/backend-fetch';
 import {
   storySchema,
   storyWithNeighborsSchema,
-  paginatedStoriesSchema,
   paginatedStoryCardsSchema,
   searchBodySchema,
   type Story,
   type StoryWithNeighbors,
-  type PaginatedStories,
   type PaginatedStoryCards,
   type SearchBody,
 } from '@/lib/types';
@@ -47,16 +45,6 @@ export async function getFeaturedStories(): Promise<Story[]> {
   const { data, ok, status, error } = await backendFetch('/api/stories/featured');
   if (!ok) throw new BackendError(status, error ?? 'Backend error');
   const parsed = z.array(storySchema).safeParse(data);
-  if (!parsed.success) throw new SchemaError();
-  return parsed.data;
-}
-
-export async function getStoriesByQuery(
-  searchParams: URLSearchParams
-): Promise<PaginatedStories> {
-  const { data, ok, status, error } = await backendFetch(`/api/stories?${searchParams}`);
-  if (!ok) throw new BackendError(status, error ?? 'Backend error');
-  const parsed = paginatedStoriesSchema.safeParse(data);
   if (!parsed.success) throw new SchemaError();
   return parsed.data;
 }

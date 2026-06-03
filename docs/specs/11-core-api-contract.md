@@ -332,41 +332,6 @@ All fields are optional. Empty body means "all stories".
 
 ---
 
-### `GET /api/stories`
-
-Shareable list endpoint for simple URL query filters. Use `POST /api/stories/search` for complex search requests.
-
-#### Query Parameters
-
-| Param | Type | Notes |
-|-------|------|-------|
-| `q` | string | Free-text query |
-| `bookId` | string | Single book filter |
-| `topicId` | string | Single topic filter |
-| `masechetId` | string | Single masechet filter |
-| `daf` | number | Optional with `masechetId` |
-| `shuSectionId` | string | Single Shulchan Aruch section filter |
-| `simanId` | string | Optional with `shuSectionId` |
-| `seif` | number | Optional seif |
-| `page` | number | 1-based |
-| `limit` | number | Defaults to `20` |
-
-#### Response `200`
-
-```json
-{
-  "success": true,
-  "data": {
-    "stories": [],
-    "total": 0,
-    "page": 1,
-    "limit": 20
-  }
-}
-```
-
----
-
 ## Reference Data
 
 Reference endpoints are cacheable GET endpoints. They are called from RSC only.
@@ -627,7 +592,6 @@ The browser calls BFF routes, not the Core API. BFF routes map to Core API endpo
 | `GET /api/stories/:id` | `GET /api/stories/:id` |
 | Home-page RSC featured load | `GET /api/stories/featured`, then `GET /api/stories/:id` for each selected id |
 | `POST /api/stories/search` | `POST /api/stories/search` |
-| `GET /api/stories` | `GET /api/stories` |
 | `GET /api/user/profile` | `GET /api/users/google/:googleId` through server session |
 | `PATCH /api/user/profile` | `PATCH /api/users/profile/:id` through server session |
 | `POST /api/user/register` | `POST /api/users` through Google session |

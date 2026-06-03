@@ -53,7 +53,7 @@ Rules:
 |--------|-----------------|---------------|--------------|
 | Single story | `lib/server/stories.ts -> getStory` | `app/story/[id]/page.tsx` | Yes, `app/api/stories/[id]` for client refresh |
 | Featured entry stories | `lib/server/stories.ts -> getFeaturedEntryStories`, internally reusing `getStory(id)` | `app/page.tsx` | No browser BFF; click navigates to `/story/:id` |
-| Story list / search | `lib/server/stories.ts -> searchStories / getStoriesByQuery` | Optional initial `/search` payload only | Yes, `app/api/stories/search` and `app/api/stories` |
+| Story list / search | `lib/server/stories.ts -> searchStories` | Optional initial `/search` payload only | Yes, `app/api/stories/search` |
 | Reference data | `lib/server/reference.ts -> getReference` | `app/page.tsx`, `app/search/page.tsx`, `app/story/[id]/page.tsx` | No. RSC-only |
 | User profile | `lib/server/user.ts -> getCurrentUser, updateCurrentUser, registerUser` | `app/profile/page.tsx` | Yes, `app/api/user/profile`, `app/api/user/register` |
 | Contact submission | `lib/server/contact.ts -> submitContact` | Not applicable; mutation only | Yes, `app/api/contact` |
