@@ -1,42 +1,58 @@
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
-import { SkeletonLines } from '@/components/common/loading-skeleton';
+import { StoreHydrator } from '@/components/common/store-hydrator';
 import { getStory } from '@/lib/server/stories';
 import { BackendError } from '@/lib/server/errors';
-import { StoryContent } from './_components/story-content';
+import { StoryView } from './_components/story-view';
 
 interface StoryPageProps {
   params: Promise<{ id: string }>;
 }
 
-async function loadStory(id: string) {
+export async function generateMetadata({ params }: StoryPageProps): Promise<Metadata> {
+  const { id } = await params;
   try {
-    return await getStory(id);
+    const story = await getStory(id);
+    const description = story.legalQuestion ?? story.storyBody?.slice(0, 160);
+    return {
+      title: `${story.title} | שאלות מהחיים`,
+      description,
+      openGraph: { title: story.title, description, type: 'article' },
+    };
   } catch (err) {
-    if (err instanceof BackendError && err.status === 404) return null;
+    if (err instanceof BackendError && err.status === 404) return { title: 'סיפור לא נמצא' };
     throw err;
   }
 }
 
-export async function generateMetadata({ params }: StoryPageProps): Promise<Metadata> {
+export default async function StoryPage({ params }: StoryPageProps) {
   const { id } = await params;
-  const story = await loadStory(id);
-  if (!story) return { title: 'סיפור לא נמצא' };
-  const description = story.legalQuestion ?? story.storyBody?.slice(0, 160);
-  return {
-    title: `${story.title} | שאלות מהחיים`,
-    description,
-    openGraph: { title: story.title, description, type: 'article' },
-  };
-}
+  let story;
+  try {
+    story = await getStory(id);
+  } catch (err) {
+    if (err instanceof BackendError && err.status === 404) notFound();
+    throw err;
+  }
 
-export default function StoryPage({ params }: StoryPageProps) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: story.title,
+    articleBody: story.storyBody,
+    inLanguage: 'he',
+  };
+
   return (
     <PageShell maxWidth="3xl">
-      <Suspense fallback={<SkeletonLines count={6} />}>
-        <StoryContent params={params} />
-      </Suspense>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <StoreHydrator story={story}>
+        <StoryView />
+      </StoreHydrator>
     </PageShell>
   );
 }

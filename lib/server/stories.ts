@@ -39,11 +39,7 @@ export async function searchStories(body: SearchBody): Promise<PaginatedStoryCar
   return parsed.data;
 }
 
-export const getFeaturedStories = cache(async (): Promise<Story[]> => {
-  return getCachedFeaturedStories();
-});
-
-async function getCachedFeaturedStories(): Promise<Story[]> {
+export async function getFeaturedStories(): Promise<Story[]> {
   'use cache';
   cacheLife('hours');
   cacheTag('featured');

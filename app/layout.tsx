@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Heebo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Footer } from "@/components/layout/footer";
+import { StoreHydrator } from "@/components/common/store-hydrator";
+import { getReference } from "@/lib/server/reference";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,19 +44,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const reference = await getReference();
   return (
     <html lang="he" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
-        <Providers>{children}</Providers>
-        <Footer />
+        <StoreHydrator reference={reference}>
+          <Providers>{children}</Providers>
+          <Footer />
+        </StoreHydrator>
       </body>
     </html>
   );

@@ -1,9 +1,10 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { PageShell } from '@/components/common/page-shell';
 import { HeroSection } from './_components/hero-section';
 import { FeaturesSection } from './_components/features-section';
 import { HowItWorksSection } from './_components/how-it-works-section';
-import { FeaturedStoriesSection } from './_components/featured-stories-section';
+import { FeaturedStoriesSection, FeaturedStoriesSkeleton } from './_components/featured-stories-section';
 import { HomeCTASection } from './_components/home-cta-section';
 
 export const metadata: Metadata = {
@@ -18,7 +19,9 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <FeaturedStoriesSection />
+      <Suspense fallback={<FeaturedStoriesSkeleton />}>
+        <FeaturedStoriesSection />
+      </Suspense>
       <HomeCTASection />
     </PageShell>
   );
