@@ -10,14 +10,15 @@ export function useStoryDetail() {
   const { id: storyId } = useParams<{ id: string }>();
   const router = useRouter();
   const isAuthenticated = useUserStore((s) => s.authStatus === 'authenticated');
-  const { story, loading, error, fetchStory, clear } = useStoryDetailStore();
-  const { books } = useReferenceStore();
+  const story = useStoryDetailStore((s) => s.story);
+  const loading = useStoryDetailStore((s) => s.loading);
+  const error = useStoryDetailStore((s) => s.error);
+  const fetchStory = useStoryDetailStore((s) => s.fetchStory);
+  const books = useReferenceStore((s) => s.books);
 
   useEffect(() => {
     if (storyId) fetchStory(storyId);
-    return () => clear();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storyId]);
+  }, [storyId, fetchStory]);
 
   const canViewExpansion = isAuthenticated;
   const book = story ? books.find((b) => b.id === story.bookId) : undefined;

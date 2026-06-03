@@ -9,7 +9,6 @@ export type ReferenceBundle = {
 };
 
 interface ReferenceState extends ReferenceBundle {
-  loaded: boolean;
   hydrate: (bundle: ReferenceBundle) => void;
 }
 
@@ -18,7 +17,6 @@ export const useReferenceStore = create<ReferenceState>((set) => ({
   shuSections: [],
   topics: [],
   books: [],
-  loaded: false,
 
-  hydrate: (bundle) => set({ ...bundle, loaded: true }),
+  hydrate: (bundle) => set(bundle),
 }));

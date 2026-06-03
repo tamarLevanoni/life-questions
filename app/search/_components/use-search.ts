@@ -16,8 +16,16 @@ export function useSearch() {
   const { openLoginModal } = useAuth();
   const isUnauthenticated = authStatus === 'unauthenticated';
 
-  const { stories, total, page, loading, searchStories, loadMoreStories } = useSearchResultsStore();
-  const { masechtot, shuSections, topics, books } = useReferenceStore();
+  const stories = useSearchResultsStore((s) => s.stories);
+  const total = useSearchResultsStore((s) => s.total);
+  const page = useSearchResultsStore((s) => s.page);
+  const loading = useSearchResultsStore((s) => s.loading);
+  const searchStories = useSearchResultsStore((s) => s.searchStories);
+  const loadMoreStories = useSearchResultsStore((s) => s.loadMoreStories);
+  const masechtot = useReferenceStore((s) => s.masechtot);
+  const shuSections = useReferenceStore((s) => s.shuSections);
+  const topics = useReferenceStore((s) => s.topics);
+  const books = useReferenceStore((s) => s.books);
 
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<UiSearchFilters>({});
