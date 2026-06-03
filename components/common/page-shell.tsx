@@ -1,5 +1,7 @@
+import { Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { AppHeader } from '@/components/layout/app-header';
+import { AppHeaderSkeleton } from '@/components/layout/app-header-skeleton';
 
 type MaxWidth = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl';
 
@@ -25,7 +27,9 @@ const maxWidthClasses: Record<MaxWidth, string> = {
 export function PageShell({ children, maxWidth = '4xl', fullWidth = false, className }: PageShellProps) {
   return (
     <>
-      <AppHeader />
+      <Suspense fallback={<AppHeaderSkeleton />}>
+        <AppHeader />
+      </Suspense>
       <main className="min-h-screen bg-background" dir="rtl">
         {fullWidth ? children : (
           <div className="pt-24 pb-12 px-4">

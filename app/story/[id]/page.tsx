@@ -1,11 +1,10 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
-import { StoreHydrator } from '@/components/common/store-hydrator';
+import { SkeletonLines } from '@/components/common/loading-skeleton';
 import { getStory } from '@/lib/server/stories';
-import { getReference } from '@/lib/server/reference';
 import { BackendError } from '@/lib/server/errors';
-import { StoryView } from './_components/story-view';
+import { StoryContent } from './_components/story-content';
 
 interface StoryPageProps {
   params: Promise<{ id: string }>;
@@ -32,28 +31,12 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
   };
 }
 
-export default async function StoryPage({ params }: StoryPageProps) {
-  const { id } = await params;
-  const [story, reference] = await Promise.all([loadStory(id), getReference()]);
-  if (!story) notFound();
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: story.title,
-    articleBody: story.storyBody,
-    inLanguage: 'he',
-  };
-
+export default function StoryPage({ params }: StoryPageProps) {
   return (
     <PageShell maxWidth="3xl">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <StoreHydrator story={story} reference={reference}>
-        <StoryView />
-      </StoreHydrator>
+      <Suspense fallback={<SkeletonLines count={6} />}>
+        <StoryContent params={params} />
+      </Suspense>
     </PageShell>
   );
 }

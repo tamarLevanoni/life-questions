@@ -3,10 +3,14 @@ import { apiCall } from '@/lib/api-client';
 import type { UserData, MutableUserData } from '@/lib/schemas';
 import type { RegisterBody } from '@/lib/types';
 
+export type AuthStatus = 'idle' | 'authenticated' | 'unauthenticated';
+
 interface UserState {
   user: UserData | null;
+  authStatus: AuthStatus;
 
   setUser: (user: UserData | null) => void;
+  setAuthStatus: (status: AuthStatus) => void;
   clearUser: () => void;
 
   registerUser: (body: RegisterBody) => Promise<UserData>;
@@ -24,8 +28,10 @@ function jsonInit(method: string, body: unknown): RequestInit {
 
 export const useUserStore = create<UserState>((set) => ({
   user: null,
+  authStatus: 'idle',
 
   setUser: (user) => set({ user }),
+  setAuthStatus: (authStatus) => set({ authStatus }),
   clearUser: () => set({ user: null }),
 
   registerUser: async (body) => {

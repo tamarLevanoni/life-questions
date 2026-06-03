@@ -1,6 +1,6 @@
 import 'server-only';
-import { cache } from 'react';
-import { z } from 'zod/v4';
+import { cacheTag, cacheLife } from 'next/cache';
+import { z } from 'zod';
 import { backendFetch } from '@/lib/backend-fetch';
 import {
   masechetWithPagesSchema,
@@ -22,21 +22,33 @@ async function fetchList<T>(path: string, schema: z.ZodType<T[]>): Promise<T[]> 
   return parsed.data;
 }
 
-export const getMasechtot = cache((): Promise<MasechetWithPages[]> =>
-  fetchList('/api/reference/masechtot', z.array(masechetWithPagesSchema))
-);
+export async function getMasechtot(): Promise<MasechetWithPages[]> {
+  'use cache';
+  cacheTag('reference');
+  cacheLife('hours');
+  return fetchList('/api/reference/masechtot', z.array(masechetWithPagesSchema));
+}
 
-export const getShuSections = cache((): Promise<ShuSectionWithSimanim[]> =>
-  fetchList('/api/reference/shu-sections', z.array(shuSectionWithSimanimSchema))
-);
+export async function getShuSections(): Promise<ShuSectionWithSimanim[]> {
+  'use cache';
+  cacheTag('reference');
+  cacheLife('hours');
+  return fetchList('/api/reference/shu-sections', z.array(shuSectionWithSimanimSchema));
+}
 
-export const getTopics = cache((): Promise<Topic[]> =>
-  fetchList('/api/reference/topics', z.array(topicSchema))
-);
+export async function getTopics(): Promise<Topic[]> {
+  'use cache';
+  cacheTag('reference');
+  cacheLife('hours');
+  return fetchList('/api/reference/topics', z.array(topicSchema));
+}
 
-export const getBooks = cache((): Promise<Book[]> =>
-  fetchList('/api/reference/books', z.array(bookSchema))
-);
+export async function getBooks(): Promise<Book[]> {
+  'use cache';
+  cacheTag('reference');
+  cacheLife('hours');
+  return fetchList('/api/reference/books', z.array(bookSchema));
+}
 
 export type ReferenceBundle = {
   masechtot: MasechetWithPages[];
@@ -45,7 +57,10 @@ export type ReferenceBundle = {
   books: Book[];
 };
 
-export const getReference = cache(async (): Promise<ReferenceBundle> => {
+export async function getReference(): Promise<ReferenceBundle> {
+  'use cache';
+  cacheTag('reference');
+  cacheLife('hours');
   const [masechtot, shuSections, topics, books] = await Promise.all([
     getMasechtot(),
     getShuSections(),
@@ -53,4 +68,4 @@ export const getReference = cache(async (): Promise<ReferenceBundle> => {
     getBooks(),
   ]);
   return { masechtot, shuSections, topics, books };
-});
+}

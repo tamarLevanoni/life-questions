@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/lib/toast-context';
@@ -12,6 +11,7 @@ import {
 } from '@/lib/schemas';
 import { useContactStore } from '@/lib/stores/contact-store';
 import { useStoryDetailStore } from '@/lib/stores/story-detail-store';
+import { useUserStore } from '@/lib/stores/user-store';
 import { BASE_CATEGORIES, STORY_CATEGORY } from './contact-categories';
 
 interface UseContactFormArgs {
@@ -22,7 +22,8 @@ interface UseContactFormArgs {
 export function useContactForm({ storyId, storyTitle }: UseContactFormArgs) {
   const fromStory = !!(storyId && storyTitle);
 
-  const { data: session } = useSession();
+  const user = useUserStore((s) => s.user);
+  const isAuthenticated = useUserStore((s) => s.authStatus === 'authenticated');
   const { showToast } = useToast();
   const { isSubmitting, submitted, submit, reset: resetContact } = useContactStore();
   const { story: fetchedStory, fetchStory } = useStoryDetailStore();
@@ -47,15 +48,12 @@ export function useContactForm({ storyId, storyTitle }: UseContactFormArgs) {
   });
 
   useEffect(() => {
-    if (session?.user) {
-      const name =
-        [session.user.firstName, session.user.lastName].filter(Boolean).join(' ') ||
-        session.user.name ||
-        '';
+    if (user) {
+      const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
       if (name) setValue('name', name);
-      if (session.user.email) setValue('email', session.user.email);
+      if (user.email) setValue('email', user.email);
     }
-  }, [session, setValue]);
+  }, [user, setValue]);
 
   useEffect(() => {
     if (storyId && fetchedStory?.id !== storyId) fetchStory(storyId);
@@ -72,7 +70,6 @@ export function useContactForm({ storyId, storyTitle }: UseContactFormArgs) {
   };
 
   const onSubmit = async (data: ContactFormValues) => {
-    const isAuthenticated = !!session;
     const canViewExpansion = isAuthenticated;
 
     const storyPayload =

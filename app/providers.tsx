@@ -1,12 +1,11 @@
 'use client';
 
+import { Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { SessionProvider } from 'next-auth/react';
 import { AuthProvider } from '@/lib/auth-context';
 import { ToastProvider } from '@/lib/toast-context';
-import { LoginModal } from '@/components/auth/login-modal';
-import { OnboardingModal } from '@/components/auth/onboarding-modal';
-import { SessionUserSync } from '@/components/providers/session-user-sync';
+import { AuthRuntime } from '@/components/auth/auth-runtime';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -17,12 +16,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <SessionProvider>
-        <SessionUserSync />
         <ToastProvider>
           <AuthProvider>
             {children}
-            <LoginModal />
-            <OnboardingModal />
+            <Suspense fallback={null}>
+              <AuthRuntime />
+            </Suspense>
           </AuthProvider>
         </ToastProvider>
       </SessionProvider>

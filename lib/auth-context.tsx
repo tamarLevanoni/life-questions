@@ -1,7 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { createContext, useContext, useState, useCallback } from 'react';
 
 interface AuthContextValue {
   isLoginModalOpen: boolean;
@@ -15,7 +14,6 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
 
@@ -23,12 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
   const openOnboardingModal = useCallback(() => setIsOnboardingModalOpen(true), []);
   const closeOnboardingModal = useCallback(() => setIsOnboardingModalOpen(false), []);
-
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user && !session.user.isRegistrationComplete) {
-      setIsOnboardingModalOpen(true);
-    }
-  }, [status, session]);
 
   return (
     <AuthContext.Provider

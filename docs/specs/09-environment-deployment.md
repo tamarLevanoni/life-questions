@@ -98,7 +98,7 @@ The app deploys to Vercel as a native Next.js project:
 
 ### Build Artifacts
 - Next.js build uses Turbopack, configured in [next.config.ts](../../next.config.ts).
-- `cacheComponents: true` enables Cache Components and PPR.
+- `cacheComponents: true` enables Cache Components and PPR. Cached server functions must run on the Node.js runtime; do not set `runtime = 'edge'` on routes that read from `'use cache'` functions.
 - Static assets in `public/` are served through Vercel CDN.
 
 ### Deploy Lifecycle

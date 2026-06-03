@@ -1,11 +1,4 @@
-/**
- * קריאה ל-backend עם הוספת ה-secret header אוטומטית.
- * מחזיר { data, ok, status, error } אחרי פריקת ה-StandardResponse מהשרת.
- * השרת תמיד עוטף את התשובה ב-{ success, data } או { success, error }.
- *
- * קובץ זה אינו מייבא מ-auth-options כדי למנוע circular dependency.
- */
-
+import 'server-only';
 import type { StandardResponse } from '@/lib/types';
 
 const BACKEND_API_URL = process.env.BACKEND_API_URL!;

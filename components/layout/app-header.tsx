@@ -2,18 +2,16 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
-import { useAuth } from '@/lib/auth-context';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Suspense, useState } from 'react';
+import { User, Search, Menu, X, Mail, Home } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { User, LogOut, Search, Menu, X, Mail, Home } from 'lucide-react';
-import { useEffect, useState } from 'react';
+  HeaderAuthDesktop,
+  HeaderAuthDesktopSkeleton,
+} from './header-auth-desktop';
+import {
+  HeaderAuthMobile,
+  HeaderAuthMobileSkeleton,
+} from './header-auth-mobile';
 
 const navLinks = [
   { href: '/search', label: 'חיפוש', icon: Search },
@@ -22,57 +20,20 @@ const navLinks = [
 ];
 
 export function AppHeader() {
-  const { data: session, status } = useSession();
-  const { openLoginModal } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const displayName = [session?.user?.firstName, session?.user?.lastName].filter(Boolean).join(' ') || session?.user?.name || '';
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleLogoClick = () => {
     if (pathname === '/') {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       router.push('/');
     }
     setMobileMenuOpen(false);
   };
 
-  const handleLinkClick = () => {
-    setMobileMenuOpen(false);
-  };
-
-  // Show loading state while mounting
-  if (!mounted) {
-    return (
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-4xl">
-        <nav
-          className="rounded-2xl px-4 md:px-6 py-3 flex items-center justify-between"
-          style={{
-            background: 'var(--nav-bg, rgba(255, 255, 255, 0.7))',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid var(--nav-border, rgba(255, 255, 255, 0.3))',
-            boxShadow: 'var(--nav-shadow, 0 8px 32px rgba(0, 0, 0, 0.08))',
-          }}
-          dir="rtl"
-        >
-          <span className="text-lg md:text-xl font-bold text-foreground font-hebrew">
-            שאלות מהחיים
-          </span>
-          <div className="w-9 h-9" />
-        </nav>
-      </header>
-    );
-  }
+  const handleLinkClick = () => setMobileMenuOpen(false);
 
   return (
     <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-4xl">
@@ -87,17 +48,12 @@ export function AppHeader() {
         }}
         dir="rtl"
       >
-        {/* Logo/Title - RTL aligned */}
-        <button
-          onClick={handleLogoClick}
-          className="flex items-center gap-2 shrink-0 cursor-pointer"
-        >
+        <button onClick={handleLogoClick} className="flex items-center gap-2 shrink-0 cursor-pointer">
           <span className="text-lg md:text-xl font-bold font-hebrew bg-linear-to-l from-brand-teal via-[#06B6D4] to-brand-blue bg-clip-text text-transparent">
             שאלות מהחיים
           </span>
         </button>
 
-        {/* Desktop Navigation Links */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => {
             const Icon = link.icon;
@@ -107,9 +63,7 @@ export function AppHeader() {
                 key={link.href}
                 href={link.href}
                 className={`flex items-center gap-2 text-sm font-medium transition-colors duration-200 font-hebrew ${
-                  isActive
-                    ? 'text-primary'
-                    : 'text-foreground/70 hover:text-foreground'
+                  isActive ? 'text-primary' : 'text-foreground/70 hover:text-foreground'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -119,9 +73,7 @@ export function AppHeader() {
           })}
         </div>
 
-        {/* Right Side (Left in RTL) */}
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
-          {/* Quick Search Button - Mobile */}
           <Link
             href="/search"
             className="md:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
@@ -130,68 +82,12 @@ export function AppHeader() {
             <Search className="w-5 h-5 text-foreground/70" />
           </Link>
 
-          {/* User Avatar - Desktop */}
           <div className="hidden md:block">
-            {status === 'loading' ? (
-              <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
-            ) : session?.user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="relative rounded-full ring-2 ring-transparent hover:ring-brand-teal/50 transition-all duration-200">
-                    <Avatar className="w-9 h-9 border-2 border-brand-teal/30">
-                      <AvatarImage
-                        src={session.user.image || undefined}
-                        alt={displayName || 'User'}
-                      />
-                      <AvatarFallback className="bg-linear-to-br from-brand-teal to-[#0D9488] text-white text-sm font-medium">
-                        {displayName?.[0]?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="start"
-                  className="w-56 glass-panel border-black/10 dark:border-white/10"
-                >
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium text-foreground font-hebrew">
-                      {displayName}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {session.user.email}
-                    </p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    asChild
-                    className="cursor-pointer font-hebrew"
-                  >
-                    <Link href="/profile">
-                      <User className="w-4 h-4 ml-2" />
-                      אזור אישי
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => signOut({ redirect: false }).then(() => router.push('/'))}
-                    className="text-red-500 hover:text-red-600 cursor-pointer font-hebrew"
-                  >
-                    <LogOut className="w-4 h-4 ml-2" />
-                    התנתקות
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <button
-                onClick={openLoginModal}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium font-hebrew hover:opacity-90 transition-opacity"
-              >
-                התחברות
-              </button>
-            )}
+            <Suspense fallback={<HeaderAuthDesktopSkeleton />}>
+              <HeaderAuthDesktop />
+            </Suspense>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
@@ -206,7 +102,6 @@ export function AppHeader() {
         </div>
       </nav>
 
-      {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div
           className="md:hidden mt-2 rounded-2xl p-4 space-y-1"
@@ -219,7 +114,6 @@ export function AppHeader() {
           }}
           dir="rtl"
         >
-          {/* Home link */}
           <Link
             href="/"
             onClick={handleLinkClick}
@@ -249,51 +143,10 @@ export function AppHeader() {
             );
           })}
 
-          {/* Mobile User Section */}
           <div className="pt-3 mt-3 border-t border-black/5 dark:border-white/10">
-            {session?.user ? (
-              <div className="space-y-1">
-                <div className="flex items-center gap-3 px-4 py-2">
-                  <Avatar className="w-8 h-8 border-2 border-brand-teal/30">
-                    <AvatarImage
-                      src={session.user.image || undefined}
-                      alt={displayName || 'User'}
-                    />
-                    <AvatarFallback className="bg-linear-to-br from-brand-teal to-[#0D9488] text-white text-xs font-medium">
-                      {displayName?.[0]?.toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate font-hebrew">
-                      {displayName}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {session.user.email}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    signOut({ redirect: false }).then(() => router.push('/'));
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors font-hebrew"
-                >
-                  <LogOut className="w-5 h-5" />
-                  התנתקות
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  openLoginModal();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity font-hebrew"
-              >
-                התחברות
-              </button>
-            )}
+            <Suspense fallback={<HeaderAuthMobileSkeleton />}>
+              <HeaderAuthMobile onClose={handleLinkClick} />
+            </Suspense>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
 export const occupationEnum = z.enum([
   // הסדר הזה הוא מקור האמת — הטיפוס Occupation נגזר ממנו

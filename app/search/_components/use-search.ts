@@ -2,9 +2,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { useStoriesStore } from '@/lib/stores/stories-store';
+import { useSearchResultsStore } from '@/lib/stores/search-results-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
+import { useUserStore } from '@/lib/stores/user-store';
 import { useAuth } from '@/lib/auth-context';
 import type { UiSearchFilters, SearchBody } from '@/lib/types';
 
@@ -12,11 +12,11 @@ const PAGE_LIMIT = 10;
 
 export function useSearch() {
   const router = useRouter();
-  const { status } = useSession();
+  const authStatus = useUserStore((s) => s.authStatus);
   const { openLoginModal } = useAuth();
-  const isUnauthenticated = status === 'unauthenticated';
+  const isUnauthenticated = authStatus === 'unauthenticated';
 
-  const { stories, total, page, loading, searchStories, loadMoreStories } = useStoriesStore();
+  const { stories, total, page, loading, searchStories, loadMoreStories } = useSearchResultsStore();
   const { masechtot, shuSections, topics, books } = useReferenceStore();
 
   const [query, setQuery] = useState('');
@@ -74,8 +74,8 @@ export function useSearch() {
   }, [handleSearch]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') openLoginModal();
-  }, [status, openLoginModal]);
+    if (authStatus === 'unauthenticated') openLoginModal();
+  }, [authStatus, openLoginModal]);
 
   const hasMore = stories.length < total;
 

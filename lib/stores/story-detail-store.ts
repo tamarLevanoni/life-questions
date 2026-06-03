@@ -4,7 +4,6 @@ import type { StoryWithNeighbors } from '@/lib/types';
 
 interface StoryDetailState {
   story: StoryWithNeighbors | null;
-  storyCache: Map<string, StoryWithNeighbors>;
   loading: boolean;
   error: string | null;
   fetchStory: (id: string) => Promise<void>;
@@ -15,44 +14,23 @@ interface StoryDetailState {
 
 export const useStoryDetailStore = create<StoryDetailState>((set, get) => ({
   story: null,
-  storyCache: new Map(),
   loading: false,
   error: null,
 
   fetchStory: async (id) => {
-    const cached = get().storyCache.get(id);
-    if (cached) {
-      set({ story: cached, loading: false, error: null });
-      return;
-    }
+    if (get().story?.id === id && !get().error) return;
     set({ loading: true, error: null });
     try {
       const data = await apiCall<StoryWithNeighbors>(`/api/stories/${id}`);
-      set((s) => ({
-        story: data,
-        loading: false,
-        storyCache: new Map(s.storyCache).set(id, data),
-      }));
+      set({ story: data, loading: false });
     } catch (err) {
       set({ loading: false, error: err instanceof Error ? err.message : 'הסיפור לא נמצא' });
     }
   },
 
-  hydrate: (story) =>
-    set((s) => ({
-      story,
-      loading: false,
-      error: null,
-      storyCache: new Map(s.storyCache).set(story.id, story),
-    })),
+  hydrate: (story) => set({ story, loading: false, error: null }),
 
-  prime: (story) =>
-    set((s) => ({
-      story,
-      loading: false,
-      error: null,
-      storyCache: new Map(s.storyCache).set(story.id, story),
-    })),
+  prime: (story) => set({ story, loading: false, error: null }),
 
   clear: () => set({ story: null, loading: false, error: null }),
 }));

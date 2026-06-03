@@ -1,11 +1,15 @@
 import 'server-only';
 import { cache } from 'react';
+import { cacheLife, cacheTag } from 'next/cache';
+import { z } from 'zod';
 import { backendFetch } from '@/lib/backend-fetch';
 import {
+  storySchema,
   storyWithNeighborsSchema,
   paginatedStoriesSchema,
   paginatedStoryCardsSchema,
   searchBodySchema,
+  type Story,
   type StoryWithNeighbors,
   type PaginatedStories,
   type PaginatedStoryCards,
@@ -35,14 +39,21 @@ export async function searchStories(body: SearchBody): Promise<PaginatedStoryCar
   return parsed.data;
 }
 
-export const getFeaturedStories = cache(async (): Promise<PaginatedStoryCards> => {
-  return searchStories({ limit: 3, page: 1 });
+export const getFeaturedStories = cache(async (): Promise<Story[]> => {
+  return getCachedFeaturedStories();
 });
 
-export const getFeaturedFullStories = cache(async (): Promise<StoryWithNeighbors[]> => {
-  const { stories } = await getFeaturedStories();
-  return Promise.all(stories.map((card) => getStory(card.id)));
-});
+async function getCachedFeaturedStories(): Promise<Story[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('featured');
+
+  const { data, ok, status, error } = await backendFetch('/api/stories/featured');
+  if (!ok) throw new BackendError(status, error ?? 'Backend error');
+  const parsed = z.array(storySchema).safeParse(data);
+  if (!parsed.success) throw new SchemaError();
+  return parsed.data;
+}
 
 export async function getStoriesByQuery(
   searchParams: URLSearchParams

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { apiCall } from '@/lib/api-client';
 import type { ContactFormData } from '@/lib/schemas';
 
 interface ContactState {
@@ -15,13 +16,11 @@ export const useContactStore = create<ContactState>((set) => ({
   submit: async (data) => {
     set({ isSubmitting: true });
     try {
-      const res = await fetch('/api/contact', {
+      await apiCall('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error ?? 'שגיאה בשליחה');
       set({ submitted: true });
       return { success: true };
     } catch (err) {

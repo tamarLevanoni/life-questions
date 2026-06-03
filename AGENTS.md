@@ -19,7 +19,7 @@ Always `bun` — never `npm`/`yarn`.
 
 ## Stack
 
-Next.js 16 (App Router, `cacheComponents`) · React 19 · TypeScript · Tailwind 4 · Zustand · NextAuth v4 (Google OAuth) · react-hook-form + zod 4 · Framer Motion · Shadcn/ui.
+Next.js 16 App Router with Cache Components · React 19 · TypeScript · Tailwind 4 · Zustand · NextAuth v4 (Google OAuth) · react-hook-form + zod 4 · Framer Motion · Shadcn/ui.
 
 `next-auth@4` is still in `package.json`. Migrating to Auth.js v5 is on the roadmap; do not start mixing v5 APIs until a dedicated migration PR.
 
@@ -48,21 +48,17 @@ Every BFF route uses `runRoute(() => …)` from `lib/server/errors.ts`.
 
 ---
 
-## Caching (Next 16)
+## Caching
 
-Next 16 has **no implicit caching** — every fetch is dynamic unless you opt in. Project requires `cacheComponents: true` in `next.config.ts` for `'use cache'` to work; without it the directive is a no-op.
+The project uses Next.js 16 Cache Components as the **single caching model**. `cacheComponents: true` is enabled in [next.config.ts](next.config.ts). All routes are dynamic by default. Persistent caching is opt-in only and must be declared close to the data access using `'use cache'` + `cacheLife` + `cacheTag`.
 
-| Data | Strategy |
-|------|----------|
-| Reference lists (masechtot/topics/books) | `'use cache'` + `cacheTag('reference')` + `cacheLife('hours')` |
-| Single story | `backendFetch(url, { next: { tags: ['story', \`story:${id}\`] } })`; invalidate via `revalidateTag` from an admin/webhook route |
-| Featured entry stories | load the featured selection, then resolve the three ids through `getStory(id)` to warm the single-story cache |
-| Sitemap lists | `next: { revalidate: 3600, tags: ['stories'] }` |
-| User profile, search results, anything per-session | no caching |
+Caching is **whitelist-only**. See [docs/specs/03-stores-and-cache.md](docs/specs/03-stores-and-cache.md) — "Cache Safety Rules" and "Entity Strategy Table" — for the authoritative policy and the list of cacheable entities.
 
-**Cacheable requests must be GET.** POST/PATCH/DELETE are never cached. If a backend read uses POST, add a GET variant before trying to cache it.
+Do not introduce `export const revalidate`, `next: { revalidate }`, or `fetchCache` segment configs anywhere in the App Router; with Cache Components, those configs are replaced and mixing them is a known source of bugs.
 
-`react.cache()` is per-request dedup only (e.g. `getStory` called from both `generateMetadata` and the page). Pair it with `'use cache'` / `revalidate` for real persistence. Don't add `Map`-based caches inside Zustand stores — the router cache and `'use cache'` cover it.
+**Cacheable requests must be GET.** If a backend read uses POST, add a GET variant before trying to cache it.
+
+`react.cache()` is per-request dedup only — never a substitute for `'use cache'`. Don't add `Map`-based caches inside Zustand stores; the router cache and `'use cache'` cover it.
 
 ---
 
@@ -124,7 +120,7 @@ Routes that require a logged-in user (e.g. `/profile`) are **hard-gated by [prox
 
 Client → server requests go through `lib/api-client.ts → apiCall<T>(url, init)`. Stores never duplicate `fetch → res.json → error` logic. For repeated user-driven requests (typing in search), pass an `AbortSignal`.
 
-The old `useStoriesStore` name is transitional only. Do not put featured stories in the search results store. Search hooks/stores may build server parameters and manage request state, but must not do client-side ranking, filtering, sorting, scoring, or match interpretation.
+The canonical store is `useSearchResultsStore` in `lib/stores/search-results-store.ts`. The old `useStoriesStore` / `lib/stores/stories-store.ts` no longer exist — do not reintroduce them. Do not put featured stories in the search results store. Search hooks/stores may build server parameters and manage request state, but must not do client-side ranking, filtering, sorting, scoring, or match interpretation.
 
 Featured examples on the home page are high-click entry stories. Load the selected three as full stories through the same `getStory(id)` path used by `/story/:id`; optionally prime only the clicked story before navigation.
 

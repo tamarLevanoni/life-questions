@@ -53,10 +53,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
-        <Providers>
-          {children}
-          <Footer />
-        </Providers>
+        <Providers>{children}</Providers>
+        <Footer />
       </body>
     </html>
   );

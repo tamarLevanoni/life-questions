@@ -1,18 +1,17 @@
 'use client';
 
-import { createContext, useContext, useEffect } from 'react';
-import { useStoriesStore } from '@/lib/stores/stories-store';
+import { createContext, useContext, useRef } from 'react';
+import { useSearchResultsStore } from '@/lib/stores/search-results-store';
 import {
   useReferenceStore,
   type ReferenceBundle,
 } from '@/lib/stores/reference-store';
 import { useUserStore } from '@/lib/stores/user-store';
 import { useStoryDetailStore } from '@/lib/stores/story-detail-store';
-import type { StoryCard, StoryWithNeighbors, PaginatedStoryCards } from '@/lib/types';
+import type { StoryWithNeighbors, PaginatedStoryCards } from '@/lib/types';
 import type { UserData } from '@/lib/schemas';
 
 export type InitialData = {
-  featured?: StoryCard[];
   reference?: ReferenceBundle;
   user?: UserData | null;
   story?: StoryWithNeighbors;
@@ -30,14 +29,14 @@ interface StoreHydratorProps extends InitialData {
 }
 
 export function StoreHydrator({ children, ...initial }: StoreHydratorProps) {
-  useEffect(() => {
-    if (initial.featured) useStoriesStore.getState().hydrateFeatured(initial.featured);
+  const hydrated = useRef(false);
+  if (!hydrated.current) {
     if (initial.reference) useReferenceStore.getState().hydrate(initial.reference);
     if (initial.user !== undefined) useUserStore.getState().setUser(initial.user);
     if (initial.story) useStoryDetailStore.getState().hydrate(initial.story);
-    if (initial.search) useStoriesStore.getState().hydrateSearch(initial.search);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (initial.search) useSearchResultsStore.getState().hydrateSearch(initial.search);
+    hydrated.current = true;
+  }
 
   return <InitialDataContext.Provider value={initial}>{children}</InitialDataContext.Provider>;
 }
