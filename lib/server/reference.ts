@@ -11,7 +11,7 @@ import {
   type ShuSectionWithSimanim,
   type Topic,
   type Book,
-} from '@/lib/types';
+} from '@/lib/schemas';
 import { BackendError, SchemaError } from './errors';
 
 async function fetchList<T>(path: string, schema: z.ZodType<T[]>): Promise<T[]> {

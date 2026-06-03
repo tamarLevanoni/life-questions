@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const occupationEnum = z.enum([
-  // הסדר הזה הוא מקור האמת — הטיפוס Occupation נגזר ממנו
   'dayyan',
   'rabbi',
   'teacher',
@@ -31,6 +30,14 @@ export type UserData = z.infer<typeof userDataSchema>;
 // שדות שמותר לעדכן — id/email הם קריאה בלבד
 export type MutableUserData = Omit<UserData, 'id' | 'email'>;
 
+export const registerUserSchema = userDataSchema.omit({ id: true });
+export type RegisterUserBody = z.infer<typeof registerUserSchema>;
+
+export const updateUserSchema = userDataSchema
+  .omit({ id: true, googleId: true })
+  .partial();
+export type UpdateUserBody = z.infer<typeof updateUserSchema>;
+
 // onboardingSchema נגזר מ-userDataSchema — שינוי שדה מתפשט אוטומטית
 export const onboardingSchema = userDataSchema
   .pick({
@@ -57,7 +64,6 @@ export type OnboardingFormData = z.infer<typeof onboardingSchema>;
 export type Occupation = z.infer<typeof occupationEnum>;
 
 // profileEditSchema — כמו onboardingSchema אבל ללא ה-refine על marketingConsent
-// (בעריכה מותר לבטל הסכמה שיווקית, לא רק לאשר)
 export const profileEditSchema = userDataSchema
   .pick({
     firstName: true,
@@ -82,7 +88,8 @@ export type ProfileEditFormData = z.infer<typeof profileEditSchema>;
 export const contactCategoryEnum = z.enum(['general', 'bug', 'collaboration', 'story_question']);
 export type ContactCategory = z.infer<typeof contactCategoryEnum>;
 
-const storySchema = z.object({
+// סכמה מינימלית לצורך טופס יצירת קשר בלבד
+const contactStorySchema = z.object({
   id:            z.string(),
   title:         z.string(),
   storyBody:     z.string(),
@@ -105,7 +112,7 @@ export type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 // סכמת API — כולל story ו-superRefine לאימות בצד השרת
 export const contactSchema = contactFormSchema
-  .extend({ story: storySchema.optional() })
+  .extend({ story: contactStorySchema.optional() })
   .superRefine((data, ctx) => {
     if (data.category === 'story_question' && !data.story) {
       ctx.addIssue({

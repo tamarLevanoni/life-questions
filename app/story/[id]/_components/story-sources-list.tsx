@@ -1,7 +1,7 @@
 import { BookOpen, Scale } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
-import type { StoryWithNeighbors } from '@/lib/types';
+import type { StoryWithNeighbors } from '@/lib/schemas';
 
 type StoryRefs = Pick<StoryWithNeighbors, 'shasRefs' | 'shuRefs' | 'sourceReferencesText'>;
 

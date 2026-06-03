@@ -12,7 +12,7 @@ import {
   type StoryWithNeighbors,
   type PaginatedStoryCards,
   type SearchBody,
-} from '@/lib/types';
+} from '@/lib/schemas';
 import { BackendError, SchemaError } from './errors';
 
 export const getStory = cache(async (id: string): Promise<StoryWithNeighbors> => {

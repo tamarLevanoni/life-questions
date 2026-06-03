@@ -8,7 +8,7 @@ import {
 } from '@/lib/stores/reference-store';
 import { useUserStore } from '@/lib/stores/user-store';
 import { useStoryDetailStore } from '@/lib/stores/story-detail-store';
-import type { StoryWithNeighbors, PaginatedStoryCards } from '@/lib/types';
+import type { StoryWithNeighbors, PaginatedStoryCards } from '@/lib/schemas';
 import type { UserData } from '@/lib/schemas';
 
 export type InitialData = {

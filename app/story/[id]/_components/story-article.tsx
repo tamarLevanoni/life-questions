@@ -2,8 +2,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { Badge } from '@/components/ui/badge';
 import { StoryBreadcrumb } from './story-breadcrumb';
 import { StorySourcesList } from './story-sources-list';
-import type { StoryWithNeighbors } from '@/lib/types';
-import type { Book } from '@/lib/types';
+import type { StoryWithNeighbors, Book } from '@/lib/schemas';
 
 interface StoryArticleProps {
   story: StoryWithNeighbors;

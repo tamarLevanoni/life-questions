@@ -2,7 +2,8 @@
 
 import { Badge } from '@/components/ui/badge';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
-import type { UiSearchFilters, Book, Topic, MasechetWithPages, ShuSectionWithSimanim } from '@/lib/types';
+import type { UiSearchFilters } from '@/lib/types';
+import type { Book, Topic, MasechetWithPages, ShuSectionWithSimanim } from '@/lib/schemas';
 
 interface ActiveFilterTagsProps {
   filters: UiSearchFilters;

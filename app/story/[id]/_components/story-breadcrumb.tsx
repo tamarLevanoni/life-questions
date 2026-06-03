@@ -1,7 +1,6 @@
 import { Video } from 'lucide-react';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
-import type { StoryWithNeighbors } from '@/lib/types';
-import type { Book } from '@/lib/types';
+import type { StoryWithNeighbors, Book } from '@/lib/schemas';
 
 interface StoryBreadcrumbProps {
   story: StoryWithNeighbors;

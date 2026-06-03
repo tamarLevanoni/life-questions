@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { apiCall } from '@/lib/api-client';
-import type { StoryWithNeighbors } from '@/lib/types';
+import type { StoryWithNeighbors } from '@/lib/schemas';
 
 interface StoryDetailState {
   story: StoryWithNeighbors | null;

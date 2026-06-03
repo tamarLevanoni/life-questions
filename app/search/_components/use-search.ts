@@ -6,7 +6,8 @@ import { useSearchResultsStore } from '@/lib/stores/search-results-store';
 import { useReferenceStore } from '@/lib/stores/reference-store';
 import { useUserStore } from '@/lib/stores/user-store';
 import { useAuth } from '@/lib/auth-context';
-import type { UiSearchFilters, SearchBody } from '@/lib/types';
+import type { UiSearchFilters } from '@/lib/types';
+import type { SearchBody } from '@/lib/schemas';
 
 const PAGE_LIMIT = 10;
 

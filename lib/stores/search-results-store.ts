@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { apiCall } from '@/lib/api-client';
-import type { StoryCard, SearchBody, PaginatedStoryCards } from '@/lib/types';
+import type { StoryCard, SearchBody, PaginatedStoryCards } from '@/lib/schemas';
 
 interface SearchResultsState {
   stories: StoryCard[];

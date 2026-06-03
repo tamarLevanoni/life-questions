@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ScenarioCard } from '@/components/story/scenario-card';
 import { useReferenceStore } from '@/lib/stores/reference-store';
-import type { Story } from '@/lib/types';
+import type { Story } from '@/lib/schemas';
 
 export function FeaturedStoryCard({ story, delay }: { story: Story; delay: number }) {
   const books = useReferenceStore((s) => s.books);

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Book, MasechetWithPages, ShuSectionWithSimanim, Topic } from '@/lib/types';
+import type { Book, MasechetWithPages, ShuSectionWithSimanim, Topic } from '@/lib/schemas';
 
 export type ReferenceBundle = {
   masechtot: MasechetWithPages[];
