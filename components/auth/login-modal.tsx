@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { Loader2 } from 'lucide-react';
 import {
@@ -40,27 +39,21 @@ function GoogleIcon() {
 
 export function LoginModal() {
   const { isLoginModalOpen, closeLoginModal } = useAuth();
-  const { update } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const popupIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const handleAuthComplete = useCallback(() => {
-    setIsLoading(false);
-    update();
-    closeLoginModal();
-  }, [update, closeLoginModal]);
+  const clearPopupInterval = () => {
+    if (popupIntervalRef.current) {
+      clearInterval(popupIntervalRef.current);
+      popupIntervalRef.current = null;
+    }
+  };
 
-  // האזנה להודעה מה-popup שההתחברות הושלמה
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data?.type === 'auth-callback') {
-        handleAuthComplete();
-      }
-    };
+  // ניקוי על unmount כדי שה-interval לא ידלוף אם המודאל נסגר באמצע
+  useEffect(() => clearPopupInterval, []);
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [handleAuthComplete]);
+  // הסגירה של מודאל ההתחברות וריענון ה-session בעקבות auth-callback מטופלים ב-SessionUserSync.
+  // כשה-session יתעדכן הפופאפ ייסגר → ה-interval יזהה closed וינקה את עצמו.
 
   const handleGoogleSignIn = () => {
     setIsLoading(true);
@@ -77,10 +70,10 @@ export function LoginModal() {
       `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top},popup=yes`
     );
 
-    // אם ה-popup נסגר ידנית ללא השלמת התחברות
-    const checkClosed = setInterval(() => {
+    clearPopupInterval();
+    popupIntervalRef.current = setInterval(() => {
       if (!popup || popup.closed) {
-        clearInterval(checkClosed);
+        clearPopupInterval();
         setIsLoading(false);
       }
     }, 500);
@@ -88,6 +81,7 @@ export function LoginModal() {
 
   const handleOpenChange = (open: boolean) => {
     if (!open && !isLoading) {
+      clearPopupInterval();
       closeLoginModal();
     }
   };
