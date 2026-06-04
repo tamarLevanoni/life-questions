@@ -6,45 +6,24 @@ import { useUserStore } from '@/lib/stores/user-store';
 import { useAuth } from '@/lib/auth-context';
 import type { UserData } from '@/lib/schemas';
 
-/**
- * הצרכן היחיד של useSession באפליקציה.
- * מסנכרן את ה-NextAuth session ל-useUserStore, ומאזין להודעת auth-callback
- * מחלון ההתחברות כדי לרענן את ה-session ולסגור את מודאל ההתחברות.
- */
 export function SessionUserSync() {
   const { data: session, status, update } = useSession();
-  const setUser = useUserStore((s) => s.setUser);
-  const clearUser = useUserStore((s) => s.clearUser);
-  const setAuthStatus = useUserStore((s) => s.setAuthStatus);
   const { closeLoginModal } = useAuth();
 
   const u = session?.user;
-  const id = u?.id;
-  const googleId = u?.googleId;
-  const email = u?.email;
-  const firstName = u?.firstName;
-  const lastName = u?.lastName;
+  const id = u?.id ?? '';
+  const googleId = u?.googleId ?? '';
+  const email = u?.email ?? '';
+  const firstName = u?.firstName ?? '';
+  const lastName = u?.lastName ?? '';
   const institutionName = u?.institutionName;
-  const phone = u?.phone;
-  const marketingConsent = u?.marketingConsent;
+  const phone = u?.phone ?? '';
+  const marketingConsent = u?.marketingConsent ?? false;
   const occupationsKey = u?.occupations?.join(',') ?? '';
 
-  const userData = useMemo<UserData | null>(() => {
-    if (!id || !googleId || !email) return null;
-    return {
-      id,
-      googleId,
-      email,
-      firstName: firstName ?? '',
-      lastName: lastName ?? '',
-      institutionName,
-      phone: phone ?? '',
-      occupations: u?.occupations ?? [],
-      marketingConsent: marketingConsent ?? false,
-    };
-    // u?.occupations identity changes on every poll — שימוש ב-occupationsKey
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
+  // u?.occupations identity changes on every poll — שימוש ב-occupationsKey
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const userData = useMemo<UserData>(() => ({
     id,
     googleId,
     email,
@@ -52,19 +31,29 @@ export function SessionUserSync() {
     lastName,
     institutionName,
     phone,
-    occupationsKey,
+    occupations: u?.occupations ?? [],
     marketingConsent,
-  ]);
+  }), [id, googleId, email, firstName, lastName, institutionName, phone, occupationsKey, marketingConsent]);
+
+  const image = u?.image ?? null;
+  const isRegistrationComplete = u?.isRegistrationComplete ?? false;
 
   useEffect(() => {
-    if (status === 'authenticated' && userData) {
-      setUser(userData);
-      setAuthStatus('authenticated');
+    const { setUser, clearUser, setAuthStatus, setImage } = useUserStore.getState();
+    if (status === 'authenticated') {
+      setImage(image);
+      if (isRegistrationComplete) {
+        setUser(userData);
+        setAuthStatus('authenticated');
+      } else {
+        setAuthStatus('registration-required');
+      }
     } else if (status === 'unauthenticated') {
       clearUser();
       setAuthStatus('unauthenticated');
     }
-  }, [status, userData, setUser, clearUser, setAuthStatus]);
+    // status === 'loading' → authStatus נשאר 'idle'
+  }, [status, userData, image, isRegistrationComplete]);
 
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {

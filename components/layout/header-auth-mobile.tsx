@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { useAuth } from '@/lib/auth-context';
+import { useUserStore } from '@/lib/stores/user-store';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut } from 'lucide-react';
 
@@ -11,13 +12,15 @@ export function HeaderAuthMobileSkeleton() {
 }
 
 export function HeaderAuthMobile({ onClose }: { onClose: () => void }) {
-  const { data: session, status } = useSession();
+  const authStatus = useUserStore((s) => s.authStatus);
+  const user = useUserStore((s) => s.user);
+  const image = useUserStore((s) => s.image);
   const { openLoginModal } = useAuth();
   const router = useRouter();
 
-  if (status === 'loading') return <HeaderAuthMobileSkeleton />;
+  if (authStatus === 'idle') return <HeaderAuthMobileSkeleton />;
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <button
         onClick={() => {
@@ -31,23 +34,20 @@ export function HeaderAuthMobile({ onClose }: { onClose: () => void }) {
     );
   }
 
-  const displayName =
-    [session.user.firstName, session.user.lastName].filter(Boolean).join(' ') ||
-    session.user.name ||
-    '';
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ');
 
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-3 px-4 py-2">
         <Avatar className="w-8 h-8 border-2 border-brand-teal/30">
-          <AvatarImage src={session.user.image || undefined} alt={displayName || 'User'} />
+          <AvatarImage src={image || undefined} alt={displayName || 'User'} />
           <AvatarFallback className="bg-linear-to-br from-brand-teal to-[#0D9488] text-white text-xs font-medium">
             {displayName?.[0]?.toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <p className="text-sm font-medium text-foreground truncate font-hebrew">{displayName}</p>
-          <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
+          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
         </div>
       </div>
       <button

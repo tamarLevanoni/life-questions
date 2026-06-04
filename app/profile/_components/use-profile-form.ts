@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUserStore } from '@/lib/stores/user-store';
@@ -9,7 +9,6 @@ import { profileEditSchema, type ProfileEditFormData, type Occupation } from '@/
 import type { UserData } from '@/lib/schemas';
 
 export function useProfileForm(user: UserData | null) {
-  const updateUser = useUserStore((s) => s.updateUser);
   const { showToast } = useToast();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -54,10 +53,10 @@ export function useProfileForm(user: UserData | null) {
     setIsEditing(false);
   };
 
-  const onSubmit = async (data: ProfileEditFormData) => {
+  const onSubmit = useCallback(async (data: ProfileEditFormData) => {
     setIsSaving(true);
     try {
-      await updateUser({
+      await useUserStore.getState().updateUser({
         googleId: user?.googleId ?? '',
         ...data,
         institutionName: data.institutionName || undefined,
@@ -72,7 +71,9 @@ export function useProfileForm(user: UserData | null) {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [user?.googleId, showToast]);
+
+  const onSave = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);
 
   const toggleOccupation = (occ: Occupation) => {
     const current = selectedOccupations ?? [];
@@ -86,14 +87,13 @@ export function useProfileForm(user: UserData | null) {
     isEditing,
     isSaving,
     register,
-    handleSubmit,
+    onSave,
     setValue,
     errors,
     selectedOccupations,
     marketingConsent,
     handleEdit,
     handleCancel,
-    onSubmit,
     toggleOccupation,
   };
 }

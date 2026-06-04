@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import { useAuth } from '@/lib/auth-context';
+import { useUserStore } from '@/lib/stores/user-store';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -19,13 +20,15 @@ export function HeaderAuthDesktopSkeleton() {
 }
 
 export function HeaderAuthDesktop() {
-  const { data: session, status } = useSession();
+  const authStatus = useUserStore((s) => s.authStatus);
+  const user = useUserStore((s) => s.user);
+  const image = useUserStore((s) => s.image);
   const { openLoginModal } = useAuth();
   const router = useRouter();
 
-  if (status === 'loading') return <HeaderAuthDesktopSkeleton />;
+  if (authStatus === 'idle') return <HeaderAuthDesktopSkeleton />;
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <button
         onClick={openLoginModal}
@@ -36,17 +39,14 @@ export function HeaderAuthDesktop() {
     );
   }
 
-  const displayName =
-    [session.user.firstName, session.user.lastName].filter(Boolean).join(' ') ||
-    session.user.name ||
-    '';
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ');
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="relative rounded-full ring-2 ring-transparent hover:ring-brand-teal/50 transition-all duration-200">
           <Avatar className="w-9 h-9 border-2 border-brand-teal/30">
-            <AvatarImage src={session.user.image || undefined} alt={displayName || 'User'} />
+            <AvatarImage src={image || undefined} alt={displayName || 'User'} />
             <AvatarFallback className="bg-linear-to-br from-brand-teal to-[#0D9488] text-white text-sm font-medium">
               {displayName?.[0]?.toUpperCase() || 'U'}
             </AvatarFallback>
@@ -59,7 +59,7 @@ export function HeaderAuthDesktop() {
       >
         <div className="px-3 py-2">
           <p className="text-sm font-medium text-foreground font-hebrew">{displayName}</p>
-          <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
+          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="cursor-pointer font-hebrew">

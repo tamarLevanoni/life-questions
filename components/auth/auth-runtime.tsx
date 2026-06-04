@@ -9,21 +9,13 @@ import { OnboardingModal } from '@/components/auth/onboarding-modal';
 
 function OnboardingTrigger() {
   const authStatus = useUserStore((s) => s.authStatus);
-  const user = useUserStore((s) => s.user);
   const { openOnboardingModal } = useAuth();
 
-  // isRegistrationComplete הוא flag זמני של OAuth שלא נכנס ל-UserData עצמו.
-  // אחרי שה-store הוזן, אם חסרים שדות חובה (firstName/phone/occupations) —
-  // המשתמש עדיין באמצע onboarding.
-  const needsOnboarding =
-    !!user &&
-    (!user.firstName || !user.phone || user.occupations.length === 0);
-
   useEffect(() => {
-    if (authStatus === 'authenticated' && needsOnboarding) {
+    if (authStatus === 'registration-required') {
       openOnboardingModal();
     }
-  }, [authStatus, needsOnboarding, openOnboardingModal]);
+  }, [authStatus, openOnboardingModal]);
 
   return null;
 }

@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useUserStore } from '@/lib/stores/user-store';
 import { ProfileSkeleton } from './profile-skeleton';
 import { ProfileHeroCard } from './profile-hero-card';
@@ -12,21 +10,13 @@ import { AccountSection } from './account-section';
 import { useProfileForm } from './use-profile-form';
 
 export function ProfileView() {
-  const { data: session, status } = useSession();
+  const authStatus = useUserStore((s) => s.authStatus);
   const user = useUserStore((s) => s.user);
-  const fetchUser = useUserStore((s) => s.fetchUser);
-
-  useEffect(() => {
-    if (status === 'authenticated' && !user) {
-      fetchUser();
-    }
-  }, [status, user, fetchUser]);
+  const image = useUserStore((s) => s.image);
 
   const form = useProfileForm(user);
 
-  if (status === 'loading' || (status === 'authenticated' && !user)) {
-    return <ProfileSkeleton />;
-  }
+  if (authStatus === 'idle') return <ProfileSkeleton />;
 
   if (!user) return null;
 
@@ -39,11 +29,11 @@ export function ProfileView() {
         fullName={fullName}
         initials={initials}
         email={user.email}
-        avatarUrl={session?.user?.image ?? undefined}
+        avatarUrl={image ?? undefined}
         isEditing={form.isEditing}
         isSaving={form.isSaving}
         onEdit={form.handleEdit}
-        onSave={form.handleSubmit(form.onSubmit)}
+        onSave={form.onSave}
         onCancel={form.handleCancel}
       />
 

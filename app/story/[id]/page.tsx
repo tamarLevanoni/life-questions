@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
@@ -5,6 +6,7 @@ import { StoreHydrator } from '@/components/common/store-hydrator';
 import { getStory } from '@/lib/server/stories';
 import { BackendError } from '@/lib/server/errors';
 import { StoryView } from './_components/story-view';
+import { StorySkeleton } from './_components/story-skeleton';
 
 interface StoryPageProps {
   params: Promise<{ id: string }>;
@@ -26,8 +28,19 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
   }
 }
 
-export default async function StoryPage({ params }: StoryPageProps) {
+export default function StoryPage({ params }: StoryPageProps) {
+  return (
+    <PageShell maxWidth="3xl">
+      <Suspense fallback={<StorySkeleton />}>
+        <StoryContent params={params} />
+      </Suspense>
+    </PageShell>
+  );
+}
+
+async function StoryContent({ params }: StoryPageProps) {
   const { id } = await params;
+
   let story;
   try {
     story = await getStory(id);
@@ -45,7 +58,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
   };
 
   return (
-    <PageShell maxWidth="3xl">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -53,6 +66,6 @@ export default async function StoryPage({ params }: StoryPageProps) {
       <StoreHydrator story={story}>
         <StoryView />
       </StoreHydrator>
-    </PageShell>
+    </>
   );
 }
