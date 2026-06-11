@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CategoryFilterBarProps, UiShasRef, UiShuRef } from '@/lib/types';
 import { X, Plus, Trash2, Search } from 'lucide-react';
-import { ShasSubFilters, ShulchanAruchSubFilters } from './category-sub-filters';
+import { ShasSubFilters } from './shas-sub-filters';
+import { ShulchanAruchSubFilters } from './shulchan-aruch-sub-filters';
 import { FilterSectionHeader } from './filter-section-header';
 import { FilterCheckList } from './filter-check-list';
 

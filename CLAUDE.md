@@ -117,6 +117,8 @@ Per route with state/auth:
 
 **Hard limit: 200 lines** for `page.tsx`, every `_components/*`, and every hook. Split when exceeded. Never define a local component with the same name as a shared primitive (shadowing hides the canonical version).
 
+**Composition rule:** `page.tsx` and `*-view.tsx` must be composed exclusively of named imports — no inline JSX logic, no local sub-components defined in the same file. Each section or logical block belongs in its own file under `_components/`. This keeps the page/view as a structural outline that reads like a table of contents.
+
 ---
 
 ## Hydration

@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
 import { getStory } from '@/lib/server/stories';
 import { BackendError } from '@/lib/server/errors';
+import { SkeletonLines } from '@/components/common/loading-skeleton';
 import { StoryHydrator } from './_components/story-hydrator';
 import { StoryView } from './_components/story-view';
-import { StorySkeleton } from './_components/story-skeleton';
 
 interface StoryPageProps {
   params: Promise<{ id: string }>;
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
 export default function StoryPage({ params }: StoryPageProps) {
   return (
     <PageShell maxWidth="3xl">
-      <Suspense fallback={<StorySkeleton />}>
+      <Suspense fallback={<SkeletonLines count={5} />}>
         <StoryContent params={params} />
       </Suspense>
     </PageShell>

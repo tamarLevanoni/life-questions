@@ -1,7 +1,7 @@
 'use client';
 
 import { useUserStore } from '@/lib/stores/user-store';
-import { ProfileSkeleton } from './profile-skeleton';
+import { SkeletonCardList } from '@/components/common/loading-skeleton';
 import { ProfileHeroCard } from './profile-hero-card';
 import { PersonalInfoSection } from './personal-info-section';
 import { OccupationsSection } from './occupations-section';
@@ -15,7 +15,7 @@ export function ProfileView() {
 
   const form = useProfileForm(user);
 
-  if (!user) return <ProfileSkeleton />;
+  if (!user) return <SkeletonCardList count={3} />;
 
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'משתמש';
   const initials = (user.firstName?.[0] ?? '') + (user.lastName?.[0] ?? '') || 'U';

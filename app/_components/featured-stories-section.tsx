@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/section-header";
 import { MotionFadeIn } from "@/components/common/motion-fade-in";
-import { FeaturedStoryCard } from "./featured-story-card";
+import { ScenarioCard } from "@/components/story/scenario-card";
 import { useAppDataStore } from "@/lib/stores/app-data-store";
 
 export function FeaturedStoriesSection() {
   const stories = useAppDataStore((s) => s.featuredStories);
+  const books = useAppDataStore((s) => s.books);
 
   return (
     <section id="featured" className="py-16 px-4">
@@ -21,11 +22,16 @@ export function FeaturedStoriesSection() {
         </MotionFadeIn>
 
         <div className="grid gap-4">
-          {stories.map((story, index) => (
-            <MotionFadeIn key={story.id} delay={index * 0.1}>
-              <FeaturedStoryCard story={story} delay={index * 0.1} />
-            </MotionFadeIn>
-          ))}
+          {stories.map((story, index) => {
+            const bookName = books.find((b) => b.id === story.bookId)?.name;
+            return (
+              <MotionFadeIn key={story.id} delay={index * 0.1}>
+                <Link href={`/story/featured/${story.id}`} className="block">
+                  <ScenarioCard story={story} bookName={bookName} topicName={story.topic.name} />
+                </Link>
+              </MotionFadeIn>
+            );
+          })}
         </div>
 
         <MotionFadeIn className="text-center mt-8">

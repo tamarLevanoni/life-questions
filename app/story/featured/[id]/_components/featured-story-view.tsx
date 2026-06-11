@@ -8,7 +8,6 @@ import { ExpandableAnswerPanel } from '@/components/story/expandable-answer-pane
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { SkeletonLines } from '@/components/common/loading-skeleton';
 import { StorySourcesList } from '@/app/story/[id]/_components/story-sources-list';
-import { StoryQuestionCta } from '@/app/story/[id]/_components/story-question-cta';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 import { useFeaturedStory } from './use-featured-story';
 
