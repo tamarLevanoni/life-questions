@@ -2,9 +2,9 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
-import { StoreHydrator } from '@/components/common/store-hydrator';
 import { getStory } from '@/lib/server/stories';
 import { BackendError } from '@/lib/server/errors';
+import { StoryHydrator } from './_components/story-hydrator';
 import { StoryView } from './_components/story-view';
 import { StorySkeleton } from './_components/story-skeleton';
 
@@ -63,9 +63,8 @@ async function StoryContent({ params }: StoryPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <StoreHydrator story={story}>
-        <StoryView />
-      </StoreHydrator>
+      <StoryHydrator story={story} />
+      <StoryView />
     </>
   );
 }

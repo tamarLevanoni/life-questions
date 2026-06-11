@@ -1,6 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { backendFetch } from '@/lib/backend-fetch';
+import { serverClient } from '@/lib/server/client';
 import type { UserData } from '@/lib/schemas';
 
 export const authOptions: NextAuthOptions = {
@@ -23,13 +23,10 @@ export const authOptions: NextAuthOptions = {
 
       try {
         const googleId = account.providerAccountId;
-        const { data, ok } = await backendFetch<UserData>(`/api/users/google/${googleId}`);
-        if (ok) {
-          user.backendData = data as typeof user.backendData;
-        }
-        // 404 = new user — don't block sign-in, backendData stays undefined
+        const data = await serverClient.get<UserData>(`/api/users/google/${googleId}`);
+        user.backendData = data as typeof user.backendData;
       } catch {
-        // Backend unreachable — allow sign-in, treat as new user
+        // 404 = new user / backend unreachable — allow sign-in, backendData stays undefined
       }
 
       return true;

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { apiCall } from '@/lib/api-client';
+import { submitContact } from '@/lib/server/actions';
 import type { ContactFormData } from '@/lib/schemas';
 
 interface ContactState {
@@ -16,11 +16,7 @@ export const useContactStore = create<ContactState>((set) => ({
   submit: async (data) => {
     set({ isSubmitting: true });
     try {
-      await apiCall('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+      await submitContact(data);
       set({ submitted: true });
       return { success: true };
     } catch (err) {

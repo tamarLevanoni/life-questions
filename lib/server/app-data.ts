@@ -1,7 +1,7 @@
 import 'server-only';
 import { cacheTag, cacheLife } from 'next/cache';
 import { z } from 'zod';
-import { backendFetch } from '@/lib/backend-fetch';
+import { serverClient } from './client';
 import {
   masechetWithPagesSchema,
   shuSectionWithSimanimSchema,
@@ -11,12 +11,14 @@ import {
   type ShuSectionWithSimanim,
   type Topic,
   type Book,
+  type Story,
+  storySchema,
 } from '@/lib/schemas';
-import { BackendError, SchemaError } from './errors';
+import { SchemaError } from './errors';
+import type { AppDataBundle } from '@/lib/types';
 
 async function fetchList<T>(path: string, schema: z.ZodType<T[]>): Promise<T[]> {
-  const { data, ok, status, error } = await backendFetch(path);
-  if (!ok) throw new BackendError(status, error ?? 'Backend error');
+  const data = await serverClient.get(path);
   const parsed = schema.safeParse(data);
   if (!parsed.success) throw new SchemaError();
   return parsed.data;
@@ -50,19 +52,21 @@ export async function getBooks(): Promise<Book[]> {
   return fetchList('/api/reference/books', z.array(bookSchema));
 }
 
-export type ReferenceBundle = {
-  masechtot: MasechetWithPages[];
-  shuSections: ShuSectionWithSimanim[];
-  topics: Topic[];
-  books: Book[];
-};
+export async function getFeaturedStories(): Promise<Story[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('featured');
 
-export async function getReference(): Promise<ReferenceBundle> {
-  const [masechtot, shuSections, topics, books] = await Promise.all([
+  return fetchList('/api/stories/featured', z.array(storySchema));
+}
+
+export async function getAppData(): Promise<AppDataBundle> {
+  const [masechtot, shuSections, topics, books, featuredStories] = await Promise.all([
     getMasechtot(),
     getShuSections(),
     getTopics(),
     getBooks(),
+    getFeaturedStories(),
   ]);
-  return { masechtot, shuSections, topics, books };
+  return { masechtot, shuSections, topics, books, featuredStories };
 }

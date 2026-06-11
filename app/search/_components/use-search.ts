@@ -2,10 +2,11 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSearchResultsStore } from '@/lib/stores/search-results-store';
-import { useReferenceStore } from '@/lib/stores/reference-store';
+import { useStoriesStore } from '@/lib/stores/stories-store';
+import { useAppDataStore } from '@/lib/stores/app-data-store';
 import { useUserStore } from '@/lib/stores/user-store';
 import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/lib/toast-context';
 import type { UiSearchFilters } from '@/lib/types';
 import type { SearchBody } from '@/lib/schemas';
 
@@ -15,18 +16,20 @@ export function useSearch() {
   const router = useRouter();
   const authStatus = useUserStore((s) => s.authStatus);
   const { openLoginModal } = useAuth();
+  const { showToast } = useToast();
   const isUnauthenticated = authStatus === 'unauthenticated';
 
-  const stories = useSearchResultsStore((s) => s.stories);
-  const total = useSearchResultsStore((s) => s.total);
-  const page = useSearchResultsStore((s) => s.page);
-  const loading = useSearchResultsStore((s) => s.loading);
-  const searchStories = useSearchResultsStore((s) => s.searchStories);
-  const loadMoreStories = useSearchResultsStore((s) => s.loadMoreStories);
-  const masechtot = useReferenceStore((s) => s.masechtot);
-  const shuSections = useReferenceStore((s) => s.shuSections);
-  const topics = useReferenceStore((s) => s.topics);
-  const books = useReferenceStore((s) => s.books);
+  const stories = useStoriesStore((s) => s.searchResults);
+  const total = useStoriesStore((s) => s.total);
+  const loading = useStoriesStore((s) => s.loading);
+  const authRequired = useStoriesStore((s) => s.authRequired);
+  const clearAuthRequired = useStoriesStore((s) => s.clearAuthRequired);
+  const searchStories = useStoriesStore((s) => s.searchStories);
+  const loadMoreStories = useStoriesStore((s) => s.loadMoreStories);
+  const masechtot = useAppDataStore((s) => s.masechtot);
+  const shuSections = useAppDataStore((s) => s.shuSections);
+  const topics = useAppDataStore((s) => s.topics);
+  const books = useAppDataStore((s) => s.books);
 
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<UiSearchFilters>({});
@@ -62,13 +65,23 @@ export function useSearch() {
   );
 
   const handleSearch = useCallback(() => {
+    if (isUnauthenticated) {
+      showToast('יש להתחבר כדי לבצע חיפוש', 'info');
+      openLoginModal();
+      return;
+    }
     setHasSearched(true);
     searchStories(buildApiParams(filters));
-  }, [searchStories, buildApiParams, filters]);
+  }, [isUnauthenticated, showToast, openLoginModal, searchStories, buildApiParams, filters]);
 
   const handleLoadMore = useCallback(() => {
-    loadMoreStories({ ...buildApiParams(filters), page: page + 1 });
-  }, [loadMoreStories, buildApiParams, filters, page]);
+    if (isUnauthenticated) {
+      showToast('יש להתחבר כדי לבצע חיפוש', 'info');
+      openLoginModal();
+      return;
+    }
+    loadMoreStories(buildApiParams(filters));
+  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories, buildApiParams, filters]);
 
   const handleStoryClick = useCallback(
     (story: { id: string }) => {
@@ -83,8 +96,11 @@ export function useSearch() {
   }, [handleSearch]);
 
   useEffect(() => {
-    if (authStatus === 'unauthenticated') openLoginModal();
-  }, [authStatus, openLoginModal]);
+    if (!authRequired) return;
+    showToast('יש להתחבר כדי לבצע חיפוש', 'info');
+    openLoginModal();
+    clearAuthRequired();
+  }, [authRequired, showToast, openLoginModal, clearAuthRequired]);
 
   const hasMore = stories.length < total;
 

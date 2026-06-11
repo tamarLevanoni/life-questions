@@ -110,32 +110,33 @@ Story body, legal question, and short answer are public. This is required for SE
 2. proxy.ts calls getToken()
    -> no token redirects to /
 3. With token, the page loads
-4. page.tsx (RSC) calls getCurrentUser()
-5. <StoreHydrator user={user}> hydrates useUserStore
-6. ProfileView reads useUserStore
+4. page.tsx (RSC) renders <ProfileView /> directly — no RSC data fetch
+5. ProfileView reads useUserStore (populated by SessionUserSync from JWT)
+6. After profile edits: updateSession() refreshes the JWT so the store stays in sync
 ```
 
-`/profile/page.tsx` does not perform auth redirects. Protection is handled in `proxy.ts`.
+`/profile/page.tsx` does not perform auth redirects and does not call `getCurrentUser()`. Protection is handled in `proxy.ts`. User data is always available from `useUserStore` because `SessionUserSync` populated it from the JWT before navigation.
 
 ---
 
 ## `proxy.ts`
 
+Handles two cases for unauthenticated requests:
+- **API routes** (`/api/*` in matcher): returns `401 { error: 'Unauthorized' }` — the client store catches this as `UnauthenticatedError`.
+- **Page routes**: redirects to `/` or `/contact` with an `?alert=` param that triggers the login modal.
+
 ```ts
-// proxy.ts at project root
-import { NextResponse, type NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
-
-export async function proxy(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) return NextResponse.redirect(new URL('/', req.url));
-  return NextResponse.next();
-}
-
-export const config = { matcher: ['/profile/:path*'] };
+export const config = {
+  matcher: [
+    '/profile/:path*',
+    '/story/((?!featured).+)',      // story pages except /story/featured/*
+    '/api/stories/((?!featured).+)', // BFF routes except featured
+    '/contact',
+  ],
+};
 ```
 
-To add a protected route, add it to `matcher`. Do not add page-level auth redirects.
+To add a protected route, add it to `matcher`. Do not add page-level auth redirects or per-route session checks in BFF handlers — the middleware covers it.
 
 ---
 

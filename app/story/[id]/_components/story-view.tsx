@@ -2,29 +2,25 @@
 
 import { ExpandableAnswerPanel } from '@/components/story/expandable-answer-panel';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
-import { SkeletonLines } from '@/components/common/loading-skeleton';
 import { StoryArticle } from './story-article';
 import { StoryNavigation } from './story-navigation';
-import { StoryNotFound } from './story-not-found';
 import { StoryBackLink } from './story-back-link';
 import { StoryQuestionCta } from './story-question-cta';
+import { StorySkeleton } from './story-skeleton';
 import { useStoryDetail } from './use-story-detail';
 
 export function StoryView() {
   const {
-    storyId,
     story,
     book,
-    loading,
-    error,
+    storyId,
     canViewExpansion,
     prevId,
     nextId,
     requestExpansionAccess,
   } = useStoryDetail();
 
-  if (loading) return <SkeletonLines count={4} />;
-  if (error || !story) return <StoryNotFound error={error} />;
+  if (!story) return <StorySkeleton />;
 
   return (
     <>

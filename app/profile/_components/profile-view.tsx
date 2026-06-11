@@ -10,15 +10,12 @@ import { AccountSection } from './account-section';
 import { useProfileForm } from './use-profile-form';
 
 export function ProfileView() {
-  const authStatus = useUserStore((s) => s.authStatus);
   const user = useUserStore((s) => s.user);
   const image = useUserStore((s) => s.image);
 
   const form = useProfileForm(user);
 
-  if (authStatus === 'idle') return <ProfileSkeleton />;
-
-  if (!user) return null;
+  if (!user) return <ProfileSkeleton />;
 
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'משתמש';
   const initials = (user.firstName?.[0] ?? '') + (user.lastName?.[0] ?? '') || 'U';

@@ -10,10 +10,18 @@ interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  persistent?: boolean;
+  position?: 'top' | 'bottom';
+}
+
+interface ToastOptions {
+  type?: ToastType;
+  persistent?: boolean;
+  position?: 'top' | 'bottom';
 }
 
 interface ToastContextValue {
-  showToast: (message: string, type?: ToastType) => void;
+  showToast: (message: string, typeOrOptions?: ToastType | ToastOptions) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -33,13 +41,19 @@ const STYLES: Record<ToastType, string> = {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: ToastType = 'info') => {
+  const showToast = useCallback((message: string, typeOrOptions?: ToastType | ToastOptions) => {
+    const options: ToastOptions = typeof typeOrOptions === 'string'
+      ? { type: typeOrOptions }
+      : (typeOrOptions ?? {});
+    const { type = 'info', persistent = false, position = 'bottom' } = options;
     const id = crypto.randomUUID();
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type, persistent, position }]);
 
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    if (!persistent) {
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, 4000);
+    }
   }, []);
 
   const removeToast = useCallback((id: string) => {
@@ -50,32 +64,37 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
 
-      {/* Toast Container */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-100 flex flex-col gap-2 w-[calc(100%-2rem)] max-w-sm" dir="rtl">
-        <AnimatePresence>
-          {toasts.map((toast) => {
-            const Icon = ICONS[toast.type];
-            return (
-              <motion.div
-                key={toast.id}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg font-hebrew text-sm ${STYLES[toast.type]}`}
+      <AnimatePresence>
+        {toasts.map((toast) => {
+          const Icon = ICONS[toast.type];
+          const isTop = toast.position === 'top';
+          return (
+            <motion.div
+              key={toast.id}
+              dir="rtl"
+              initial={{ opacity: 0, y: isTop ? -16 : 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: isTop ? -16 : 20 }}
+              transition={{ duration: 0.25 }}
+              className={`fixed z-50 flex items-center gap-3 px-4 py-3 border font-hebrew text-sm shadow-lg ${STYLES[toast.type]} ${
+                isTop
+                  ? 'top-0 inset-x-0 border-x-0 border-t-0 border-b'
+                  : 'bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm rounded-xl'
+              }`}
+            >
+              <Icon className="w-5 h-5 shrink-0" />
+              <span className="flex-1">{toast.message}</span>
+              <button
+                onClick={() => removeToast(toast.id)}
+                className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+                aria-label="סגור"
               >
-                <Icon className="w-5 h-5 shrink-0" />
-                <span className="flex-1">{toast.message}</span>
-                <button
-                  onClick={() => removeToast(toast.id)}
-                  className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </div>
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </ToastContext.Provider>
   );
 }

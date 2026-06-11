@@ -3,7 +3,6 @@
 import { SearchBar } from './search-bar';
 import { ActiveFilterTags } from './active-filter-tags';
 import { SearchResultsList } from './search-results-list';
-import { AuthRequiredOverlay } from './auth-required-overlay';
 import { SearchMobileFilterButton } from './search-mobile-filter-button';
 import type { UseSearchReturn } from './use-search';
 
@@ -27,12 +26,10 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
     topics,
     books,
     activeFiltersCount,
-    isUnauthenticated,
     handleSearch,
     handleLoadMore,
     handleStoryClick,
     setFilterDrawerOpen,
-    openLoginModal,
   } = search;
 
   return (
@@ -73,7 +70,6 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
         }
       />
 
-      {isUnauthenticated && <AuthRequiredOverlay onClick={openLoginModal} />}
     </div>
   );
 }

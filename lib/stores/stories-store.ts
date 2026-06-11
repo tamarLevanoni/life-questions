@@ -1,17 +1,22 @@
 import { create } from 'zustand';
-import { apiCall } from '@/lib/api-client';
-import type { StoryCard, SearchBody, PaginatedStoryCards } from '@/lib/schemas';
+import { apiCall, UnauthenticatedError } from '@/lib/api-client';
+import type { StoryCard, StoryWithNeighbors, SearchBody, PaginatedStoryCards } from '@/lib/schemas';
 
-interface SearchResultsState {
-  stories: StoryCard[];
+interface StoriesState {
+  // Entity cache — full stories by ID
+  stories: Record<string, StoryWithNeighbors>;
+  setStory: (story: StoryWithNeighbors) => void;
+
+  // Search results — ordered list + UI state
+  searchResults: StoryCard[];
   total: number;
   page: number;
   loading: boolean;
   error: string | null;
-  hydrateSearch: (result: PaginatedStoryCards) => void;
+  authRequired: boolean;
   searchStories: (params: SearchBody) => Promise<void>;
   loadMoreStories: (params: SearchBody) => Promise<void>;
-  reset: () => void;
+  clearAuthRequired: () => void;
 }
 
 function buildInit(body: SearchBody, signal: AbortSignal): RequestInit {
@@ -27,6 +32,7 @@ function isAbort(err: unknown): boolean {
   return err instanceof DOMException && err.name === 'AbortError';
 }
 
+// מבטל את הבקשה הקודמת כדי שרק החיפוש האחרון ישפיע על ה-state
 let activeController: AbortController | null = null;
 
 function nextSignal(): AbortSignal {
@@ -35,25 +41,36 @@ function nextSignal(): AbortSignal {
   return activeController.signal;
 }
 
-export const useSearchResultsStore = create<SearchResultsState>((set, get) => ({
-  stories: [],
+export const useStoriesStore = create<StoriesState>((set, get) => ({
+  stories: {},
+  setStory: (story) =>
+    set((s) => ({ stories: { ...s.stories, [story.id]: story } })),
+
+  searchResults: [],
   total: 0,
   page: 1,
   loading: false,
   error: null,
+  authRequired: false,
+
+  clearAuthRequired: () => set({ authRequired: false }),
 
   searchStories: async (params) => {
     const signal = nextSignal();
-    set({ loading: true, error: null, stories: [], total: 0, page: 1 });
+    set({ loading: true, error: null, searchResults: [], total: 0, page: 1 });
     try {
       const data = await apiCall<PaginatedStoryCards>(
         '/api/stories/search',
         buildInit({ ...params, page: 1 }, signal)
       );
-      if (signal.aborted) return;
-      set({ stories: data.stories, total: data.total, page: 1, loading: false });
+      if (signal.aborted) return; // בקשה חדשה כבר יצאה — תוצאות אלו לא רלוונטיות
+      set({ searchResults: data.stories, total: data.total, page: 1, loading: false });
     } catch (err) {
       if (isAbort(err)) return;
+      if (err instanceof UnauthenticatedError) {
+        set({ loading: false, authRequired: true });
+        return;
+      }
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
   },
@@ -67,25 +84,20 @@ export const useSearchResultsStore = create<SearchResultsState>((set, get) => ({
         '/api/stories/search',
         buildInit({ ...params, page: nextPage }, signal)
       );
-      if (signal.aborted) return;
+      if (signal.aborted) return; // בקשה חדשה כבר יצאה — תוצאות אלו לא רלוונטיות
       set((state) => ({
-        stories: [...state.stories, ...data.stories],
+        searchResults: [...state.searchResults, ...data.stories],
         total: data.total,
         page: nextPage,
         loading: false,
       }));
     } catch (err) {
       if (isAbort(err)) return;
+      if (err instanceof UnauthenticatedError) {
+        set({ loading: false, authRequired: true });
+        return;
+      }
       set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
-  },
-
-  hydrateSearch: (result) =>
-    set({ stories: result.stories, total: result.total, page: 1, loading: false, error: null }),
-
-  reset: () => {
-    activeController?.abort();
-    activeController = null;
-    set({ stories: [], total: 0, page: 1, loading: false, error: null });
   },
 }));

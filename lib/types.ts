@@ -1,11 +1,20 @@
 import type {
   StoryCard,
   Story,
+  StoryWithNeighbors,
   Book,
   Topic,
   MasechetWithPages,
   ShuSectionWithSimanim,
 } from '@/lib/schemas';
+
+export type AppDataBundle = {
+  masechtot: MasechetWithPages[];
+  shuSections: ShuSectionWithSimanim[];
+  topics: Topic[];
+  books: Book[];
+  featuredStories: Story[];
+};
 
 // ==================== BFF / UTILITY TYPES ====================
 
@@ -41,7 +50,7 @@ export interface UiSearchFilters {
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
-  story: StoryCard | Story;
+  story: StoryCard | Story | StoryWithNeighbors;
   bookName?: string;
   topicName?: string;
   onClick?: () => void;
@@ -84,7 +93,7 @@ export interface SearchResultsListProps {
   hasMore: boolean;
   total: number;
   onLoadMore: () => void;
-  onStoryClick: (story: StoryCard) => void;
+  onStoryClick: (story: { id: string }) => void;
   emptyMessage?: string;
 }
 

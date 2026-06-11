@@ -1,30 +1,22 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useStoryDetailStore } from '@/lib/stores/story-detail-store';
-import { useReferenceStore } from '@/lib/stores/reference-store';
 import { useUserStore } from '@/lib/stores/user-store';
+import { useStoriesStore } from '@/lib/stores/stories-store';
+import { useAppDataStore } from '@/lib/stores/app-data-store';
 
 export function useStoryDetail() {
   const { id: storyId } = useParams<{ id: string }>();
   const router = useRouter();
+  const story = useStoriesStore((s) => s.stories[storyId]);
+  const books = useAppDataStore((s) => s.books);
   const isAuthenticated = useUserStore((s) => s.authStatus === 'authenticated');
-  const story = useStoryDetailStore((s) => s.story);
-  const loading = useStoryDetailStore((s) => s.loading);
-  const error = useStoryDetailStore((s) => s.error);
-  const fetchStory = useStoryDetailStore((s) => s.fetchStory);
-  const books = useReferenceStore((s) => s.books);
 
-  useEffect(() => {
-    if (storyId) fetchStory(storyId);
-  }, [storyId, fetchStory]);
-
+  const book = books.find((b) => b.id === story?.bookId);
   const canViewExpansion = isAuthenticated;
-  const book = story ? books.find((b) => b.id === story.bookId) : undefined;
   const prevId = story?.neighbors?.prev?.id ?? null;
   const nextId = story?.neighbors?.next?.id ?? null;
-  const storyTitleEncoded = story ? encodeURIComponent(story.title) : '';
+  const storyTitleEncoded = encodeURIComponent(story?.title ?? '');
 
   const requestExpansionAccess = () => router.push('/api/auth/signin');
 
@@ -32,8 +24,6 @@ export function useStoryDetail() {
     storyId,
     story,
     book,
-    loading,
-    error,
     canViewExpansion,
     prevId,
     nextId,

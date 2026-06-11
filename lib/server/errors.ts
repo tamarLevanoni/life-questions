@@ -15,11 +15,11 @@ export class SchemaError extends Error {
   }
 }
 
-export function toJsonResponse<T>(data: T, status = 200) {
+function toJsonResponse<T>(data: T, status = 200) {
   return NextResponse.json({ success: true, data }, { status });
 }
 
-export function errorResponse(err: unknown) {
+function errorResponse(err: unknown) {
   if (err instanceof BackendError) {
     return NextResponse.json({ success: false, error: err.message }, { status: err.status });
   }

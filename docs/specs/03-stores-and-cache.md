@@ -28,74 +28,62 @@ Binding rules:
 
 ## Stores
 
-| Store | Role | First Hydration Source |
-|-------|------|------------------------|
-| `useSearchResultsStore` | Search result pages returned by the server; request parameters, pagination, loading, and error state only | RSC: optional initial search results |
-| `useStoryDetailStore` | Current story only; may be primed with one selected full story before navigation; no internal map | RSC: `getStory(id)` |
-| `useReferenceStore` | Masechtot / Shulchan Aruch sections / topics / books; read-only on the client | RSC: `getReference()` |
-| `useUserStore` | Authenticated user profile | RSC: `getCurrentUser()` |
-| `useContactStore` | Contact-form submission state | None; action state only |
+| Store | File | Role | First Hydration Source |
+|-------|------|------|------------------------|
+| `useAppDataStore` | `lib/stores/app-data-store.ts` | masechtot, shuSections, topics, books, featuredStories — read-only on client | `AppDataHydrator` in root layout — once per session |
+| `useStoriesStore` | `lib/stores/stories-store.ts` | (1) entity cache `stories: Record<id, StoryWithNeighbors>` — full stories by ID; (2) `searchResults: StoryCard[]` + pagination/loading/error | `StoryHydrator` (story page) + search actions |
+| `useUserStore` | `lib/stores/user-store.ts` | Authenticated user + authStatus — single source of truth | `SessionUserSync` from JWT on session change |
+| `useContactStore` | `lib/stores/contact-store.ts` | Contact-form submission state | None; action state only |
 
-The canonical store name is `useSearchResultsStore`, defined in `lib/stores/search-results-store.ts`. The old `lib/stores/stories-store.ts` / `useStoriesStore` no longer exist; do not reintroduce them.
-
-`useSearchResultsStore` must not own featured stories. Featured examples are a server-provided home-page entry path and should be hydrated separately or rendered directly from the RSC payload.
-
-> **Featured stories are NOT stored in `useSearchResultsStore`.** They are loaded via RSC `getStory(id)` and optionally primed in `useStoryDetailStore` before navigation.
-
-`useSearchResultsStore` stores server-returned results exactly as returned. It may build request payloads or query parameters for the Core API, but it must not perform client-side ranking, filtering, sorting, scoring, or match interpretation.
+Rules:
+- `useStoriesStore.stories` holds only `StoryWithNeighbors` (full). Written by `StoryHydrator` on story page visit.
+- `useStoriesStore.searchResults` holds `StoryCard[]` (partial). Replaced on new search, appended on load-more.
+- The two are separate: search results are never inserted into the entity cache.
+- Featured stories are in `useAppDataStore.featuredStories` — not in `useStoriesStore`.
+- `useUserStore` is populated entirely from the JWT via `SessionUserSync`. No RSC fetch for user data.
 
 > **Search hooks/stores must not perform client-side ranking, filtering, sorting, scoring, or match interpretation. All filtering is done server-side.**
 
 ### Featured Entry Stories
 
-The home page shows three featured/example stories. They are high-intent entry points, so the app should load them as full `StoryWithNeighbors[]`, not as `StoryCard[]` from search.
+The home page shows featured example stories. They are loaded as full `Story[]` via `getFeaturedStories()` and stored in `useAppDataStore.featuredStories`.
 
 Implementation contract:
-- Featured examples are not search results and never belong in `useSearchResultsStore`.
-- `getFeaturedEntryStories()` first loads the ordered featured selection, then resolves each selected id through the same `getStory(id)` server helper used by `/story/:id`.
-- This warms the single-story cache, so clicking a featured example can reuse the cached `GET /api/stories/:id` response.
-- The home page may render cards from the full story payload by passing only the display subset into card components.
-- On card click, client code may call `useStoryDetailStore.getState().prime(story)` or `hydrate(story)` before navigation. This primes only the selected current story. It must not create a `Map`, list, or featured-story cache inside the store.
-
-### `useReferenceStore`: Client Read-Only
-This store has no fetch action. Its only data entry point is `hydrate(bundle)` from `<StoreHydrator>`.
-
-### `useStoryDetailStore`: No Internal Map
-Opening a story: RSC loads `story`, then hydrates the store synchronously. Navigating to another story creates a new page payload with the next story. Going back uses the router/cache layers; there is no need for `storyCache: Map`.
-
-The only allowed pre-navigation optimization is a current-story handoff: when the user clicks a full featured entry story that is already in the home-page payload, set that one story as the current story before navigating. The `/story/:id` page still treats RSC `getStory(id)` as authoritative.
+- Featured stories are not search results and never belong in `useStoriesStore.searchResults`.
+- The featured story route (`/story/featured/[id]`) looks up by ID from `useAppDataStore.featuredStories` — if not found, redirects to home (these are runtime-random, never bookmarked).
+- Featured story cards use `ScenarioCard` with `story.topic.name` directly (full `Story` has `topic: Topic` inline).
 
 ---
 
 ## Hydration Requirement
 
+Each store has a dedicated hydrator — a focused client component that writes synchronously during render (guarded by `useRef`), never inside `useEffect`.
+
+| Hydrator | Location | Store | When |
+|---------|----------|-------|------|
+| `AppDataHydrator` | `components/providers/app-data-hydrator.tsx` | `useAppDataStore` | Root layout — once per session |
+| `StoryHydrator` | `app/story/[id]/_components/story-hydrator.tsx` | `useStoriesStore` (entity cache) | Story page — upserts `StoryWithNeighbors` by ID |
+| `SessionUserSync` | `components/providers/session-user-sync.tsx` | `useUserStore` | Global — on session status change |
+
 ```tsx
-// components/common/store-hydrator.tsx
+// pattern — synchronous write during render
 'use client';
-export function StoreHydrator({ children, ...initial }) {
-  const hydrated = useRef(false);
-  if (!hydrated.current) {
-    if (initial.reference) useReferenceStore.setState({ ...initial.reference, loaded: true });
-    if (initial.story) useStoryDetailStore.setState({ story: initial.story });
-    if (initial.user !== undefined) useUserStore.setState({ user: initial.user });
-    if (initial.search) useSearchResultsStore.setState({
-      stories: initial.search.stories,
-      total: initial.search.total,
-    });
-    hydrated.current = true;
+export function XHydrator({ data }: { data: X }) {
+  const hydratedId = useRef<string | null>(null);
+  if (hydratedId.current !== data.id) {
+    useXStore.getState().setX(data);
+    hydratedId.current = data.id;
   }
-  return <>{children}</>;
+  return null;
 }
 ```
 
 What this solves:
-- The `if` runs during the first render before children render, so the store is populated for the first client paint.
-- Children read directly from the store without fallback props.
-- `useRef` makes the operation first-run only and safe under Strict Mode.
+- Write runs before children render → store is populated for the first client paint.
+- `useRef` guard makes it first-run only and safe under Strict Mode.
 
 Rules for `use-<route>.ts` hooks:
 - Read only from stores. Do not read `useInitialData()` or `initial*` props.
-- If an effect performs a fetch, check whether the entity is already hydrated. If it is, skip the fetch.
 
 ---
 
@@ -237,7 +225,7 @@ With Next.js 16 Cache Components, client navigation preserves nearby route state
 - Navigating back to `/search` restores screen state without a manual Zustand cache.
 - Reference data flows again through the RSC payload when the route is reloaded or refreshed.
 
-Do not add a client-side cache layer that imitates this. `useStoryDetailStore` stores only the current story.
+Do not add a client-side cache layer that imitates this. `useStoriesStore.stories` is the entity cache — populated by `StoryHydrator` on page visit, consumed by the contact form via `storyId` URL param.
 
 ---
 

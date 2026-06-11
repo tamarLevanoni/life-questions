@@ -85,7 +85,7 @@ Per route with state/auth:
 
 `page.tsx` does not implement auth redirects. Hard-gated routes are handled in `proxy.ts`; page components render only after access is allowed. Never put `<AppHeader>` or `<main>` directly in a page — only via `<PageShell>`.
 
-**Hard limit: 120 lines** for `page.tsx`, every `_components/*`, and every hook. Split when exceeded. Never define a local component with the same name as a shared primitive (shadowing hides the canonical version).
+**Hard limit: 200 lines** for `page.tsx`, every `_components/*`, and every hook. Split when exceeded. Never define a local component with the same name as a shared primitive (shadowing hides the canonical version).
 
 ---
 

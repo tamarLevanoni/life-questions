@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Heebo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Footer } from "@/components/layout/footer";
-import { StoreHydrator } from "@/components/common/store-hydrator";
-import { getReference } from "@/lib/server/reference";
+import { AppDataLoader } from "@/components/layout/app-data-loader";
+import { AuthAlert } from "@/components/layout/auth-alert";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,17 +50,20 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const reference = await getReference();
   return (
     <html lang="he" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
-        <StoreHydrator reference={reference}>
-          <Providers>{children}</Providers>
+        <AppDataLoader />
+        <Providers>
+          {children}
           <Footer />
-        </StoreHydrator>
+          <Suspense>
+            <AuthAlert />
+          </Suspense>
+        </Providers>
       </body>
     </html>
   );

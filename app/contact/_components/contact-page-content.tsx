@@ -1,13 +1,24 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useStoriesStore } from '@/lib/stores/stories-store';
 import { ContactForm } from './contact-form';
 import { ContactSidebar } from './contact-sidebar';
 
 export function ContactPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const storyId    = searchParams.get('storyId');
   const storyTitle = searchParams.get('storyTitle');
+  const storyInStore = useStoriesStore((s) => storyId ? s.stories[storyId] : undefined);
+  const storyMissing = !!storyId && !storyInStore;
+
+  useEffect(() => {
+    if (storyMissing) router.replace('/contact');
+  }, [storyMissing, router]);
+
+  if (storyMissing) return null;
 
   return (
     <>

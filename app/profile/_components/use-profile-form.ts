@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSession } from 'next-auth/react';
 import { useUserStore } from '@/lib/stores/user-store';
 import { useToast } from '@/lib/toast-context';
 import { profileEditSchema, type ProfileEditFormData, type Occupation } from '@/lib/schemas';
@@ -10,6 +11,7 @@ import type { UserData } from '@/lib/schemas';
 
 export function useProfileForm(user: UserData | null) {
   const { showToast } = useToast();
+  const { update: updateSession } = useSession();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,10 +58,18 @@ export function useProfileForm(user: UserData | null) {
   const onSubmit = useCallback(async (data: ProfileEditFormData) => {
     setIsSaving(true);
     try {
-      await useUserStore.getState().updateUser({
+      const updated = await useUserStore.getState().updateUser({
         googleId: user?.googleId ?? '',
         ...data,
         institutionName: data.institutionName || undefined,
+      });
+      await updateSession({
+        firstName: updated.firstName,
+        lastName: updated.lastName,
+        institutionName: updated.institutionName,
+        phone: updated.phone,
+        occupations: updated.occupations,
+        marketingConsent: updated.marketingConsent,
       });
       showToast('הפרטים עודכנו בהצלחה', 'success');
       setIsEditing(false);
@@ -71,7 +81,7 @@ export function useProfileForm(user: UserData | null) {
     } finally {
       setIsSaving(false);
     }
-  }, [user?.googleId, showToast]);
+  }, [user?.googleId, updateSession, showToast]);
 
   const onSave = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit]);
 

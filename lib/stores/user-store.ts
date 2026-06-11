@@ -1,5 +1,8 @@
 import { create } from 'zustand';
-import { apiCall } from '@/lib/api-client';
+import {
+  registerUser as registerUserAction,
+  updateCurrentUser as updateUserAction,
+} from '@/lib/server/actions';
 import type { UserData, MutableUserData } from '@/lib/schemas';
 import type { RegisterBody } from '@/lib/types';
 
@@ -17,15 +20,6 @@ interface UserState {
 
   registerUser: (body: RegisterBody) => Promise<UserData>;
   updateUser: (partial: Partial<MutableUserData>) => Promise<UserData>;
-  fetchUser: () => Promise<UserData>;
-}
-
-function jsonInit(method: string, body: unknown): RequestInit {
-  return {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  };
 }
 
 export const useUserStore = create<UserState>((set) => ({
@@ -39,19 +33,13 @@ export const useUserStore = create<UserState>((set) => ({
   clearUser: () => set({ user: null, image: null }),
 
   registerUser: async (body) => {
-    const user = await apiCall<UserData>('/api/user/register', jsonInit('POST', body));
+    const user = await registerUserAction(body);
     set({ user });
     return user;
   },
 
   updateUser: async (partial) => {
-    const user = await apiCall<UserData>('/api/user/profile', jsonInit('PATCH', partial));
-    set({ user });
-    return user;
-  },
-
-  fetchUser: async () => {
-    const user = await apiCall<UserData>('/api/user/profile');
+    const user = await updateUserAction(partial);
     set({ user });
     return user;
   },

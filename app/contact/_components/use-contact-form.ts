@@ -10,7 +10,7 @@ import {
   type ContactCategory,
 } from '@/lib/schemas';
 import { useContactStore } from '@/lib/stores/contact-store';
-import { useStoryDetailStore } from '@/lib/stores/story-detail-store';
+import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useUserStore } from '@/lib/stores/user-store';
 import { BASE_CATEGORIES, STORY_CATEGORY } from './contact-categories';
 
@@ -26,7 +26,7 @@ export function useContactForm({ storyId, storyTitle }: UseContactFormArgs) {
   const isAuthenticated = useUserStore((s) => s.authStatus === 'authenticated');
   const { showToast } = useToast();
   const { isSubmitting, submitted, submit, reset: resetContact } = useContactStore();
-  const { story: fetchedStory, fetchStory } = useStoryDetailStore();
+  const fetchedStory = useStoriesStore((s) => storyId ? s.stories[storyId] : undefined);
 
   const [category, setCategory] = useState<ContactCategory>(
     fromStory ? 'story_question' : 'general'
@@ -55,9 +55,6 @@ export function useContactForm({ storyId, storyTitle }: UseContactFormArgs) {
     }
   }, [user, setValue]);
 
-  useEffect(() => {
-    if (storyId && fetchedStory?.id !== storyId) fetchStory(storyId);
-  }, [storyId, fetchedStory?.id, fetchStory]);
 
   const categories = fromStory ? [...BASE_CATEGORIES, STORY_CATEGORY] : BASE_CATEGORIES;
 

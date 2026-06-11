@@ -35,30 +35,31 @@ Never call the core API directly from the browser. The browser never knows the c
 | Folder/File | Role | Allowed Callers |
 |-------------|------|-----------------|
 | `lib/server/*` | Server functions that read or mutate through the core API. Every file starts with `'server-only'`. | RSC, route handlers, `sitemap.ts`, Server Actions |
-| `lib/backend-fetch.ts` | Single wrapper around `fetch` to the core API. Adds `INTERNAL_API_SECRET` and unwraps `StandardResponse`. | `lib/server/*` only |
-| `lib/api-client.ts` | Client wrapper around `fetch` to the BFF. Throws cleaned errors. | Zustand stores only |
-| `app/api/*/route.ts` | BFF. Wraps handlers with `runRoute()` and delegates to `lib/server/*`. | Browser/client code |
-| `lib/schemas.ts`, `lib/types.ts` | Shared Zod schemas and TypeScript types | Everywhere |
+| `lib/server/client.ts` | Single HTTP wrapper to the core API (`serverClient`). Attaches `x-api-secret` and unwraps `StandardResponse`. | `lib/server/*` only |
+| `lib/server/actions.ts` | `'use server'` — exposes server functions as RPC for client mutations. | Client stores/components |
+| `lib/api-client.ts` | Client wrapper around `fetch` to the BFF. Throws `UnauthenticatedError` on 401, cleaned `Error` on other failures. | Zustand stores only |
+| `app/api/*/route.ts` | BFF. Wraps handlers with `runRoute()` and delegates to `lib/server/*`. Only for client-initiated async reads. | Browser/client code |
+| `lib/schemas/`, `lib/types.ts` | Zod schemas and TypeScript types | Everywhere |
 
 Rules:
-- Every file in `lib/server/*`, and `lib/backend-fetch.ts`, imports `'server-only'`.
+- Every file in `lib/server/*` imports `'server-only'`.
 - Route handlers never call the core API directly; they call `lib/server/*`.
 - Server Components never self-fetch their own BFF (`fetch('/api/...')`). That creates a double hop. They call `lib/server/*` directly.
+- Mutations go through `lib/server/actions.ts` (`'use server'`), not BFF routes.
 
 ---
 
 ## Data Types And Access Paths
 
-| Entity | Server Function | Loaded In RSC | BFF Endpoint |
+| Entity | Server Function | Loaded In RSC | BFF / Action |
 |--------|-----------------|---------------|--------------|
-| Single story | `lib/server/stories.ts -> getStory` | `app/story/[id]/page.tsx` | Yes, `app/api/stories/[id]` for client refresh |
-| Featured entry stories | `lib/server/stories.ts -> getFeaturedEntryStories`, internally reusing `getStory(id)` | `app/page.tsx` | No browser BFF; click navigates to `/story/:id` |
-| Story list / search | `lib/server/stories.ts -> searchStories` | Optional initial `/search` payload only | Yes, `app/api/stories/search` |
-| Reference data | `lib/server/reference.ts -> getReference` | `app/page.tsx`, `app/search/page.tsx`, `app/story/[id]/page.tsx` | No. RSC-only |
-| User profile | `lib/server/user.ts -> getCurrentUser, updateCurrentUser, registerUser` | `app/profile/page.tsx` | Yes, `app/api/user/profile`, `app/api/user/register` |
-| Contact submission | `lib/server/contact.ts -> submitContact` | Not applicable; mutation only | Yes, `app/api/contact` |
+| Single story | `lib/server/stories.ts → getStory` | `app/story/[id]/page.tsx` | No BFF — RSC only |
+| Featured + app data | `lib/server/app-data.ts → getAppData` | Root layout (`app/layout.tsx`) | No BFF — RSC only |
+| Story search | `lib/server/stories.ts → searchStories` | No | BFF: `app/api/stories/search` (POST) |
+| User profile mutations | `lib/server/user.ts → updateCurrentUser, registerUser` | No | Server Action: `lib/server/actions.ts` |
+| Contact submission | `lib/server/contact.ts → submitContact` | No | Server Action: `lib/server/actions.ts` |
 
-Reference data is loaded only through RSC. There is no client loader and no BFF endpoint for reference lists because this data belongs in the initial HTML/RSC payload.
+App data (masechtot, topics, books, featured stories) is loaded once in the root layout RSC and hydrated into `useAppDataStore`. User data comes from the JWT via `SessionUserSync` — no RSC fetch for user profile.
 
 ---
 

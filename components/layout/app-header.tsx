@@ -3,15 +3,20 @@
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Suspense, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { User, Search, Menu, X, Mail, Home } from 'lucide-react';
-import {
-  HeaderAuthDesktop,
-  HeaderAuthDesktopSkeleton,
-} from './header-auth-desktop';
-import {
-  HeaderAuthMobile,
-  HeaderAuthMobileSkeleton,
-} from './header-auth-mobile';
+import { HeaderAuthDesktopSkeleton } from './header-auth-desktop';
+import { HeaderAuthMobileSkeleton } from './header-auth-mobile';
+
+const HeaderAuthDesktop = dynamic(
+  () => import('./header-auth-desktop').then((m) => m.HeaderAuthDesktop),
+  { ssr: false, loading: () => <HeaderAuthDesktopSkeleton /> }
+);
+
+const HeaderAuthMobile = dynamic(
+  () => import('./header-auth-mobile').then((m) => ({ default: m.HeaderAuthMobile })),
+  { ssr: false, loading: () => <HeaderAuthMobileSkeleton /> }
+);
 
 const navLinks = [
   { href: '/search', label: 'חיפוש', icon: Search },

@@ -6,7 +6,6 @@ import { SessionProvider } from 'next-auth/react';
 import { AuthProvider } from '@/lib/auth-context';
 import { ToastProvider } from '@/lib/toast-context';
 import { AuthRuntime } from '@/components/auth/auth-runtime';
-
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider
