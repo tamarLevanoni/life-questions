@@ -65,6 +65,7 @@ export function useSearch() {
   );
 
   const handleSearch = useCallback(() => {
+    console.log("🚀 ~ useSearch ~ isUnauthenticated:", isUnauthenticated)
     if (isUnauthenticated) {
       showToast('יש להתחבר כדי לבצע חיפוש', 'info');
       openLoginModal();

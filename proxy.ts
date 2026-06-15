@@ -2,13 +2,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function proxy(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  
-
-  
-  console.log("🚀 ~ proxy ~ token:", token)
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === 'production',
+  });
   if (!token) {
-    console.log("🚀 ~ proxy ~ req.nextUrl:", req.nextUrl)
     if (req.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -41,7 +40,6 @@ export const config = {
   matcher: [
     '/profile/:path*',
     '/story/((?!featured).+)',
-    '/api/stories/((?!featured).+)',
     '/contact',
   ],
 };
