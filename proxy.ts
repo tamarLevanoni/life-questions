@@ -6,7 +6,9 @@ export async function proxy(req: NextRequest) {
   
 
   
+  console.log("🚀 ~ proxy ~ token:", token)
   if (!token) {
+    console.log("🚀 ~ proxy ~ req.nextUrl:", req.nextUrl)
     if (req.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
