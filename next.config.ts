@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         hostname: 'www.youtube.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
   },
   // Handle Hebrew characters in path

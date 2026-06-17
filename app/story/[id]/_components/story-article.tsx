@@ -19,7 +19,15 @@ export function StoryArticle({ story, book }: StoryArticleProps) {
       <h1 className="text-2xl md:text-3xl font-bold font-hebrew mb-6">{story.title}</h1>
 
       {/* הסיפור */}
-      <div className="mb-8">
+      <div className="overflow-hidden mb-8">
+        {story.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={story.imageUrl}
+            alt={story.title}
+            className="float-right ml-6 mb-3 w-40 md:w-52 h-auto"
+          />
+        )}
         <h2 className="text-lg font-semibold font-hebrew mb-3 text-primary">הסיפור</h2>
         <p className="text-foreground leading-relaxed font-hebrew whitespace-pre-wrap">
           {story.storyBody}
