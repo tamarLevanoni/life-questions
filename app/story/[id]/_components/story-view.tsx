@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import { ArrowRight, MessageSquare } from 'lucide-react';
-import { ExpandableAnswerPanel } from '@/components/story/expandable-answer-panel';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { SkeletonLines } from '@/components/common/loading-skeleton';
-import { StoryArticle } from './story-article';
+import { StoryPanels } from '@/components/story/story-panels';
 import { StoryNavigation } from './story-navigation';
 import { useStoryDetail } from './use-story-detail';
 
@@ -17,6 +16,7 @@ export function StoryView() {
     canViewExpansion,
     prevId,
     nextId,
+    storyTitleEncoded,
     requestExpansionAccess,
   } = useStoryDetail();
 
@@ -34,35 +34,16 @@ export function StoryView() {
         </Link>
       </MotionFadeIn>
 
-      <MotionFadeIn trigger="mount" as="article">
-        <StoryArticle story={story} book={book} />
-      </MotionFadeIn>
-
-      <MotionFadeIn trigger="mount" delay={0.1} className="mb-4">
-        <ExpandableAnswerPanel
-          title="תשובה קצרה"
-          content={story.shortAnswer}
-          variant="shortAnswer"
-          defaultExpanded={false}
-        />
-      </MotionFadeIn>
-
-      {story.expansion !== null && (
-        <MotionFadeIn trigger="mount" delay={0.2} className="mb-8">
-          <ExpandableAnswerPanel
-            title="הרחבה"
-            content={story.expansion}
-            variant="expansion"
-            isLocked={!canViewExpansion}
-            defaultExpanded={false}
-            onRequestAccess={requestExpansionAccess}
-          />
-        </MotionFadeIn>
-      )}
+      <StoryPanels
+        story={story}
+        book={book}
+        expansionLocked={!canViewExpansion}
+        onRequestExpansionAccess={requestExpansionAccess}
+      />
 
       <MotionFadeIn trigger="mount" delay={0.3} className="mb-8">
         <Link
-          href={`/contact?category=story_question&storyId=${storyId}&storyTitle=${encodeURIComponent(story.title)}`}
+          href={`/contact?category=story_question&storyId=${storyId}&storyTitle=${storyTitleEncoded}`}
           className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border border-teal-200 dark:border-teal-800 text-sm font-medium font-hebrew text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-colors"
         >
           <MessageSquare className="w-4 h-4" />
