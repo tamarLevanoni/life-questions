@@ -19,7 +19,7 @@ export const userDataSchema = z.object({
   email: z.email(),
   firstName: z.string(),
   lastName: z.string(),
-  institutionName: z.string().optional(),
+  institutionName: z.string().nullish(),
   phone: z.string(),
   occupations: z.array(occupationEnum),
   marketingConsent: z.boolean(),
