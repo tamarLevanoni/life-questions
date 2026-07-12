@@ -70,6 +70,8 @@ export default async function RootLayout({
             <AuthAlert />
           </Suspense>
         </Providers>
+        <script src="https://widget.tabnav.com/limited-widget.min.js.gz?req=vTucdlJzvjjDDXndRF6yoBvFWFfw0wEj" tnv-data-config='{"language":"he","color":"#405ec3","buttonColor":"#405ec3","buttonSize":"small","widgetSize":"small","widgetLocation":"right","buttonLocation":"bottom"}' defer></script>
+<noscript> פתרונות נגישות לאתרי אינטרנט לפי התקן הישראלי 5568<a href="https://tabnav.com/he">הנגשת אתרים</a> </noscript>
       </body>
     </html>
   );
