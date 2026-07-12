@@ -78,7 +78,7 @@ function ConnectorDown({ from, to, gradId }: { from: string; to: string; gradId:
       style={{ top: "100%", left: "50%", transform: "translateX(-50%)" }}
     >
       <defs>
-        <linearGradient id={gradId} x1="0%" y1="100%" x2="0%" y2="0%">
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor={from} />
           <stop offset="100%" stopColor={to} />
         </linearGradient>
