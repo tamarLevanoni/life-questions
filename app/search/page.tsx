@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { PageShell } from '@/components/common/page-shell';
 import { SearchView } from './_components/search-view';
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function SearchPage() {
   return (
     <PageShell fullWidth>
-      <SearchView />
+      <Suspense>
+        <SearchView />
+      </Suspense>
     </PageShell>
   );
 }
