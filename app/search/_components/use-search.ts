@@ -38,7 +38,6 @@ export function useSearch() {
     return bookId ? { bookIds: [bookId] } : {};
   });
   const [hasSearched, setHasSearched] = useState(false);
-  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   const activeFiltersCount =
     (filters.bookIds?.length ?? 0) +
@@ -69,7 +68,6 @@ export function useSearch() {
   );
 
   const handleSearch = useCallback(() => {
-    console.log("🚀 ~ useSearch ~ isUnauthenticated:", isUnauthenticated)
     if (isUnauthenticated) {
       showToast('יש להתחבר כדי לבצע חיפוש', 'info');
       openLoginModal();
@@ -95,11 +93,6 @@ export function useSearch() {
     [router]
   );
 
-  const closeDrawerAndSearch = useCallback(() => {
-    handleSearch();
-    setFilterDrawerOpen(false);
-  }, [handleSearch]);
-
   useEffect(() => {
     if (!authRequired) return;
     showToast('יש להתחבר כדי לבצע חיפוש', 'info');
@@ -122,8 +115,6 @@ export function useSearch() {
     filters,
     setFilters,
     hasSearched,
-    filterDrawerOpen,
-    setFilterDrawerOpen,
     activeFiltersCount,
     hasMore,
     isUnauthenticated,
@@ -137,7 +128,6 @@ export function useSearch() {
     handleSearch,
     handleLoadMore,
     handleStoryClick,
-    closeDrawerAndSearch,
     openLoginModal,
   };
 }

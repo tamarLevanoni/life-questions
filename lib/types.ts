@@ -96,6 +96,7 @@ export interface SearchResultsListProps {
   onLoadMore: () => void;
   onStoryClick: (story: { id: string }) => void;
   emptyMessage?: string;
+  emptyHint?: string;
 }
 
 export interface AppHeaderProps {

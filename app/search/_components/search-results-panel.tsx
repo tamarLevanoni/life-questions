@@ -3,7 +3,6 @@
 import { SearchBar } from './search-bar';
 import { ActiveFilterTags } from './active-filter-tags';
 import { SearchResultsList } from './search-results-list';
-import { SearchMobileFilterButton } from './search-mobile-filter-button';
 import type { UseSearchReturn } from './use-search';
 
 interface SearchResultsPanelProps {
@@ -25,28 +24,13 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
     shuSections,
     topics,
     books,
-    activeFiltersCount,
     handleSearch,
     handleLoadMore,
     handleStoryClick,
-    setFilterDrawerOpen,
   } = search;
 
   return (
-    <div className="flex-1 min-w-0 space-y-4 relative">
-      <SearchBar
-        value={query}
-        onChange={setQuery}
-        onSearch={handleSearch}
-        isLoading={loading && stories.length === 0}
-        placeholder="מה אתה מחפש?"
-      />
-
-      <SearchMobileFilterButton
-        activeFiltersCount={activeFiltersCount}
-        onClick={() => setFilterDrawerOpen(true)}
-      />
-
+    <div className="space-y-4">
       <ActiveFilterTags
         filters={filters}
         onFiltersChange={setFilters}
@@ -56,20 +40,40 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
         shuSections={shuSections}
       />
 
-      <SearchResultsList
-        stories={stories}
-        books={books}
-        topics={topics}
-        isLoading={loading}
-        hasMore={hasMore}
-        total={total}
-        onLoadMore={handleLoadMore}
-        onStoryClick={handleStoryClick}
-        emptyMessage={
-          hasSearched ? 'לא נמצאו תוצאות לחיפוש זה' : 'התחל לחפש כדי לראות תוצאות'
-        }
-      />
+      <div className="max-h-[60vh] overflow-y-auto pl-1">
+        <SearchResultsList
+          stories={stories}
+          books={books}
+          topics={topics}
+          isLoading={loading}
+          hasMore={hasMore}
+          total={total}
+          onLoadMore={handleLoadMore}
+          onStoryClick={handleStoryClick}
+          emptyMessage={
+            hasSearched ? 'לא נמצאו תוצאות לחיפוש זה' : 'בחרו מסכת, ספר, נושא או פרק בשולחן ערוך כדי להתחיל'
+          }
+          emptyHint={
+            hasSearched ? 'נסו לצמצם או לשנות את הסינון, או להוסיף מילת מפתח' : undefined
+          }
+        />
+      </div>
 
+      <div className="pt-4 mt-2 border-t border-border/60 space-y-2" dir="rtl">
+        <p className="text-sm font-hebrew text-muted-foreground text-center">
+          לא מצאת את מה שחיפשת?
+        </p>
+        <SearchBar
+          value={query}
+          onChange={setQuery}
+          onSearch={handleSearch}
+          isLoading={loading && stories.length === 0}
+          placeholder="כתבו את השאלה שלכם"
+        />
+        <p className="text-xs font-hebrew text-muted-foreground text-right">
+          חפשו באמצעות AI, מומלץ לכתוב שאלה מפורטת. עדיין בשלבי פיתוח כדי לדייק לכם כמה שיותר
+        </p>
+      </div>
     </div>
   );
 }

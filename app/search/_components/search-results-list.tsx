@@ -15,6 +15,7 @@ export function SearchResultsList({
   onLoadMore,
   onStoryClick,
   emptyMessage = 'לא נמצאו תוצאות',
+  emptyHint,
 }: SearchResultsListProps) {
   // Loading state
   if (isLoading && stories.length === 0) {
@@ -33,7 +34,7 @@ export function SearchResultsList({
       <div className="empty-state" dir="rtl">
         <SearchX className="w-16 h-16 mb-4 opacity-30" />
         <p className="text-lg font-medium font-hebrew">{emptyMessage}</p>
-        <p className="text-sm mt-2 font-hebrew">נסה לחפש במילים אחרות או לשנות את הסינון</p>
+        {emptyHint && <p className="text-sm mt-2 font-hebrew">{emptyHint}</p>}
       </div>
     );
   }
