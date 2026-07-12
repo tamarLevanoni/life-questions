@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useAppDataStore } from '@/lib/stores/app-data-store';
 import { useUserStore } from '@/lib/stores/user-store';
@@ -14,6 +14,7 @@ const PAGE_LIMIT = 10;
 
 export function useSearch() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const authStatus = useUserStore((s) => s.authStatus);
   const { openLoginModal } = useAuth();
   const { showToast } = useToast();
@@ -31,8 +32,11 @@ export function useSearch() {
   const topics = useAppDataStore((s) => s.topics);
   const books = useAppDataStore((s) => s.books);
 
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState<UiSearchFilters>({});
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
+  const [filters, setFilters] = useState<UiSearchFilters>(() => {
+    const bookId = searchParams.get('bookId');
+    return bookId ? { bookIds: [bookId] } : {};
+  });
   const [hasSearched, setHasSearched] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
@@ -102,6 +106,13 @@ export function useSearch() {
     openLoginModal();
     clearAuthRequired();
   }, [authRequired, showToast, openLoginModal, clearAuthRequired]);
+
+  const hasInitialParams = Boolean(searchParams.get('q') || searchParams.get('bookId'));
+  useEffect(() => {
+    if (!hasInitialParams) return;
+    handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const hasMore = stories.length < total;
 

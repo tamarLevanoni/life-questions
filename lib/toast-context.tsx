@@ -45,14 +45,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     const options: ToastOptions = typeof typeOrOptions === 'string'
       ? { type: typeOrOptions }
       : (typeOrOptions ?? {});
-    const { type = 'info', persistent = false, position = 'bottom' } = options;
+    const { type = 'info', persistent = false } = options;
+    const position = options.position ?? (type === 'error' ? 'top' : 'bottom');
     const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, message, type, persistent, position }]);
 
     if (!persistent) {
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
-      }, 4000);
+      }, type === 'error' ? 7000 : 4000);
     }
   }, []);
 

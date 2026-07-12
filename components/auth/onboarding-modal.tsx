@@ -5,6 +5,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/lib/auth-context';
+import { useWhatsAppInvite } from '@/lib/whatsapp-context';
 import { useToast } from '@/lib/toast-context';
 import { useUserStore } from '@/lib/stores/user-store';
 import { onboardingSchema, type OnboardingFormData, type Occupation } from '@/lib/schemas';
@@ -40,6 +41,7 @@ const OCCUPATIONS: { value: Occupation; label: string }[] = [
 
 export function OnboardingModal() {
   const { isOnboardingModalOpen, closeOnboardingModal } = useAuth();
+  const { openWhatsAppModal } = useWhatsAppInvite();
   const { data: session, update } = useSession();
   const { showToast } = useToast();
   const registerUser = useUserStore((s) => s.registerUser);
@@ -103,6 +105,7 @@ export function OnboardingModal() {
 
       showToast('ההרשמה הושלמה בהצלחה!', 'success');
       closeOnboardingModal();
+      setTimeout(() => openWhatsAppModal(), 400);
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'שגיאה בשמירת הנתונים. אנא נסה שוב.', 'error');
     } finally {

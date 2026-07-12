@@ -5,6 +5,7 @@ import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { ExpandableAnswerPanel } from './expandable-answer-panel';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 import type { Story, Book } from '@/lib/schemas';
+import { getYouTubeEmbedUrl } from '@/lib/youtube';
 
 interface StoryPanelsProps {
   story: Story;
@@ -123,10 +124,10 @@ export function StoryPanels({
           )}
           {story.videoUrl && (
             <div className="mb-8">
-              <h2 className="text-lg font-semibold font-hebrew mb-3">צפייה בוידאו</h2>
+              <br/>
               <div className="aspect-video rounded-xl overflow-hidden bg-muted">
                 <iframe
-                  src={story.videoUrl.replace('watch?v=', 'embed/')}
+                  src={getYouTubeEmbedUrl(story.videoUrl)}
                   title={story.title}
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

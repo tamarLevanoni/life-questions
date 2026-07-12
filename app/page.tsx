@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
 import { HeroSection } from './_components/hero-section';
 import { FeaturesSection } from './_components/features-section';
@@ -13,6 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
+  if (process.env.HOME_VERSION === 'new') {
+    redirect('/home-new');
+  }
+
   return (
     <PageShell fullWidth>
       <HeroSection />

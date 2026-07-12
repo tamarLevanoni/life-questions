@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Heebo } from "next/font/google";
+import { Geist, Geist_Mono, Heebo, Secular_One } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Footer } from "@/components/layout/footer";
@@ -21,6 +21,12 @@ const heebo = Heebo({
   variable: "--font-hebrew",
   subsets: ["latin", "hebrew"],
   weight: ["300", "400", "500", "600", "700"],
+});
+
+const secularOne = Secular_One({
+  variable: "--font-noa-shalev-face",
+  subsets: ["latin", "hebrew"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -53,7 +59,7 @@ export default async function RootLayout({
   return (
     <html lang="he" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} antialiased font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} ${secularOne.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
         <AppDataLoader />

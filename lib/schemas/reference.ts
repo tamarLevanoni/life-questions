@@ -22,6 +22,8 @@ export type MasechetWithPages = z.infer<typeof masechetWithPagesSchema>;
 export const bookSchema = z.object({
   id: z.string(),
   name: z.string(),
+  orderIndex: z.number(),
+  coverUrl: z.string().nullable(),
 });
 export type Book = z.infer<typeof bookSchema>;
 
