@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
 import { HeroSection } from './_components/hero-section';
+import { VideoSection } from './_components/video-section';
+import { BooksGallerySection } from './_components/books-gallery-section';
 import { FeaturesSection } from './_components/features-section';
 import { HowItWorksSection } from './_components/how-it-works-section';
-import { FeaturedStoriesSection } from './_components/featured-stories-section';
+import { StoryExamplesList } from './_components/story-examples-list';
+import { WhatsAppSection } from './_components/whatsapp-section';
 import { HomeCTASection } from './_components/home-cta-section';
 
 export const metadata: Metadata = {
@@ -14,16 +16,15 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  if (process.env.HOME_VERSION === 'new') {
-    redirect('/home-new');
-  }
-
   return (
     <PageShell fullWidth>
       <HeroSection />
+      <VideoSection />
+      <BooksGallerySection />
       <FeaturesSection />
       <HowItWorksSection />
-      <FeaturedStoriesSection />
+      <StoryExamplesList />
+      <WhatsAppSection />
       <HomeCTASection />
     </PageShell>
   );

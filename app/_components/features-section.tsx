@@ -6,17 +6,26 @@ const features = [
   {
     icon: BookOpen,
     title: 'סיפורים מהחיים',
-    description: 'סיפורים אמיתיים וקצרים שקל להזדהות איתם',
+    description: 'סיפורים אמיתיים וקצרים — מושלמים לשיעור, לדיון בכיתה, לשיחת שבת',
+    gradient: 'from-teal-500 to-cyan-400',
+    bg: 'bg-teal-500/10',
+    text: 'text-teal-500',
   },
   {
     icon: Sparkles,
     title: 'חיפוש חכם מבוסס AI',
-    description: 'חפש לפי שם סיפור, מקור תלמודי, נושא — ה-AI ימצא בשבילך',
+    description: 'חפש לפי נושא, מקרה, או ביטוי — ה-AI ימצא את הסיפור הנכון תוך שניות',
+    gradient: 'from-amber-500 to-yellow-400',
+    bg: 'bg-amber-500/10',
+    text: 'text-amber-500',
   },
   {
     icon: Users,
     title: 'לכל הקהלים',
-    description: 'מתאים ללומדים, מורים, הורים ותלמידים',
+    description: 'מתאים למורים, רבנים, הורים, תלמידים — ולכל מי שרוצה ללמוד בקלות',
+    gradient: 'from-green-500 to-emerald-400',
+    bg: 'bg-green-500/10',
+    text: 'text-green-500',
   },
 ];
 
@@ -28,13 +37,13 @@ export function FeaturesSection() {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <MotionFadeIn key={feature.title} delay={index * 0.1}>
-                <GlassCard className="p-6 text-center h-full">
-                  <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-primary" />
+              <MotionFadeIn key={feature.title} delay={index * 0.1} trigger="view">
+                <GlassCard className="p-6 text-center h-full group hover:border-white/30 transition-all">
+                  <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl ${feature.bg} flex items-center justify-center transition-all group-hover:scale-110`}>
+                    <Icon className={`w-7 h-7 ${feature.text}`} />
                   </div>
                   <h3 className="text-lg font-semibold font-hebrew mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground font-hebrew">{feature.description}</p>
+                  <p className="text-sm text-muted-foreground font-hebrew leading-relaxed">{feature.description}</p>
                 </GlassCard>
               </MotionFadeIn>
             );
