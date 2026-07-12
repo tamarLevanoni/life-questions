@@ -14,6 +14,7 @@ export type AppDataBundle = {
   topics: Topic[];
   books: Book[];
   featuredStories: Story[];
+  weeklyStory: Story | null;
 };
 
 // ==================== BFF / UTILITY TYPES ====================

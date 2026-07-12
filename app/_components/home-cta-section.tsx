@@ -9,7 +9,7 @@ export function HomeCTASection() {
       <div className="max-w-2xl mx-auto">
         <MotionFadeIn>
           <GlassCard className="p-8 md:p-12 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold font-hebrew mb-4">מוכנים להתחיל?</h2>
+            <h2 className="text-xl md:text-3xl font-bold font-hebrew mb-4">מוכנים להתחיל?</h2>
             <Link
               href="/search"
               className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-xl font-hebrew font-medium text-lg hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"

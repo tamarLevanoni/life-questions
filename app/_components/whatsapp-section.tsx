@@ -46,13 +46,13 @@ export function WhatsAppSection() {
 
         <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12 items-center">
           <MotionFadeIn trigger="view" className="text-center md:text-right order-2 md:order-1">
-            <h2 className="text-2xl md:text-3xl font-bold font-hebrew text-white mb-3">
+            <h2 className="text-xl md:text-3xl font-bold font-hebrew text-white mb-3">
               מצטרפים לקהילה. מקבלים תוכן. כל שבוע.
             </h2>
 
             <ul className="space-y-2 mb-6 inline-block text-right">
               {BULLETS.map((b) => (
-                <li key={b} className="flex items-center gap-2 text-white/80 font-hebrew text-sm">
+                <li key={b} className="flex items-center gap-2 text-white/80 font-hebrew text-xs md:text-sm">
                   <Check className="w-4 h-4 text-green-400 shrink-0" />
                   {b}
                 </li>

@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { Play, Star, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
-import { FEATURED_VIDEO } from '@/lib/config/featured-video';
+import { useAppDataStore } from '@/lib/stores/app-data-store';
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from '@/lib/youtube';
 
 const STARS = [
@@ -18,19 +18,20 @@ const STARS = [
 const STORY_TRUNCATE = 120;
 
 export function VideoSection() {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const weeklyStory = useAppDataStore((s) => s.weeklyStory);
   const [started, setStarted] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  if (!FEATURED_VIDEO.url) return null;
+  if (!weeklyStory?.videoUrl) return null;
 
-  const thumbnail = getYouTubeThumbnail(FEATURED_VIDEO.url);
-  const body = FEATURED_VIDEO.storyBody ?? '';
+  const videoUrl = weeklyStory.videoUrl;
+  const thumbnail = getYouTubeThumbnail(videoUrl);
+  const body = weeklyStory.storyBody ?? '';
   const isTruncated = body.length > STORY_TRUNCATE;
   const displayBody = isTruncated && !expanded ? body.slice(0, STORY_TRUNCATE) + '…' : body;
 
   return (
-    <section className="relative z-10 -mt-36 py-16 px-4">
+    <section className="relative z-10  px-4">
       <div className="max-w-4xl mx-auto">
         <MotionFadeIn trigger="view">
           <div
@@ -62,12 +63,12 @@ export function VideoSection() {
                   <Star className="w-3.5 h-3.5" fill="currentColor" />
                   סיפור השבוע
                 </span>
-                <h3 className="text-2xl md:text-3xl font-bold font-hebrew mb-3 leading-snug">
-                  {FEATURED_VIDEO.title}
+                <h3 className="text-xl md:text-3xl font-bold font-hebrew mb-3 leading-snug">
+                  {weeklyStory.title}
                 </h3>
                 {body && (
                   <div className="mb-3">
-                    <p className="text-sm text-white/80 font-hebrew leading-relaxed">{displayBody}</p>
+                    <p className="text-xs md:text-sm text-white/80 font-hebrew leading-relaxed">{displayBody}</p>
                     {isTruncated && (
                       <button
                         onClick={() => setExpanded((e) => !e)}
@@ -80,20 +81,18 @@ export function VideoSection() {
                     )}
                   </div>
                 )}
-                {FEATURED_VIDEO.question && (
-                  <p className="text-sm font-semibold text-white/90 font-hebrew leading-relaxed mb-6">
-                    {FEATURED_VIDEO.question}
+                {weeklyStory.legalQuestion && (
+                  <p className="text-xs md:text-sm font-semibold text-white/90 font-hebrew leading-relaxed mb-6">
+                    {weeklyStory.legalQuestion}
                   </p>
                 )}
-                {FEATURED_VIDEO.storyId && (
-                  <Link
-                    href={`/story/featured/${FEATURED_VIDEO.storyId}`}
-                    className="inline-flex items-center gap-2 self-start px-6 py-3 bg-brand-orange text-white rounded-full font-hebrew font-medium text-sm hover:opacity-90 transition-all"
-                  >
-                    מעבר לתשובה
-                    <ArrowLeft className="w-4 h-4" />
-                  </Link>
-                )}
+                <Link
+                  href={`/story/${weeklyStory.id}`}
+                  className="inline-flex items-center gap-2 self-start px-6 py-3 bg-brand-orange text-white rounded-full font-hebrew font-medium text-sm hover:opacity-90 transition-all"
+                >
+                  מעבר לתשובה
+                  <ArrowLeft className="w-4 h-4" />
+                </Link>
               </div>
 
               {/* Video */}
@@ -105,7 +104,7 @@ export function VideoSection() {
                       {thumbnail && (
                         <img
                           src={thumbnail}
-                          alt={FEATURED_VIDEO.title}
+                          alt={weeklyStory.title}
                           className="absolute inset-0 w-full h-full object-cover"
                         />
                       )}
@@ -121,9 +120,8 @@ export function VideoSection() {
                     </>
                   ) : (
                     <iframe
-                      ref={iframeRef}
-                      src={getYouTubeEmbedUrl(FEATURED_VIDEO.url, true)}
-                      title={FEATURED_VIDEO.title}
+                      src={getYouTubeEmbedUrl(videoUrl, true)}
+                      title={weeklyStory.title}
                       className="w-full h-full"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen

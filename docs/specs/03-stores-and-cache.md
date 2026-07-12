@@ -30,7 +30,7 @@ Binding rules:
 
 | Store | File | Role | First Hydration Source |
 |-------|------|------|------------------------|
-| `useAppDataStore` | `lib/stores/app-data-store.ts` | masechtot, shuSections, topics, books, featuredStories — read-only on client | `AppDataHydrator` in root layout — once per session |
+| `useAppDataStore` | `lib/stores/app-data-store.ts` | masechtot, shuSections, topics, books, featuredStories, weeklyStory — read-only on client | `AppDataHydrator` in root layout — once per session |
 | `useStoriesStore` | `lib/stores/stories-store.ts` | (1) entity cache `stories: Record<id, StoryWithNeighbors>` — full stories by ID; (2) `searchResults: StoryCard[]` + pagination/loading/error | `StoryHydrator` (story page) + search actions |
 | `useUserStore` | `lib/stores/user-store.ts` | Authenticated user + authStatus — single source of truth | `SessionUserSync` from JWT on session change |
 | `useContactStore` | `lib/stores/contact-store.ts` | Contact-form submission state | None; action state only |
@@ -52,6 +52,15 @@ Implementation contract:
 - Featured stories are not search results and never belong in `useStoriesStore.searchResults`.
 - The featured story route (`/story/featured/[id]`) looks up by ID from `useAppDataStore.featuredStories` — if not found, redirects to home (these are runtime-random, never bookmarked).
 - Featured story cards use `ScenarioCard` with `story.topic.name` directly (full `Story` has `topic: Topic` inline).
+
+### Weekly Story
+
+The home page shows one video-backed "story of the week". It is loaded as `Story | null` via `getWeeklyStory()` and stored in `useAppDataStore.weeklyStory`.
+
+Implementation contract:
+- `GET /api/stories/weekly` returns a full `Story` (no `neighbors`), or `data: null` (still `200`) if the backend has no story with a video for the current week — parse with `storySchema.nullable()`.
+- `VideoSection` (`app/_components/video-section.tsx`) reads `weeklyStory` from the store and renders `null` when `weeklyStory` is `null` or `weeklyStory.videoUrl` is `null`.
+- Unlike featured stories, the weekly story is a real, permanent backend entity — its CTA links directly to `/story/[id]`, not through a store-lookup route.
 
 ---
 
@@ -173,6 +182,7 @@ Never use `'use cache'` for: user profile, session/auth/roles, coordinator or ad
 | Reference bundle (masechtot, topics, books, Shulchan Aruch sections) | `'use cache'` + `cacheLife('hours')` | hours | `reference` |
 | Single public story | `'use cache'` + `cacheLife('days')` | days, until invalidated | `story`, `story:<id>` |
 | Featured entry stories (full) | `'use cache'` + `cacheLife('hours')` via `GET /api/stories/featured` *(see note below)* | hours | `featured` |
+| Weekly story (full, nullable) | `'use cache'` + `cacheLife('hours')` via `GET /api/stories/weekly` | hours | `weekly` |
 | Sitemap / public metadata | `'use cache'` + `cacheLife('hours')` | hours | optional |
 | Search results | **no persistent cache** | — | — |
 | User profile | **no persistent cache** | — | — |
@@ -201,6 +211,7 @@ These are known gaps where the current code does not yet match the table above. 
 Stable tags:
 - `reference`: the full reference bundle.
 - `featured`: the ordered home-page featured selection.
+- `weekly`: the home-page "story of the week" (nullable — may resolve to no story with video for the week).
 - `stories`: broad story-list invalidation when needed; do not use it for dynamic search results.
 - `story`: all stories.
 - `story:<id>`: one specific story.

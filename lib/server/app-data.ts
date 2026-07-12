@@ -60,13 +60,25 @@ export async function getFeaturedStories(): Promise<Story[]> {
   return fetchList('/api/stories/featured', z.array(storySchema));
 }
 
+export async function getWeeklyStory(): Promise<Story | null> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('weekly');
+
+  const data = await serverClient.get('/api/stories/weekly');
+  const parsed = storySchema.nullable().safeParse(data);
+  if (!parsed.success) throw new SchemaError();
+  return parsed.data;
+}
+
 export async function getAppData(): Promise<AppDataBundle> {
-  const [masechtot, shuSections, topics, books, featuredStories] = await Promise.all([
+  const [masechtot, shuSections, topics, books, featuredStories, weeklyStory] = await Promise.all([
     getMasechtot(),
     getShuSections(),
     getTopics(),
     getBooks(),
     getFeaturedStories(),
+    getWeeklyStory(),
   ]);
-  return { masechtot, shuSections, topics, books, featuredStories };
+  return { masechtot, shuSections, topics, books, featuredStories, weeklyStory };
 }

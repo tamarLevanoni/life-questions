@@ -11,6 +11,7 @@ export const useAppDataStore = create<AppDataState>((set) => ({
   topics: [],
   books: [],
   featuredStories: [],
+  weeklyStory: null,
 
   hydrate: (bundle) => set(bundle),
 }));

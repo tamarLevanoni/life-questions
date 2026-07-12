@@ -38,7 +38,7 @@ export function SectionHeader({
         {title}
       </h2>
       {subtitle && (
-        <p className="text-muted-foreground font-hebrew">{subtitle}</p>
+        <p className="text-xs md:text-sm text-muted-foreground font-hebrew">{subtitle}</p>
       )}
     </div>
   );

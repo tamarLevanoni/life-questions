@@ -43,7 +43,7 @@ export function FeaturesSection() {
                     <Icon className={`w-7 h-7 ${feature.text}`} />
                   </div>
                   <h3 className="text-lg font-semibold font-hebrew mb-2">{feature.title}</h3>
-                  <p className="text-sm text-muted-foreground font-hebrew leading-relaxed">{feature.description}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground font-hebrew leading-relaxed">{feature.description}</p>
                 </GlassCard>
               </MotionFadeIn>
             );
