@@ -31,18 +31,18 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-16 px-4">
+    <section className="py-8 md:py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid gap-3 md:gap-6 md:grid-cols-3">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <MotionFadeIn key={feature.title} delay={index * 0.1} trigger="view">
-                <GlassCard className="p-6 text-center h-full group hover:border-white/30 transition-all">
-                  <div className={`w-14 h-14 mx-auto mb-4 rounded-2xl ${feature.bg} flex items-center justify-center transition-all group-hover:scale-110`}>
-                    <Icon className={`w-7 h-7 ${feature.text}`} />
+                <GlassCard className="p-4 md:p-6 text-center h-full group hover:border-white/30 transition-all">
+                  <div className={`w-10 h-10 md:w-14 md:h-14 mx-auto mb-3 md:mb-4 rounded-2xl ${feature.bg} flex items-center justify-center transition-all group-hover:scale-110`}>
+                    <Icon className={`w-5 h-5 md:w-7 md:h-7 ${feature.text}`} />
                   </div>
-                  <h3 className="text-lg font-semibold font-hebrew mb-2">{feature.title}</h3>
+                  <h3 className="text-base md:text-lg font-semibold font-hebrew mb-2">{feature.title}</h3>
                   <p className="text-xs md:text-sm text-muted-foreground font-hebrew leading-relaxed">{feature.description}</p>
                 </GlassCard>
               </MotionFadeIn>

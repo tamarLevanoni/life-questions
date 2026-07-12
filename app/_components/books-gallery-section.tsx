@@ -16,7 +16,7 @@ export function BooksGallerySection() {
   const sortedBooks = [...books].sort((a, b) => a.orderIndex - b.orderIndex);
 
   return (
-    <section className="py-16 px-4 bg-muted/20">
+    <section className="py-8 md:py-16 px-4 bg-muted/20">
       <div className="max-w-5xl mx-auto">
         <MotionFadeIn>
           <SectionHeader title="חפשו לפי ספר" subtitle="בחרו ספר כדי לדפדף בסיפורים שלו" size="sm" />

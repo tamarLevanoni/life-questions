@@ -13,7 +13,7 @@ export function StoryExamplesList() {
   if (!stories.length) return null;
 
   return (
-    <section id="featured"  className="py-16 px-4 scroll-mt-28">
+    <section id="featured"  className="py-8 md:py-16 px-4 scroll-mt-28">
       <div className="max-w-3xl mx-auto">
         <MotionFadeIn>
           <SectionHeader
@@ -71,7 +71,7 @@ export function StoryExamplesList() {
           })}
         </div>
 
-        <MotionFadeIn className="text-center mt-8">
+        <MotionFadeIn className="text-center mt-4 md:mt-8">
           <Link
             href="/search"
             className="inline-flex items-center gap-2 px-6 py-3 text-primary font-hebrew font-medium hover:underline"

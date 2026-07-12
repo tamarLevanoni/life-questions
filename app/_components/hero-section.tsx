@@ -151,7 +151,7 @@ export function HeroSection() {
       <div className="md:hidden grid">
         <HeroBackgroundMobile />
 
-        <div className="[grid-area:1/1] relative flex items-center pt-20 pb-12 px-4">
+        <div className="[grid-area:1/1] relative flex items-start pt-24 pb-12 px-4">
           <div className="max-w-xl w-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

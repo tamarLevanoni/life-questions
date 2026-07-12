@@ -58,8 +58,8 @@ export function VideoSection() {
 
             <div className="grid md:grid-cols-2 items-center gap-0" dir="rtl">
               {/* Text */}
-              <div className="p-8 text-white flex flex-col justify-center">
-                <span className="inline-flex items-center gap-1.5 self-start mb-4 px-3 py-1 rounded-full bg-amber-400/15 text-amber-300 text-xs font-hebrew font-medium">
+              <div className="p-4 md:p-8 text-white flex flex-col justify-center">
+                <span className="inline-flex items-center gap-1.5 self-start mb-2 md:mb-4 px-3 py-1 rounded-full bg-amber-400/15 text-amber-300 text-xs font-hebrew font-medium">
                   <Star className="w-3.5 h-3.5" fill="currentColor" />
                   סיפור השבוע
                 </span>
@@ -82,7 +82,7 @@ export function VideoSection() {
                   </div>
                 )}
                 {weeklyStory.legalQuestion && (
-                  <p className="text-xs md:text-sm font-semibold text-white/90 font-hebrew leading-relaxed mb-6">
+                  <p className="text-xs md:text-sm font-semibold text-white/90 font-hebrew leading-relaxed mb-3 md:mb-6">
                     {weeklyStory.legalQuestion}
                   </p>
                 )}

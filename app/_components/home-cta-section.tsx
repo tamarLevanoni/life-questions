@@ -5,10 +5,10 @@ import { MotionFadeIn } from '@/components/common/motion-fade-in';
 
 export function HomeCTASection() {
   return (
-    <section className="py-20 px-4">
+    <section className="py-8 md:py-20 px-4">
       <div className="max-w-2xl mx-auto">
         <MotionFadeIn>
-          <GlassCard className="p-8 md:p-12 text-center">
+          <GlassCard className="p-6 md:p-12 text-center">
             <h2 className="text-xl md:text-3xl font-bold font-hebrew mb-4">מוכנים להתחיל?</h2>
             <Link
               href="/search"

@@ -2,7 +2,7 @@ export function AppHeaderSkeleton() {
   return (
     <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-4xl">
       <nav
-        className="rounded-2xl px-4 md:px-6 py-3 flex items-center justify-between"
+        className="rounded-2xl px-4 md:px-6 h-14 flex items-center justify-between"
         style={{
           background: 'var(--nav-bg, rgba(255, 255, 255, 0.7))',
           backdropFilter: 'blur(20px)',

@@ -40,17 +40,17 @@ export function WhatsAppSection() {
   const { openWhatsAppModal } = useWhatsAppInvite();
 
   return (
-    <section className="py-16 px-4">
+    <section className="py-8 md:py-16 px-4">
       <div className="max-w-5xl mx-auto rounded-3xl bg-brand-dark overflow-hidden relative">
         <div className="absolute top-0 left-0 w-72 h-72 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12 items-center">
+        <div className="relative grid md:grid-cols-2 gap-4 md:gap-8 p-5 md:p-12 items-center">
           <MotionFadeIn trigger="view" className="text-center md:text-right order-2 md:order-1">
             <h2 className="text-xl md:text-3xl font-bold font-hebrew text-white mb-3">
               מצטרפים לקהילה. מקבלים תוכן. כל שבוע.
             </h2>
 
-            <ul className="space-y-2 mb-6 inline-block text-right">
+            <ul className="space-y-2 mb-4 md:mb-6 inline-block text-right">
               {BULLETS.map((b) => (
                 <li key={b} className="flex items-center gap-2 text-white/80 font-hebrew text-xs md:text-sm">
                   <Check className="w-4 h-4 text-green-400 shrink-0" />
