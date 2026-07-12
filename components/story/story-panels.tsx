@@ -93,7 +93,7 @@ export function StoryPanels({
               <img
                 src={story.imageUrl}
                 alt={story.title}
-                className="float-right ml-6 mb-3 w-40 md:w-52 h-auto"
+                className="float-left mr-6 mb-3 w-40 md:w-52 h-auto"
               />
             )}
             <h2 className="text-lg font-semibold font-hebrew mb-3 text-primary">הסיפור</h2>
