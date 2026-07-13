@@ -183,6 +183,7 @@ Never use `'use cache'` for: user profile, session/auth/roles, coordinator or ad
 | Single public story | `'use cache'` + `cacheLife('days')` | days, until invalidated | `story`, `story:<id>` |
 | Featured entry stories (full) | `'use cache'` + `cacheLife('hours')` via `GET /api/stories/featured` *(see note below)* | hours | `featured` |
 | Weekly story (full, nullable) | `'use cache'` + `cacheLife('hours')` via `GET /api/stories/weekly` | hours | `weekly` |
+| Recommendations (הסכמות) | `'use cache'` + `cacheLife('hours')` | hours | `recommendations` |
 | Sitemap / public metadata | `'use cache'` + `cacheLife('hours')` | hours | optional |
 | Search results | **no persistent cache** | — | — |
 | User profile | **no persistent cache** | — | — |
@@ -215,6 +216,7 @@ Stable tags:
 - `stories`: broad story-list invalidation when needed; do not use it for dynamic search results.
 - `story`: all stories.
 - `story:<id>`: one specific story.
+- `recommendations`: the list of approbation letter images fetched from Cloudinary.
 - `user:<id>`: reserved for a future explicit decision to cache user data.
 
 Revalidation:

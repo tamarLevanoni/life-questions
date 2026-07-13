@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { User, Search, Menu, X, Mail, Home } from 'lucide-react';
+import { User, Search, Menu, X, Mail, Home, Info } from 'lucide-react';
 import { HeaderAuthDesktopSkeleton } from './header-auth-desktop';
 import { HeaderAuthMobileSkeleton } from './header-auth-mobile';
 
@@ -19,6 +19,7 @@ const HeaderAuthMobile = dynamic(
 );
 
 const navLinks = [
+  { href: '/about', label: 'אודות', icon: Info },
   { href: '/search', label: 'חיפוש', icon: Search },
   { href: '/profile', label: 'אזור אישי', icon: User },
   { href: '/contact', label: 'צור קשר', icon: Mail },

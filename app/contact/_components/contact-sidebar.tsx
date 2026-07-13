@@ -14,7 +14,7 @@ function CardSectionHeader({ icon: Icon, children }: { icon: LucideIcon; childre
 
 // ─── data ──────────────────────────────────────────────────────────────────
 
-const CONTACT_INFO = [
+export const CONTACT_INFO = [
   { icon: Mail,  label: 'אימייל',    value: 'shnerb.books@gmail.com' },
   { icon: Phone, label: 'טלפון',     value: '055-2650099' },
 ];

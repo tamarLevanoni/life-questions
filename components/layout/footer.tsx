@@ -3,6 +3,7 @@ import Image from 'next/image';
 
 const navLinks = [
   { href: '/', label: 'דף הבית' },
+  { href: '/about', label: 'אודות' },
   { href: '/search', label: 'חיפוש' },
   { href: '/profile', label: 'אזור אישי' },
   { href: '/contact', label: 'צור קשר' },
