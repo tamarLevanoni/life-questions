@@ -20,9 +20,9 @@ export default function Home() {
     <PageShell fullWidth>
       <HeroSection />
       <VideoSection />
-      <BooksGallerySection />
-      <FeaturesSection />
       <HowItWorksSection />
+      <FeaturesSection />
+      <BooksGallerySection />
       <StoryExamplesList />
       <WhatsAppSection />
       <HomeCTASection />

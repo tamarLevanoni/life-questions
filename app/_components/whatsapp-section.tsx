@@ -2,10 +2,15 @@
 
 import { Check } from 'lucide-react';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
-import { useWhatsAppInvite } from '@/lib/whatsapp-context';
+import { WHATSAPP_GROUP_URL, TEACHERS_GROUP_URL } from '@/lib/config/whatsapp';
 import { motion } from 'framer-motion';
 
 const BULLETS = ['סיפור חדש כל שבוע', 'רעיונות לשיעורים', 'תכנים בלעדיים'];
+
+const GROUPS = [
+  { href: WHATSAPP_GROUP_URL, label: 'קבוצה כללית' },
+  { href: TEACHERS_GROUP_URL, label: 'קבוצת מורים' },
+];
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -37,8 +42,6 @@ function ChatMockup() {
 }
 
 export function WhatsAppSection() {
-  const { openWhatsAppModal } = useWhatsAppInvite();
-
   return (
     <section className="py-8 md:py-16 px-4">
       <div className="max-w-5xl mx-auto rounded-3xl bg-brand-dark overflow-hidden relative">
@@ -59,14 +62,19 @@ export function WhatsAppSection() {
               ))}
             </ul>
 
-            <div>
-              <button
-                onClick={openWhatsAppModal}
-                className="inline-flex items-center gap-3 px-8 py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-hebrew font-bold transition-all hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-green-500/25"
-              >
-                <WhatsAppIcon className="w-5 h-5" />
-                הצטרפו לקבוצת ווצאפ
-              </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
+              {GROUPS.map(({ href, label }) => (
+                <a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-hebrew font-bold transition-all hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-green-500/25"
+                >
+                  <WhatsAppIcon className="w-5 h-5" />
+                  {label}
+                </a>
+              ))}
             </div>
           </MotionFadeIn>
 

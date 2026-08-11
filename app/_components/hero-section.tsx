@@ -10,8 +10,12 @@ import { HERO_IMAGE } from '@/lib/config/hero-image';
 function HeroBackground() {
   if (HERO_IMAGE.url) {
     return (
-      <div className="[grid-area:1/1] w-full aspect-2560/1280 bg-[#eef7fb] overflow-hidden relative">
-        <img src={HERO_IMAGE.url} alt="" className="w-full h-full object-cover" />
+      <div className="[grid-area:1/1] w-full aspect-1920/1080 bg-[#eef7fb] overflow-hidden relative">
+        <img
+          src={HERO_IMAGE.url}
+          alt="נער לומד שולחן ערוך ליד שולחן, ומעליו בועת קסם המחברת את הלימוד לסיפור חיים מהיום-יום"
+          className="w-full h-full object-cover"
+        />
         <div className="absolute bottom-0 inset-x-0 h-24 bg-linear-to-b from-transparent to-background pointer-events-none" />
       </div>
     );
@@ -46,7 +50,11 @@ function HeroBackgroundMobile() {
   if (HERO_IMAGE.mobileUrl) {
     return (
       <div className="[grid-area:1/1] w-full aspect-1080/1350 bg-[#eef7fb] overflow-hidden relative">
-        <img src={HERO_IMAGE.mobileUrl} alt="" className="w-full h-full object-cover" />
+        <img
+          src={HERO_IMAGE.mobileUrl}
+          alt="נער לומד שולחן ערוך ליד שולחן, ומעליו בועת קסם המחברת את הלימוד לסיפור חיים מהיום-יום"
+          className="w-full h-full object-cover"
+        />
         <div className="absolute bottom-0 inset-x-0 h-24 bg-linear-to-b from-transparent to-background pointer-events-none" />
       </div>
     );
@@ -79,66 +87,34 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-function HeroHeading() {
+function HeroFloatingCtas({ openWhatsAppModal }: { openWhatsAppModal: () => void }) {
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="inline-block mb-3 md:mb-4 px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-500 text-xs md:text-xs font-hebrew font-medium"
+    <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center md:justify-end gap-2 md:gap-3">
+      <Link
+        href="/search"
+        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 md:px-7 md:py-3.5 bg-primary text-primary-foreground rounded-xl font-hebrew text-xs md:text-base font-medium hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
       >
-        מבוסס על סדרת הספרים שאלות מהחיים
-      </motion.div>
-
-      <h1 className="text-2xl md:text-5xl font-bold font-noa-shalev mb-3 md:mb-6 leading-tight">
-        מצאו את הסיפור
-        <br />
-        המתאים{' '}
-        <span className="bg-linear-to-l from-brand-teal via-[#06B6D4] to-brand-blue bg-clip-text text-transparent">
-          בתוך שניות
-        </span>
-      </h1>
-    </>
-  );
-}
-
-function HeroCtas({ openWhatsAppModal }: { openWhatsAppModal: () => void }) {
-  return (
-    <>
-      <p className="text-xs md:text-lg text-muted-foreground font-hebrew max-w-xl mb-4 md:mb-8 leading-relaxed">
-        חפשו סיפורים לפי נושא, שאלה, מקור הלכתי או תיאור חופשי.
-        <br />
-        מושלם לשיעורים, לימוד עצמי, פעילויות ודיונים.
-      </p>
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-start gap-2 md:gap-3">
-        <Link
-          href="/search"
-          className="inline-flex items-center gap-2 px-5 py-2.5 md:px-7 md:py-3.5 bg-primary text-primary-foreground rounded-xl font-hebrew text-xs md:text-base font-medium hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <Search className="w-4 h-4 md:w-5 md:h-5" />
-          התחל לחפש
-        </Link>
-        <a
-          href="#featured"
-          onClick={(e) => {
-            e.preventDefault();
-            document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="inline-flex items-center gap-2 px-5 py-2.5 md:px-7 md:py-3.5 glass-card text-foreground rounded-xl font-hebrew text-xs md:text-base font-medium hover:bg-white/80 dark:hover:bg-white/10 transition-all"
-        >
-          צפה בדוגמאות
-        </a>
-        <button
-          onClick={openWhatsAppModal}
-          className="inline-flex items-center gap-2 px-5 py-2.5 md:px-7 md:py-3.5 glass-card text-foreground rounded-xl font-hebrew text-xs md:text-base font-medium hover:bg-white/80 dark:hover:bg-white/10 transition-all"
-        >
-          <WhatsAppIcon className="w-4 h-4 md:w-5 md:h-5" />
-          הצטרפו לוואטסאפ
-        </button>
-      </div>
-    </>
+        <Search className="w-4 h-4 md:w-5 md:h-5" />
+        התחל לחפש
+      </Link>
+      <a
+        href="#featured"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 md:px-7 md:py-3.5 glass-card text-foreground rounded-xl font-hebrew text-xs md:text-base font-medium hover:bg-white/80 dark:hover:bg-white/10 transition-all"
+      >
+        צפה בדוגמאות
+      </a>
+      <button
+        onClick={openWhatsAppModal}
+        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 md:px-7 md:py-3.5 glass-card text-foreground rounded-xl font-hebrew text-xs md:text-base font-medium hover:bg-white/80 dark:hover:bg-white/10 transition-all"
+      >
+        <WhatsAppIcon className="w-4 h-4 md:w-5 md:h-5" />
+        הצטרפו לוואטסאפ
+      </button>
+    </div>
   );
 }
 
@@ -147,41 +123,36 @@ export function HeroSection() {
 
   return (
     <section>
-      {/* Mobile: full overlay, image behind all content, same pattern as desktop */}
+      {/* The illustration carries its own headline/subhead (mobile + desktop); only the CTAs float on top */}
+      <h1 className="sr-only">מחברים את השולחן ערוך לחיי המעשה</h1>
+
       <div className="md:hidden grid">
         <HeroBackgroundMobile />
 
-        <div className="[grid-area:1/1] relative flex items-start pt-24 pb-12 px-4">
-          <div className="max-w-xl w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-right"
-            >
-              <HeroHeading />
-              <HeroCtas openWhatsAppModal={openWhatsAppModal} />
-            </motion.div>
-          </div>
+        <div className="[grid-area:1/1] relative flex items-end pb-[6%] px-[6%]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full"
+          >
+            <HeroFloatingCtas openWhatsAppModal={openWhatsAppModal} />
+          </motion.div>
         </div>
       </div>
 
-      {/* Desktop: full overlay, image behind all content */}
       <div className="hidden md:grid">
         <HeroBackground />
 
-        <div className="[grid-area:1/1] relative flex items-center pt-32 pb-20 px-4">
-          <div className="max-w-5xl mx-auto w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-xl text-right"
-            >
-              <HeroHeading />
-              <HeroCtas openWhatsAppModal={openWhatsAppModal} />
-            </motion.div>
-          </div>
+        <div className="[grid-area:1/1] relative flex items-end pb-[8%] px-[4%]">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full"
+          >
+            <HeroFloatingCtas openWhatsAppModal={openWhatsAppModal} />
+          </motion.div>
         </div>
       </div>
     </section>
