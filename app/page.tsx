@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { PageShell } from '@/components/common/page-shell';
 import { HeroSection } from './_components/hero-section';
+import { IntroTextSection } from './_components/intro-text-section';
 import { VideoSection } from './_components/video-section';
 import { BooksGallerySection } from './_components/books-gallery-section';
 import { FeaturesSection } from './_components/features-section';
@@ -19,6 +20,7 @@ export default function Home() {
   return (
     <PageShell fullWidth>
       <HeroSection />
+      <IntroTextSection />
       <VideoSection />
       <HowItWorksSection />
       <FeaturesSection />
