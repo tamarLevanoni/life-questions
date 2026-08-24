@@ -19,6 +19,7 @@ const HeaderAuthMobile = dynamic(
 );
 
 const navLinks = [
+  { href: '/', label: 'דף הבית', icon: Home },
   { href: '/about', label: 'אודות', icon: Info },
   { href: '/search', label: 'חיפוש', icon: Search },
   { href: '/profile', label: 'אזור אישי', icon: User },
@@ -120,15 +121,6 @@ export function AppHeader() {
           }}
           dir="rtl"
         >
-          <Link
-            href="/"
-            onClick={handleLinkClick}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-foreground/80 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors font-medium font-hebrew"
-          >
-            <Home className="w-5 h-5" />
-            דף הבית
-          </Link>
-
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
