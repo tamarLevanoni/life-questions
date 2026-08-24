@@ -5,7 +5,7 @@ import { PageShell } from '@/components/common/page-shell';
 import { getStory } from '@/lib/server/stories';
 import { BackendError } from '@/lib/server/errors';
 import { SkeletonLines } from '@/components/common/loading-skeleton';
-import { StoryHydrator } from './_components/story-hydrator';
+import { StoryHydrator } from '@/components/story/story-hydrator';
 import { StoryView } from './_components/story-view';
 
 interface StoryPageProps {
