@@ -86,8 +86,10 @@ export function VideoSection() {
                     {weeklyStory.legalQuestion}
                   </p>
                 )}
+                {/* TODO: store-lookup route means this link is not shareable/bookmarkable —
+                    see docs/planning/weekly-story-shareable-link.md before removing */}
                 <Link
-                  href={`/story/${weeklyStory.id}`}
+                  href={`/story/featured/${weeklyStory.id}`}
                   className="inline-flex items-center gap-2 self-start px-6 py-3 bg-brand-orange text-white rounded-full font-hebrew font-medium text-sm hover:opacity-90 transition-all"
                 >
                   מעבר לתשובה

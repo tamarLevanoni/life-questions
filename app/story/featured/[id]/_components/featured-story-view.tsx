@@ -13,9 +13,12 @@ interface FeaturedStoryViewProps {
 
 export function FeaturedStoryView({ storyId }: FeaturedStoryViewProps) {
   const featuredStories = useAppDataStore((s) => s.featuredStories);
+  const weeklyStory = useAppDataStore((s) => s.weeklyStory);
   const books = useAppDataStore((s) => s.books);
 
-  const story = featuredStories.find((s) => s.id === storyId) ?? null;
+  const story =
+    featuredStories.find((s) => s.id === storyId) ??
+    (weeklyStory?.id === storyId ? weeklyStory : null);
   const book = story ? books.find((b) => b.id === story.bookId) : undefined;
 
   if (!story) {
