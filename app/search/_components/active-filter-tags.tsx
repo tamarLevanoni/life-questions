@@ -6,7 +6,6 @@ import type { UiSearchFilters } from '@/lib/types';
 import type { Book, Topic, MasechetWithPages, ShuSectionWithSimanim } from '@/lib/schemas';
 
 interface ActiveFilterTagsProps {
-  query: string;
   filters: UiSearchFilters;
   books: Book[];
   topics: Topic[];
@@ -20,18 +19,17 @@ interface FilterTag {
 }
 
 export function ActiveFilterTags({
-  query,
   filters,
   books,
   topics,
   masechtot,
   shuSections,
 }: ActiveFilterTagsProps) {
-  const { bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = filters;
+  const { q = '', bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = filters;
   const tags: FilterTag[] = [];
 
-  if (query.trim()) {
-    tags.push({ key: 'query', label: query.trim() });
+  if (q.trim()) {
+    tags.push({ key: 'query', label: q.trim() });
   }
 
   bookIds.forEach((id) => {

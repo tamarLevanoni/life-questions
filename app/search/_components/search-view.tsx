@@ -11,19 +11,23 @@ export function SearchView() {
   const search = useSearch();
   const [filtersOpen, setFiltersOpen] = useState(true);
 
+  const handleSearch = () => {
+    search.handleSearch();
+    setFiltersOpen(false);
+  };
+
   return (
     <div className="pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto space-y-4">
         <SearchHeader />
-        <div className="relative flex flex-col md:flex-row gap-4 items-start" dir="rtl">
+        <div className="relative flex flex-col gap-4" dir="rtl">
           <SearchFiltersPanel
             search={search}
             isOpen={filtersOpen}
             onToggle={() => setFiltersOpen((prev) => !prev)}
+            onSearch={handleSearch}
           />
-          <div className="flex-1 min-w-0">
-            <SearchResultsPanel search={search} />
-          </div>
+          <SearchResultsPanel search={search} />
           {search.isUnauthenticated && <AuthRequiredOverlay onClick={search.openLoginModal} />}
         </div>
       </div>

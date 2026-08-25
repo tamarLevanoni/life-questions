@@ -32,16 +32,16 @@ export function useSearch() {
   const topics = useAppDataStore((s) => s.topics);
   const books = useAppDataStore((s) => s.books);
 
-  const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
   const [filters, setFilters] = useState<UiSearchFilters>(() => {
+    const q = searchParams.get('q') ?? undefined;
     const bookId = searchParams.get('bookId');
-    return bookId ? { bookIds: [bookId] } : {};
+    return { q, bookIds: bookId ? [bookId] : undefined };
   });
   const [hasSearched, setHasSearched] = useState(false);
-  // Snapshot of the query/filters actually searched — ActiveFilterTags
-  // reads this instead of the live query/filters, so the tags only
-  // change when a search is submitted, not while the user is still picking.
-  const [applied, setApplied] = useState({ query, filters });
+  // Snapshot of the filters actually searched — ActiveFilterTags reads
+  // this instead of the live filters, so the tags only change when a
+  // search is submitted, not while the user is still picking.
+  const [applied, setApplied] = useState(filters);
 
   const scrollToTop = useCallback(() => {
     // Blur the clicked button first — otherwise the browser's own
@@ -52,6 +52,7 @@ export function useSearch() {
   }, []);
 
   const activeFiltersCount =
+    (filters.q?.trim() ? 1 : 0) +
     (filters.bookIds?.length ?? 0) +
     (filters.topicIds?.length ?? 0) +
     (filters.shasRefs?.filter((r) => r.masechetId)?.length ?? 0) +
@@ -68,7 +69,7 @@ export function useSearch() {
         .map((r) => ({ shuSectionId: r.shuSectionId!, simanId: r.simanId, seif: r.seif }));
 
       return {
-        q: query || undefined,
+        q: uiFilters.q?.trim() || undefined,
         bookIds: uiFilters.bookIds?.length ? uiFilters.bookIds : undefined,
         topicIds: uiFilters.topicIds?.length ? uiFilters.topicIds : undefined,
         shasRefs: shasRefs.length ? shasRefs : undefined,
@@ -76,7 +77,7 @@ export function useSearch() {
         limit: PAGE_LIMIT,
       };
     },
-    [query]
+    []
   );
 
   const handleSearch = useCallback(() => {
@@ -86,10 +87,10 @@ export function useSearch() {
       return;
     }
     setHasSearched(true);
-    setApplied({ query, filters });
+    setApplied(filters);
     searchStories(buildApiParams(filters));
     scrollToTop();
-  }, [isUnauthenticated, showToast, openLoginModal, searchStories, buildApiParams, filters, query, scrollToTop]);
+  }, [isUnauthenticated, showToast, openLoginModal, searchStories, buildApiParams, filters, scrollToTop]);
 
   const handleLoadMore = useCallback(() => {
     if (isUnauthenticated) {
@@ -124,8 +125,6 @@ export function useSearch() {
   const hasMore = stories.length < total;
 
   return {
-    query,
-    setQuery,
     filters,
     setFilters,
     applied,

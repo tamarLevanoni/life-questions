@@ -10,19 +10,20 @@ interface SearchFiltersPanelProps {
   search: UseSearchReturn;
   isOpen: boolean;
   onToggle: () => void;
+  onSearch: () => void;
 }
 
-export function SearchFiltersPanel({ search, isOpen, onToggle }: SearchFiltersPanelProps) {
+export function SearchFiltersPanel({ search, isOpen, onToggle, onSearch }: SearchFiltersPanelProps) {
   return (
-    <GlassCard variant="light" className="p-4 w-full md:w-72 shrink-0 md:sticky md:top-24">
+    <GlassCard variant="light" className="p-4 w-full">
       <button
         onClick={onToggle}
-        className="flex items-center justify-between w-full font-hebrew md:hidden"
+        className="flex items-center justify-between w-full font-hebrew"
         dir="rtl"
       >
-        <span className="flex items-center gap-2 text-sm font-semibold">
+        <span className="flex items-center gap-2 text-base font-semibold">
           <SlidersHorizontal className="w-4 h-4" />
-          סינון
+          לפי מה תרצה לחפש?
           {search.activeFiltersCount > 0 && (
             <span className="bg-primary text-primary-foreground rounded-full text-xs px-1.5 py-0.5 leading-none">
               {search.activeFiltersCount}
@@ -30,12 +31,12 @@ export function SearchFiltersPanel({ search, isOpen, onToggle }: SearchFiltersPa
           )}
         </span>
         <span className="flex items-center gap-1 text-xs text-muted-foreground">
-          {isOpen ? 'הסתר סינון' : 'הצג סינון'}
+          {isOpen ? 'צמצום' : 'הרחבה'}
           <ChevronUp className={cn('w-4 h-4 transition-transform duration-200', !isOpen && 'rotate-180')} />
         </span>
       </button>
       {isOpen && (
-        <div className="pt-3 md:pt-0" dir="rtl">
+        <div className="pt-4" dir="rtl">
           <CategoryFilterBar
             masechtot={search.masechtot}
             shuSections={search.shuSections}
@@ -43,7 +44,7 @@ export function SearchFiltersPanel({ search, isOpen, onToggle }: SearchFiltersPa
             books={search.books}
             activeFilters={search.filters}
             onFiltersChange={search.setFilters}
-            onSearch={search.handleSearch}
+            onSearch={onSearch}
           />
         </div>
       )}

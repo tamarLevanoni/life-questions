@@ -42,6 +42,7 @@ export interface UiShuRef {
 }
 
 export interface UiSearchFilters {
+  q?: string;
   bookIds?: string[];
   topicIds?: string[];
   shasRefs?: UiShasRef[];
@@ -65,15 +66,6 @@ export interface ExpandableAnswerPanelProps {
   isLocked?: boolean;
   defaultExpanded?: boolean;
   onRequestAccess?: () => void;
-}
-
-export interface SearchBarProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSearch: () => void;
-  placeholder?: string;
-  isLoading?: boolean;
-  className?: string;
 }
 
 export interface CategoryFilterBarProps {
