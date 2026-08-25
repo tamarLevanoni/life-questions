@@ -54,7 +54,7 @@ export async function getBooks(): Promise<Book[]> {
 
 export async function getFeaturedStories(): Promise<Story[]> {
   'use cache';
-  cacheLife('hours');
+  cacheLife('seconds');
   cacheTag('featured');
 
   return fetchList('/api/stories/featured', z.array(storySchema));
@@ -62,7 +62,7 @@ export async function getFeaturedStories(): Promise<Story[]> {
 
 export async function getWeeklyStory(): Promise<Story | null> {
   'use cache';
-  cacheLife('hours');
+  cacheLife('seconds');
   cacheTag('weekly');
 
   const data = await serverClient.get('/api/stories/weekly');
