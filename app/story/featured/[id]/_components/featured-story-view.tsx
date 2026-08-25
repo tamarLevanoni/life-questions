@@ -22,6 +22,12 @@ export function FeaturedStoryView({ storyId }: FeaturedStoryViewProps) {
   const book = story ? books.find((b) => b.id === story.bookId) : undefined;
 
   if (!story) {
+    console.error('[FeaturedStoryView] story not found in store', {
+      storyId,
+      featuredStoriesCount: featuredStories.length,
+      featuredStoryIds: featuredStories.map((s) => s.id),
+      weeklyStoryId: weeklyStory?.id ?? null,
+    });
     return (
       <EmptyState
         icon={AlertCircle}
