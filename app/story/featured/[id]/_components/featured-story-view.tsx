@@ -1,17 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Search, AlertCircle } from 'lucide-react';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { EmptyState } from '@/components/common/empty-state';
 import { StoryPanels } from '@/components/story/story-panels';
 import { useAppDataStore } from '@/lib/stores/app-data-store';
 
-interface FeaturedStoryViewProps {
-  storyId: string;
-}
-
-export function FeaturedStoryView({ storyId }: FeaturedStoryViewProps) {
+export function FeaturedStoryView() {
+  // Read the real, current URL param client-side rather than receiving it
+  // from the server component — see page.tsx for why.
+  const { id: storyId } = useParams<{ id: string }>();
   const featuredStories = useAppDataStore((s) => s.featuredStories);
   const weeklyStory = useAppDataStore((s) => s.weeklyStory);
   const books = useAppDataStore((s) => s.books);
