@@ -13,8 +13,7 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
   const {
     query,
     setQuery,
-    filters,
-    setFilters,
+    applied,
     hasSearched,
     loading,
     stories,
@@ -32,8 +31,8 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
   return (
     <div className="space-y-4">
       <ActiveFilterTags
-        filters={filters}
-        onFiltersChange={setFilters}
+        query={applied.query}
+        filters={applied.filters}
         books={books}
         topics={topics}
         masechtot={masechtot}

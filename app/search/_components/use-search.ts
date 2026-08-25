@@ -38,6 +38,18 @@ export function useSearch() {
     return bookId ? { bookIds: [bookId] } : {};
   });
   const [hasSearched, setHasSearched] = useState(false);
+  // Snapshot of the query/filters actually searched — ActiveFilterTags
+  // reads this instead of the live query/filters, so the tags only
+  // change when a search is submitted, not while the user is still picking.
+  const [applied, setApplied] = useState({ query, filters });
+
+  const scrollToTop = useCallback(() => {
+    // Blur the clicked button first — otherwise the browser's own
+    // "keep focused element in view" behavior fights the smooth scroll
+    // and snaps the page right back down.
+    (document.activeElement as HTMLElement | null)?.blur();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const activeFiltersCount =
     (filters.bookIds?.length ?? 0) +
@@ -74,8 +86,10 @@ export function useSearch() {
       return;
     }
     setHasSearched(true);
+    setApplied({ query, filters });
     searchStories(buildApiParams(filters));
-  }, [isUnauthenticated, showToast, openLoginModal, searchStories, buildApiParams, filters]);
+    scrollToTop();
+  }, [isUnauthenticated, showToast, openLoginModal, searchStories, buildApiParams, filters, query, scrollToTop]);
 
   const handleLoadMore = useCallback(() => {
     if (isUnauthenticated) {
@@ -114,6 +128,7 @@ export function useSearch() {
     setQuery,
     filters,
     setFilters,
+    applied,
     hasSearched,
     activeFiltersCount,
     hasMore,
