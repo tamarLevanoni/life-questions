@@ -62,7 +62,9 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${heebo.variable} ${secularOne.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
-        <AppDataLoader />
+        <Suspense>
+          <AppDataLoader />
+        </Suspense>
         <Providers>
           {children}
           <Footer />
