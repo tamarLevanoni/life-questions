@@ -50,6 +50,9 @@ export function WhatsAppInviteModal() {
         </DialogHeader>
 
         <div className="flex flex-col gap-3 mt-2">
+          <p className="font-hebrew text-sm font-bold text-center text-green-700 dark:text-green-300 bg-green-500/10 border border-green-500/30 rounded-lg py-2 px-3 leading-relaxed">
+            חדש! בשתי הקבוצות יהיו זמנים שבהם יהיה ניתן לשאול שאלות ודיינים יענו לכם
+          </p>
           {GROUPS.map(({ href, title, description }) => (
             <a
               key={href}

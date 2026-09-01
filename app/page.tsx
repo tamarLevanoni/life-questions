@@ -4,6 +4,7 @@ import { HeroSection } from './_components/hero-section';
 import { IntroTextSection } from './_components/intro-text-section';
 import { VideoSection } from './_components/video-section';
 import { BooksGallerySection } from './_components/books-gallery-section';
+import { BooksShopSection } from './_components/books-shop-section';
 import { FeaturesSection } from './_components/features-section';
 import { HowItWorksSection } from './_components/how-it-works-section';
 import { StoryExamplesList } from './_components/story-examples-list';
@@ -25,6 +26,7 @@ export default function Home() {
       <HowItWorksSection />
       <FeaturesSection />
       <BooksGallerySection />
+      <BooksShopSection />
       <StoryExamplesList />
       <WhatsAppSection />
       <HomeCTASection />

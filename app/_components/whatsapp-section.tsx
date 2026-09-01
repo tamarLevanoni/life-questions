@@ -44,23 +44,29 @@ function ChatMockup() {
 export function WhatsAppSection() {
   return (
     <section className="py-8 md:py-16 px-4">
-      <div className="max-w-5xl mx-auto rounded-3xl bg-brand-dark overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-72 h-72 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="max-w-5xl mx-auto rounded-3xl bg-linear-to-br from-teal-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 border border-black/5 dark:border-white/10 overflow-hidden relative">
+        <div className="absolute -top-10 -left-10 w-72 h-72 bg-brand-teal/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -right-10 w-80 h-80 bg-brand-blue/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-green-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative grid md:grid-cols-2 gap-4 md:gap-8 p-5 md:p-12 items-center">
           <MotionFadeIn trigger="view" className="text-center md:text-right order-2 md:order-1">
-            <h2 className="text-xl md:text-3xl font-bold font-hebrew text-white mb-3">
+            <h2 className="text-xl md:text-3xl font-bold font-hebrew text-brand-dark dark:text-white mb-3">
               מצטרפים לקהילה. מקבלים תוכן. כל שבוע.
             </h2>
 
             <ul className="space-y-2 mb-4 md:mb-6 inline-block text-right">
               {BULLETS.map((b) => (
-                <li key={b} className="flex items-center gap-2 text-white/80 font-hebrew text-xs md:text-sm">
-                  <Check className="w-4 h-4 text-green-400 shrink-0" />
+                <li key={b} className="flex items-center gap-2 text-brand-dark/70 dark:text-white/80 font-hebrew text-xs md:text-sm">
+                  <Check className="w-4 h-4 text-green-500 dark:text-green-400 shrink-0" />
                   {b}
                 </li>
               ))}
             </ul>
+
+            <p className="font-hebrew text-sm font-bold text-center md:text-right text-green-700 dark:text-green-300 bg-green-500/10 border border-green-500/30 rounded-lg py-2 px-3 mb-4 leading-relaxed">
+              חדש! בשתי הקבוצות יהיו זמנים שבהם יהיה ניתן לשאול שאלות ודיינים יענו לכם
+            </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-end">
               {GROUPS.map(({ href, label }) => (
