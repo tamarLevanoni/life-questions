@@ -35,7 +35,7 @@ export function BooksShopSection() {
 
             <MotionFadeIn trigger="view" delay={0.3}>
               <p className="mt-3 md:mt-4 text-sm md:text-base font-hebrew text-brand-dark/70 dark:text-white/70 max-w-md mx-auto md:mx-0 leading-relaxed">
-                כל הסיפורים ההלכתיים, מסודרים ומעוצבים בספר אחד — מתנה מושלמת ללימוד, לשיעור ולבית.
+                כל הסיפורים בצורה מסודרת ומעוצבת - מתנה מושלמת ללימוד, לשיעור ולבית.
               </p>
             </MotionFadeIn>
 
