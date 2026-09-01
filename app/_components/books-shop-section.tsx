@@ -52,20 +52,20 @@ export function BooksShopSection() {
             </MotionFadeIn>
           </div>
 
-          {/* Image sits beside the frame and rises above it */}
+          {/* Image sits above the frame on mobile, beside it on desktop — always rising slightly over it */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, rotate: 6 }}
             whileInView={{ opacity: 1, scale: 1, rotate: -3 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative z-10 md:-mr-16"
+            className="relative z-10 order-first md:order-0 -mb-16 md:mb-0 md:-mr-16"
           >
             <Image
               src={BOOKS_SET_IMAGE_URL}
               alt="מארז הספרים שאלות מהחיים"
               width={800}
               height={800}
-              className="w-full max-w-85 md:max-w-110 h-auto object-contain drop-shadow-2xl mt-2 md:mt-4"
+              className="w-full max-w-64 md:max-w-110 h-auto object-contain drop-shadow-2xl md:mt-4"
             />
           </motion.div>
         </div>
