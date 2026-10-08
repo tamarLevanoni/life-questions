@@ -8,6 +8,7 @@ import { BooksShopSection } from './_components/books-shop-section';
 import { FeaturesSection } from './_components/features-section';
 import { HowItWorksSection } from './_components/how-it-works-section';
 import { StoryExamplesList } from './_components/story-examples-list';
+import { WeeklyQuestionSection } from './_components/weekly-question-section';
 import { WhatsAppSection } from './_components/whatsapp-section';
 import { HomeCTASection } from './_components/home-cta-section';
 
@@ -28,6 +29,7 @@ export default function Home() {
       <BooksGallerySection />
       <BooksShopSection />
       <StoryExamplesList />
+      <WeeklyQuestionSection />
       <WhatsAppSection />
       <HomeCTASection />
     </PageShell>
