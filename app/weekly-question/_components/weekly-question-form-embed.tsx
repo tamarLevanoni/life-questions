@@ -8,9 +8,6 @@ export function WeeklyQuestionFormEmbed() {
         src={WEEKLY_QUESTION_FORM_URL}
         className="w-full rounded-xl"
         height={1761}
-        frameBorder={0}
-        marginHeight={0}
-        marginWidth={0}
         title="השאלה השבועית"
       >
         בטעינה…
