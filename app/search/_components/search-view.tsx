@@ -5,21 +5,24 @@ import { SearchHeader } from './search-header';
 import { SearchFiltersPanel } from './search-filters-panel';
 import { SearchResultsPanel } from './search-results-panel';
 import { AuthRequiredOverlay } from './auth-required-overlay';
+import styles from './search-layout.module.css';
 
 export function SearchView() {
   const search = useSearch();
 
   return (
-    <div className="pt-24 pb-12 px-4">
+    <div className={styles.page}>
       <div className="max-w-6xl mx-auto space-y-4">
-        <SearchHeader />
         <div className="relative flex flex-col gap-4" dir="rtl">
-          <SearchFiltersPanel
-            search={search}
-            isOpen={search.filtersOpen}
-            onToggle={search.toggleFilters}
-            onSearch={search.handleSearch}
-          />
+          <div className={styles.controls}>
+            <SearchHeader />
+            <SearchFiltersPanel
+              search={search}
+              isOpen={search.filtersOpen}
+              onToggle={search.toggleFilters}
+              onSearch={search.handleSearch}
+            />
+          </div>
           <SearchResultsPanel search={search} />
           {search.isUnauthenticated && <AuthRequiredOverlay onClick={search.openLoginModal} />}
         </div>

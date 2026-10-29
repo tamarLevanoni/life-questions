@@ -1,0 +1,12 @@
+.page {
+  padding: clamp(5rem, 12dvh, 6rem) 1rem 1.5rem;
+}
+
+.controls {
+  --spacing: clamp(0.125rem, 0.4dvh, 0.25rem);
+  --text-xs: clamp(0.625rem, 1.2dvh, 0.75rem);
+  --text-sm: clamp(0.6875rem, 1.4dvh, 0.875rem);
+  --text-base: clamp(0.75rem, 1.6dvh, 1rem);
+  --text-2xl: clamp(1.125rem, 2.4dvh, 1.5rem);
+  --text-3xl: clamp(1.25rem, 3dvh, 1.875rem);
+}

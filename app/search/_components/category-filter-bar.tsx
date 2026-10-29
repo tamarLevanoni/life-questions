@@ -77,12 +77,12 @@ export function CategoryFilterBar({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* לפי ספר/נושא */}
-        <section className="min-w-0 md:col-span-2">
+        <section className="min-w-0 col-span-2">
           <h3 className="text-sm font-semibold font-hebrew pb-2">לפי ספר/נושא</h3>
           <div className="h-px bg-border mb-1" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="min-w-0">
               <FilterSectionHeader label="ספר" count={bookIds.length} isOpen={openSections.has('book')} onToggle={() => toggle('book')} />
               {openSections.has('book') && <FilterCheckList options={bookOptions} selected={bookIds} onToggle={handleBookToggle} maxHeight="h-36" />}
