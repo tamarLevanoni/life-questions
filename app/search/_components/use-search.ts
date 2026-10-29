@@ -38,6 +38,7 @@ export function useSearch() {
     return { q, bookIds: bookId ? [bookId] : undefined };
   });
   const [hasSearched, setHasSearched] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(true);
   // Snapshot of the filters actually searched — ActiveFilterTags reads
   // this instead of the live filters, so the tags only change when a
   // search is submitted, not while the user is still picking.
@@ -52,7 +53,6 @@ export function useSearch() {
   }, []);
 
   const activeFiltersCount =
-    (filters.q?.trim() ? 1 : 0) +
     (filters.bookIds?.length ?? 0) +
     (filters.topicIds?.length ?? 0) +
     (filters.shasRefs?.filter((r) => r.masechetId)?.length ?? 0) +
@@ -87,6 +87,7 @@ export function useSearch() {
       return;
     }
     setHasSearched(true);
+    setFiltersOpen(false);
     setApplied(filters);
     searchStories(buildApiParams(filters));
     scrollToTop();
@@ -129,6 +130,8 @@ export function useSearch() {
     setFilters,
     applied,
     hasSearched,
+    filtersOpen,
+    toggleFilters: () => setFiltersOpen((prev) => !prev),
     activeFiltersCount,
     hasMore,
     isUnauthenticated,

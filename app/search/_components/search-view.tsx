@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useSearch } from './use-search';
 import { SearchHeader } from './search-header';
 import { SearchFiltersPanel } from './search-filters-panel';
@@ -9,12 +8,6 @@ import { AuthRequiredOverlay } from './auth-required-overlay';
 
 export function SearchView() {
   const search = useSearch();
-  const [filtersOpen, setFiltersOpen] = useState(true);
-
-  const handleSearch = () => {
-    search.handleSearch();
-    setFiltersOpen(false);
-  };
 
   return (
     <div className="pt-24 pb-12 px-4">
@@ -23,9 +16,9 @@ export function SearchView() {
         <div className="relative flex flex-col gap-4" dir="rtl">
           <SearchFiltersPanel
             search={search}
-            isOpen={filtersOpen}
-            onToggle={() => setFiltersOpen((prev) => !prev)}
-            onSearch={handleSearch}
+            isOpen={search.filtersOpen}
+            onToggle={search.toggleFilters}
+            onSearch={search.handleSearch}
           />
           <SearchResultsPanel search={search} />
           {search.isUnauthenticated && <AuthRequiredOverlay onClick={search.openLoginModal} />}

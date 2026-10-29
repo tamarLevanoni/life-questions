@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { CategoryFilterBarProps, UiShasRef, UiShuRef } from '@/lib/types';
-import { X, Plus, Trash2, Search } from 'lucide-react';
+import { X, Plus, Trash2 } from 'lucide-react';
 import { ShasSubFilters } from './shas-sub-filters';
 import { ShulchanAruchSubFilters } from './shulchan-aruch-sub-filters';
 import { FilterSectionHeader } from './filter-section-header';
@@ -11,14 +11,11 @@ import { FilterCheckList } from './filter-check-list';
 
 export function CategoryFilterBar({
   masechtot, shuSections, topics, books,
-  activeFilters, onFiltersChange, onSearch, className,
-}: CategoryFilterBarProps & { onSearch?: () => void }) {
+  activeFilters, onFiltersChange, className,
+}: CategoryFilterBarProps) {
   const [openSections, setOpenSections] = useState(new Set(['book', 'topic']));
 
-  const { q = '', bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = activeFilters;
-
-  const handleQueryChange = (value: string) =>
-    onFiltersChange({ ...activeFilters, q: value || undefined });
+  const { bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = activeFilters;
 
   const toggle = (key: string) => setOpenSections((prev) => {
     const next = new Set(prev);
@@ -68,14 +65,14 @@ export function CategoryFilterBar({
   const bookOptions = books.map((b) => ({ value: b.id, label: b.name }));
   const topicOptions = (bookIds.length ? topics.filter((t) => bookIds.includes(t.bookId)) : topics)
     .map((t) => ({ value: t.id, label: t.name }));
-  const hasActiveFilters = Boolean(q.trim()) || bookIds.length > 0 || topicIds.length > 0 || shasRefs.length > 0 || shuRefs.length > 0;
+  const hasActiveFilters = bookIds.length > 0 || topicIds.length > 0 || shasRefs.length > 0 || shuRefs.length > 0;
 
   return (
     <div className={cn('flex flex-col', className)} dir="rtl">
       {hasActiveFilters && (
         <div className="flex items-center justify-end pb-3">
-          <button onClick={() => onFiltersChange({})} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew">
-            <X className="w-3 h-3" />נקה הכל
+          <button onClick={() => onFiltersChange({ q: activeFilters.q })} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew">
+            <X className="w-3 h-3" />נקה קטגוריות
           </button>
         </div>
       )}
@@ -128,32 +125,6 @@ export function CategoryFilterBar({
         </section>
       </div>
 
-      {/* שדה חופשי */}
-      <div className="h-px bg-border mt-2" />
-      <div className="pt-3">
-        <h3 className="text-sm font-semibold font-hebrew pb-2">שדה חופשי</h3>
-        <div className="relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-          <input
-            type="text"
-            value={q}
-            onChange={(e) => handleQueryChange(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && onSearch?.()}
-            placeholder="כתבו את השאלה שלכם"
-            className="search-input w-full py-2 pr-10 pl-3 text-foreground placeholder:text-muted-foreground font-hebrew text-sm focus:outline-none"
-            aria-label="חיפוש חופשי"
-          />
-        </div>
-        <p className="text-xs font-hebrew text-muted-foreground text-right pt-2">
-          חפשו באמצעות AI, מומלץ לכתוב שאלה מפורטת. עדיין בשלבי פיתוח כדי לדייק לכם כמה שיותר
-        </p>
-      </div>
-
-      {onSearch && (
-        <button onClick={onSearch} className="mt-4 w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-hebrew font-medium hover:bg-primary/90 transition-colors">
-          <Search className="w-4 h-4" />חיפוש
-        </button>
-      )}
     </div>
   );
 }
