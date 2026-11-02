@@ -125,6 +125,8 @@ Per route with state/auth:
 
 Hydrator components write to Zustand stores **synchronously during render** (guarded by a `useRef` flag) — never inside `useEffect`. This guarantees the first client paint sees a populated store.
 
+App-wide data uses synchronous store initialization instead: `AppDataLoader` wraps all consumers in `AppDataHydrator`, which creates a provider-scoped store with a lazy `useState` initializer. `useAppDataStore` selects from this store through Context. There is no shared app-data store or render-time notification of existing subscribers; each SSR tree and provider mount has its own initialized store. A mounted root provider keeps its initial bundle across client navigation.
+
 | Hydrator | Location | Store | When |
 |---------|----------|-------|------|
 | `AppDataHydrator` | `components/providers/app-data-hydrator.tsx` | `useAppDataStore` | Root layout — once per session (global, affects all routes) |

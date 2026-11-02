@@ -94,6 +94,7 @@ Per route with state/auth:
 `<StoreHydrator>` hydrates Zustand stores **synchronously during render** (guarded by a `useRef` first-run flag) — never inside `useEffect`. This guarantees the first client paint sees a populated store, so consumers never need a `store.loaded ? store.x : initial.x` fallback.
 
 Corollaries:
+- App-wide reference data is initialized synchronously in a provider-scoped store: `AppDataLoader` wraps consumers in `AppDataHydrator`, which creates its store with a lazy `useState` initializer. Never write to a shared app-data store during render; that can notify already-mounted consumers. `useAppDataStore` reads this store through Context, including during SSR.
 - Hooks read only from the store.
 - `use-<route>.ts` effects that fetch must check the store first — if the entity is hydrated, skip the fetch (no double-RTT after RSC).
 - `SessionUserSync` may set `useUserStore` from the session, but must not overwrite a richer object hydrated from `getCurrentUser`. Treat the session as the auth-status signal; the store-hydrated user as data.

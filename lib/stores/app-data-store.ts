@@ -1,17 +1,19 @@
-import { create } from 'zustand';
+'use client';
+
+import { createContext, useContext } from 'react';
+import { createStore, useStore } from 'zustand';
 import type { AppDataBundle } from '@/lib/types';
 
-interface AppDataState extends AppDataBundle {
-  hydrate: (bundle: AppDataBundle) => void;
+export function createAppDataStore(data: AppDataBundle) {
+  return createStore<AppDataBundle>()(() => data);
 }
 
-export const useAppDataStore = create<AppDataState>((set) => ({
-  masechtot: [],
-  shuSections: [],
-  topics: [],
-  books: [],
-  featuredStories: [],
-  weeklyStory: null,
+export const AppDataStoreContext = createContext<ReturnType<typeof createAppDataStore> | null>(null);
 
-  hydrate: (bundle) => set(bundle),
-}));
+export function useAppDataStore<T>(selector: (state: AppDataBundle) => T): T {
+  const store = useContext(AppDataStoreContext);
+  if (!store) {
+    throw new Error('useAppDataStore must be used within AppDataHydrator');
+  }
+  return useStore(store, selector);
+}

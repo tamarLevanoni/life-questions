@@ -1,14 +1,11 @@
 'use client';
 
-import { useRef } from 'react';
-import { useAppDataStore } from '@/lib/stores/app-data-store';
+import { useState, type ReactNode } from 'react';
+import { AppDataStoreContext, createAppDataStore } from '@/lib/stores/app-data-store';
 import type { AppDataBundle } from '@/lib/types';
 
-export function AppDataHydrator({ data }: { data: AppDataBundle }) {
-  const hydrated = useRef(false);
-  if (!hydrated.current) {
-    useAppDataStore.getState().hydrate(data);
-    hydrated.current = true;
-  }
-  return null;
+export function AppDataHydrator({ data, children }: { data: AppDataBundle; children: ReactNode }) {
+  // Initialize before consumers render, without notifying an existing store's subscribers.
+  const [store] = useState(() => createAppDataStore(data));
+  return <AppDataStoreContext.Provider value={store}>{children}</AppDataStoreContext.Provider>;
 }

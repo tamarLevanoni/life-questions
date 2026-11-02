@@ -68,6 +68,8 @@ Implementation contract:
 
 Each store has a dedicated hydrator — a focused client component that writes synchronously during render (guarded by `useRef`), never inside `useEffect`.
 
+App-wide data uses synchronous initialization of a provider-scoped store instead of writing to a shared store. `AppDataLoader` wraps its consumers in `AppDataHydrator`; the latter creates the store from the complete `AppDataBundle` with a lazy `useState` initializer. `useAppDataStore` reads through Context. Thus both the SSR snapshot and the first client render contain the bundle, concurrent SSR trees cannot overwrite each other's app data, and remounts cannot notify consumers of another provider during render. The mounted root provider keeps its initial bundle across client navigation; refreshing the bundle requires a new provider mount. Do not restore a sibling hydrator that mutates a global app-data store during render.
+
 | Hydrator | Location | Store | When |
 |---------|----------|-------|------|
 | `AppDataHydrator` | `components/providers/app-data-hydrator.tsx` | `useAppDataStore` | Root layout — once per session |
