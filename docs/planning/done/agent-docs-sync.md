@@ -1,3 +1,5 @@
+> Historical record; superseded details are not active instructions. Read ../../specs/ and ../README.md for current status.
+
 # Agent Docs Sync
 
 ## Context

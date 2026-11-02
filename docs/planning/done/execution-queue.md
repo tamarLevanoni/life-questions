@@ -1,3 +1,5 @@
+> Historical record; superseded details are not active instructions. Read ../../specs/ and ../README.md for current status.
+
 # Planning Files — Execution Queue
 
 Execution order with isolated agent prompts. Each step runs in its own worktree.
