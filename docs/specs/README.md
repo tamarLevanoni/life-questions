@@ -1,25 +1,29 @@
-# Specs
+# Maintained project specs
 
-Long-lived project specifications. Each document stands on its own and defines architecture or product decisions that should remain valid throughout the project.
+Start with the owner of the task; do not load the whole documentation set for every edit. Framework APIs are documented by the installed Next.js package, while these specs own project choices.
 
-| # | Document | Topic |
-|---|----------|-------|
-| 00 | [Source of Truth](00-source-of-truth.md) | Document hierarchy, spec changes, decision ownership |
-| 01 | [Architecture](01-architecture.md) | Stack, RSC-first architecture, error handling, head/SEO |
-| 02 | [Server Access](02-server-access.md) | `lib/server/*`, BFF, `backendFetch`, response contracts |
-| 03 | [Stores & Cache](03-stores-and-cache.md) | Zustand, synchronous hydration, Next 16 cache strategy |
-| 04 | [Route Structure](04-route-structure.md) | Route shape, page/view/hook split, primitives |
-| 05 | [Auth](05-auth.md) | NextAuth v4, Google OAuth, `proxy.ts`, onboarding |
-| 06 | [Design System](06-design-system.md) | Tokens, themes, glassmorphism, RTL, animations |
-| 07 | [Domain Model](07-domain-model.md) | Story / Question / Answer / Seder HaShas / Shulchan Aruch / User |
-| 08 | [Modals & Notifications](08-modals-and-notifications.md) | Login/onboarding modals, toast UX |
-| 09 | [Environment & Deployment](09-environment-deployment.md) | Environment variables, Vercel, build, security |
-| 10 | [Testing & Quality](10-testing-and-quality.md) | Quality gates, tests, CI, release QA |
-| 11 | [Core API Contract](11-core-api-contract.md) | Core API endpoints, request/response JSON, errors, pagination |
+These reference documents serve developers and coding agents. Read [Documentation authority](00-source-of-truth.md), then the relevant owner below and its related contracts. Descriptive sections record implemented behavior; instructions define requirements for changes. When implementation falls short, record the gap in the [backlog](../planning/backlog.md) rather than treating it as an approved pattern.
 
-## Operating Rules
+| # | Owner | Subject |
+|---|---|---|
+| 00 | [Authority](00-source-of-truth.md) | Sources, maintenance, plans and history |
+| 01 | [Architecture](01-architecture.md) | Runtime boundaries, layout, errors and SEO |
+| 02 | [Server access](02-server-access.md) | Core API wrapper, BFF and actions |
+| 03 | [State/cache](03-stores-and-cache.md) | Existing stores, hydration and actual cache policy |
+| 04 | [Routes/forms](04-route-structure.md) | Composition, primitives, validation and navigation |
+| 05 | [Auth](05-auth.md) | Google, NextAuth v4, session trust and access policy |
+| 06 | [UI](06-design-system.md) | Stable principles and changeable appearance |
+| 07 | [Domain](07-domain-model.md) | Entities and executable schema owners |
+| 08 | [Interactions](08-modals-and-notifications.md) | Modals, feedback and ownership |
+| 09 | [Environment](09-environment-deployment.md) | Secrets, build and operational boundaries |
+| 10 | [Quality](10-testing-and-quality.md) | Verification tools and acceptance |
+| 11 | [Core API expectations](11-core-api-contract.md) | Observed upstream endpoints and compatibility |
 
-- Every spec starts with **Goal** and ends with **Non-Urgent Recommendations**.
-- Any change that goes against a spec must update the relevant spec in the same PR.
-- Specs describe the stable target, not the migration plan. Implementation gaps and temporary task lists belong in `docs/planning/*`.
-- Specs are the source of truth. `AGENTS.md` and `CLAUDE.md` are operational summaries; when they conflict, the spec wins.
+[Planning](../planning/README.md) owns proposals, implementation sequencing and outstanding tasks; it is not a second source of architecture rules. Historical documents can describe removed code and must not be used as current instructions.
+
+## Terms used across the specs
+
+- React Server Components (RSC) render content on the server; Client Components handle browser interactions and may also render during server-side rendering (SSR).
+- Backend for frontend (BFF) refers to this Next.js app's browser-facing API handlers. The Core API is the separate upstream service.
+- Cache Components is the enabled Next.js caching model. A persistent cache can reuse data across requests; request deduplication cannot.
+- Right-to-left (RTL) describes the Hebrew reading and layout direction. JSON Web Tokens (JWT) carry session identity.

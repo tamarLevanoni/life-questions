@@ -40,8 +40,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# boilerplate reference files
-/_boilerplate-reference/
-
 # claude code worktrees (temporary, auto-generated)
 .claude/worktrees/
+
+# Local quality tooling and browser artifacts
+/.next-e2e/
+/.cache/
+/playwright-report/
+/test-results/
+/.playwright-cli/
+/.env.*
+!/.env.example

@@ -12,12 +12,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const result = await searchStories({ limit: 1000, page: 1 });
-    const storyUrls = result.stories.map((s) => ({
-      url: `${SITE_URL}/story/${s.id}`,
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    }));
+    const storyUrls: MetadataRoute.Sitemap = [];
+    const seen = new Set<string>();
+    const limit = 50;
+    let page = 1;
+    let received = 0;
+    while (true) {
+      const result = await searchStories({ limit, page });
+      if (result.stories.length === 0) break;
+      for (const story of result.stories) {
+        if (seen.has(story.id)) continue;
+        seen.add(story.id);
+        storyUrls.push({ url: `${SITE_URL}/story/${story.id}`, changeFrequency: 'monthly', priority: 0.7 });
+      }
+      received += result.stories.length;
+      if (received >= result.total || result.stories.length < limit) break;
+      page += 1;
+    }
     return [...staticUrls, ...storyUrls];
   } catch {
     return staticUrls;

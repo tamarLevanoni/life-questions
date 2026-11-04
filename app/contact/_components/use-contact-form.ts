@@ -107,5 +107,3 @@ export function useContactForm({ storyId, storyTitle }: UseContactFormArgs) {
     storyTitle,
   };
 }
-
-export type UseContactFormReturn = ReturnType<typeof useContactForm>;

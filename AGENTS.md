@@ -1,163 +1,34 @@
-# AGENTS.md
+# Working on Life Questions
 
-## Operational Copy Notice
+## Read only what the task needs
 
-This file is an operational copy for coding agents. The durable source of truth is [docs/specs](docs/specs). Any change to agent-facing architecture, data-flow, caching, routing, auth, store, or design guidance must either be mirrored in [CLAUDE.md](CLAUDE.md) or moved back into the relevant spec to avoid conflicting instructions.
+[Project specs](docs/specs/README.md) are the maintained project decisions. Before Next.js code changes, read the relevant **installed-version** guide in `node_modules/next/dist/docs/`. Skills supplement these sources; they do not authorize unrelated libraries, state/caching layers, redesigns or Auth migrations.
+
+| Task | Read |
+|---|---|
+| Server/API/schema | specs 01, 02, 07, 11 |
+| State, hydration, caching | spec 03 |
+| Route, form, auth | specs 04, 05 |
+| UI, mobile, accessibility | specs 06, 08; local life-questions-ui skill |
+| Tests, dependencies, CI | specs 09, 10; docs/testing.md |
 
 ## Commands
 
-```bash
-bun dev              # localhost:3000
-bun build
-bun lint
-bunx tsc --noEmit
-```
+Use **Bun only**, never npm/yarn. The scripts in package.json are authoritative. Use `bun run check` for lint, types, docs and unit tests; `bun run test:e2e` for isolated production-build Chromium desktop/mobile flows; `bun run test:release` adds core Firefox/WebKit flows. `bun run test:ui` opens the visual runner and `bun run test:report` opens the latest report. Do not claim an unrun check passed.
 
-Always `bun` — never `npm`/`yarn`.
+## Working rules
 
----
+- Read affected code first and preserve product behavior unless the task changes it.
+- Server Core API access uses `serverClient`; browser search uses apiCall/BFF; mutations use Server Actions. Keep secrets server-side and authenticate public protected entrypoints.
+- Cache Components is the caching model. Never share user/session/search/mutation data through a persistent cache. Do not add a parallel manual cache.
+- Existing stores are useAppDataStore, useStoriesStore, useUserStore and useContactStore. Do not rename/split them as incidental cleanup. App-data store initialization is provider-scoped.
+- Content pages are Server Components using PageShell. Use existing primitives, do not shadow them. English kebab-case files; Hebrew UI copy. Pages, route-local components and hooks stay within 200 lines when changed.
+- Schemas live in lib/schemas/, types derive from them, and Zod imports use `zod`.
+- NextAuth **v4**, Google only; no v5 APIs. Test sessions must not create an application auth bypass.
+- UI principles stay stable; current colors/effects/layout may change intentionally. Test behavior, mobile, RTL, themes and keyboard use.
+- Plan features, structural changes and cross-screen redesigns before editing. Small multi-file fixes do not need a plan merely because of file count.
+- This is a solo project. Branches and PRs are optional according to change size; small changes may use main. If creating an agent branch, use codex/. Follow the workflow in README.md and use the relevant checks.
+- Update the owning spec when a decision changes. Proposals/backlog/history are not binding implementation instructions.
+- Keep user changes, worktrees, local settings and secrets intact. No automatic deployment or commit. If committing is requested, write a detailed Hebrew message explaining what and why.
 
-## Stack
-
-Next.js 16 App Router with Cache Components · React 19 · TypeScript · Tailwind 4 · Zustand · NextAuth v4 (Google OAuth) · react-hook-form + zod 4 · Framer Motion · Shadcn/ui.
-
-`next-auth@4` is still in `package.json`. Migrating to Auth.js v5 is on the roadmap; do not start mixing v5 APIs until a dedicated migration PR.
-
----
-
-## Data Flow
-
-```
-RSC page.tsx ──► lib/server/* ──► backendFetch ──► core API
-                                                       ▲
-client store ──► /api/* (BFF) ──► lib/server/* ────────┘
-```
-
-| Read | Where |
-|------|-------|
-| Above-the-fold page data | RSC `page.tsx` → `lib/server/*` → `<StoreHydrator>` |
-| User-driven re-fetch / pagination | client store → BFF → `lib/server/*` |
-| Mutations (forms, profile update) | client store → BFF → `lib/server/*` |
-| Static reference (masechtot, topics, books) | RSC only. **No client fetch path.** |
-
-The BFF (`app/api/*`) exists only for client mutations and user-driven re-fetches. Never add a BFF endpoint just so a store can self-load on mount.
-
-`lib/backend-fetch.ts` (`'server-only'`) is the single fetch wrapper: attaches `INTERNAL_API_SECRET`, unwraps `StandardResponse`, and accepts `next: { revalidate, tags }`. Every file in `lib/server/*` imports `'server-only'`.
-
-Every BFF route uses `runRoute(() => …)` from `lib/server/errors.ts`.
-
----
-
-## Caching
-
-The project uses Next.js 16 Cache Components as the **single caching model**. `cacheComponents: true` is enabled in [next.config.ts](next.config.ts). All routes are dynamic by default. Persistent caching is opt-in only and must be declared close to the data access using `'use cache'` + `cacheLife` + `cacheTag`.
-
-Caching is **whitelist-only**. See [docs/specs/03-stores-and-cache.md](docs/specs/03-stores-and-cache.md) — "Cache Safety Rules" and "Entity Strategy Table" — for the authoritative policy and the list of cacheable entities.
-
-Do not introduce `export const revalidate`, `next: { revalidate }`, or `fetchCache` segment configs anywhere in the App Router; with Cache Components, those configs are replaced and mixing them is a known source of bugs.
-
-**Cacheable requests must be GET.** If a backend read uses POST, add a GET variant before trying to cache it.
-
-`react.cache()` is per-request dedup only — never a substitute for `'use cache'`. Don't add `Map`-based caches inside Zustand stores; the router cache and `'use cache'` cover it.
-
----
-
-## Page Architecture
-
-`page.tsx` is always a **Server Component** — no `'use client'`. Its job is: fetch via `lib/server/*`, set metadata, wrap in `<PageShell>` + `<StoreHydrator>`, render a single `<X>View />` from `_components/`.
-
-```tsx
-// app/<route>/page.tsx
-export default async function XPage() {
-  const x = await getX();
-  return (
-    <PageShell maxWidth="2xl">
-      <StoreHydrator x={x}><XView /></StoreHydrator>
-    </PageShell>
-  );
-}
-```
-
-Per route with state/auth:
-- `_components/<route>-view.tsx` — `'use client'` orchestrator, calls `useX()`, composes sub-components.
-- `_components/use-<route>.ts` — stores, effects, handlers. **Reads only from the store**, never from `useInitialData()` or `initial*` props.
-- `_components/use-<route>-form.ts` — `react-hook-form` + `zod` setup, when there's a form.
-
-`page.tsx` does not implement auth redirects. Hard-gated routes are handled in `proxy.ts`; page components render only after access is allowed. Never put `<AppHeader>` or `<main>` directly in a page — only via `<PageShell>`.
-
-**Hard limit: 200 lines** for `page.tsx`, every `_components/*`, and every hook. Split when exceeded. Never define a local component with the same name as a shared primitive (shadowing hides the canonical version).
-
----
-
-## Hydration
-
-`<StoreHydrator>` hydrates Zustand stores **synchronously during render** (guarded by a `useRef` first-run flag) — never inside `useEffect`. This guarantees the first client paint sees a populated store, so consumers never need a `store.loaded ? store.x : initial.x` fallback.
-
-Corollaries:
-- App-wide reference data is initialized synchronously in a provider-scoped store: `AppDataLoader` wraps consumers in `AppDataHydrator`, which creates its store with a lazy `useState` initializer. Never write to a shared app-data store during render; that can notify already-mounted consumers. `useAppDataStore` reads this store through Context, including during SSR.
-- Hooks read only from the store.
-- `use-<route>.ts` effects that fetch must check the store first — if the entity is hydrated, skip the fetch (no double-RTT after RSC).
-- `SessionUserSync` may set `useUserStore` from the session, but must not overwrite a richer object hydrated from `getCurrentUser`. Treat the session as the auth-status signal; the store-hydrated user as data.
-
----
-
-## Auth & Routing
-
-Google OAuth only. HttpOnly cookie sessions. Expansion content is **soft-gated** (lock UI, no redirect).
-
-Routes that require a logged-in user (e.g. `/profile`) are **hard-gated by [proxy.ts](proxy.ts)** before route rendering — the page must not call `redirect()`. In Next.js 16 `middleware.ts` is renamed to `proxy.ts`; it lives at the project root, exports a `proxy` function, and uses the same `config.matcher` API. Extend the matcher in `proxy.ts` when adding a gated route.
-
----
-
-## Stores
-
-| Store | Purpose |
-|-------|---------|
-| `useSearchResultsStore` | search results returned by the server; URL/search params, pagination, loading/error only |
-| `useStoryDetailStore` | current story only; may be primed with one clicked featured story, no manual Map/list cache |
-| `useReferenceStore` | masechtot/shu-sections/topics/books — hydrated from RSC, no client loader |
-| `useUserStore` | authenticated user — single source of truth |
-| `useContactStore` | contact form submission |
-
-Client → server requests go through `lib/api-client.ts → apiCall<T>(url, init)`. Stores never duplicate `fetch → res.json → error` logic. For repeated user-driven requests (typing in search), pass an `AbortSignal`.
-
-The canonical store is `useSearchResultsStore` in `lib/stores/search-results-store.ts`. The old `useStoriesStore` / `lib/stores/stories-store.ts` no longer exist — do not reintroduce them. Do not put featured stories in the search results store. Search hooks/stores may build server parameters and manage request state, but must not do client-side ranking, filtering, sorting, scoring, or match interpretation.
-
-Featured examples on the home page are high-click entry stories. Load the selected three as full stories through the same `getStory(id)` path used by `/story/:id`; optionally prime only the clicked story before navigation.
-
-All Zod schemas in `lib/schemas.ts`; form types via `z.infer`. Single Zod import path — `from 'zod'` only.
-
----
-
-## Folder Conventions
-
-- Page-specific components → `app/<route>/_components/`. Root page → `app/_components/`.
-- Shared (2+ routes) → `components/<feature>/`, `components/ui/`, or `components/common/`.
-- Client-only providers / global side-effects → `components/providers/`.
-- File and folder names: English, **kebab-case**. Hebrew only inside JSX strings.
-
----
-
-## Design Primitives (use, never reinvent)
-
-| Primitive | Path |
-|-----------|------|
-| `<PageShell>` | `components/common/page-shell.tsx` |
-| `<GlassCard>` | `components/ui/glass-card.tsx` |
-| `<SectionHeader>` | `components/ui/section-header.tsx` |
-| `<FormField>` | `components/ui/form-field.tsx` |
-| `<MotionFadeIn>` | `components/common/motion-fade-in.tsx` |
-| `<EmptyState>` | `components/common/empty-state.tsx` |
-| `<SkeletonLines>` / `<SkeletonCardList>` | `components/common/loading-skeleton.tsx` |
-
-`<MotionFadeIn trigger="view">` for scroll-triggered, `trigger="mount"` for immediate — never paste raw `motion.div` blocks.
-
-Forms: `react-hook-form` + `zod`, every input wrapped in `<FormField label error>`.
-
-Errors: never `} catch {}` silently — set `error` on the store and render via `<EmptyState>`. Loading states via `<SkeletonLines>` / `<SkeletonCardList>`.
-
----
-
-## Git
-
-Commit messages in **Hebrew**, detailed, explain what and why. Touching 2+ files? Write `docs/planning/<feature>.md` first.
+[Active quality work](docs/planning/project-quality-foundation.md) records task status, verification and remaining limitations.

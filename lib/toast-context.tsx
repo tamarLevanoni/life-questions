@@ -72,6 +72,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           return (
             <motion.div
               key={toast.id}
+              role="status"
+              aria-live="polite"
               dir="rtl"
               initial={{ opacity: 0, y: isTop ? -16 : 20 }}
               animate={{ opacity: 1, y: 0 }}

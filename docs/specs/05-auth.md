@@ -1,213 +1,43 @@
-# Auth Spec
+# Authentication and access
 
 ## Goal
-Define the auth flow end to end: login, session, registration onboarding, content gating, and protected routes.
 
----
+Preserve the existing Google/JWT login and onboarding flow while enforcing trust at server entrypoints.
 
-## Base Requirements
+## Technology and flow
 
-- Provider: **Google OAuth only.**
-- Session: **JWT** stored in an HttpOnly cookie. No database session.
-- Registration: after first OAuth login, an onboarding modal collects profile details: name, phone, optional institution, occupations, and marketing consent.
-- Two protection modes:
-  - **Soft-gate:** story expansion content is locked, but the story page loads and remains indexable.
-  - **Hard-gate:** `/profile` and similar routes are unavailable to guests.
+NextAuth **v4** with Google OAuth and HttpOnly JWT session cookies. Do not mix Auth.js v5 APIs into this project.
 
----
+`LoginModal` opens `/auth/signin` in a popup; it starts Google login. `/api/auth/callback/google` completes OAuth. `/auth/callback` notifies the opener with a same-origin message and closes. `SessionUserSync` refreshes the session and synchronizes `useUserStore`. `AuthRuntime` hosts login/onboarding UI under Suspense.
 
-## Technology
+User-store auth states are `idle`, `unauthenticated`, `registration-required`, `authenticated`; these differ from NextAuth's session status. A Google session can exist before app registration is complete. New Google users complete the onboarding form through a Server Action. Profile edits also use a Server Action. Both flows call `useSession().update()` to refresh profile data from the backend.
 
-- `next-auth@4.24.x`, `next-auth/jwt`, and `next-themes`.
-- Auth.js v5 migration is a separate, non-urgent migration. Do not mix v5 APIs into v4 code.
+## Route policy
 
----
+| Surface | Current guest behavior |
+|---|---|
+| Home, about, weekly question, search screen | public |
+| Search execution | UI requests login; BFF calls `requireGoogleSession()` and returns 401 without a Google session |
+| `/story/[id]` | proxy redirects to home with auth-story alert |
+| `/story/featured/[id]` | public example/weekly lookup, including the available expansion |
+| `/profile` | proxy redirects to home with auth-profile alert |
+| General contact | public |
+| Contact with category=story_question | proxy redirects guest to general contact with auth-contact alert |
 
-## Files Involved
+Content pages do not implement auth redirects. [`proxy.ts`](../../proxy.ts) checks the signed token's identity version for matched pages; it does not require completed registration. It does not match the search API, whose handler authenticates separately.
 
-| File | Role |
-|------|------|
-| `app/api/auth/[...nextauth]/auth-options.ts` | `authOptions`: providers and callbacks |
-| `app/api/auth/[...nextauth]/route.ts` | NextAuth handler |
-| `app/providers.tsx` | `<SessionProvider>` + `<AuthProvider>` + `<SessionUserSync>` |
-| `lib/auth-context.tsx` | Login/onboarding modal state |
-| `components/providers/session-user-sync.tsx` | Session-to-`useUserStore` sync |
-| `lib/server/user.ts` | `getCurrentUser`, `requireSessionUser`, `requireGoogleSession`, `registerUser`, `updateCurrentUser` |
-| `proxy.ts` | Hard-gate for `/profile` |
-| `types/next-auth.d.ts` | Extended Session/User types |
-| `components/auth/login-modal.tsx` | Login modal UI |
-| `components/auth/onboarding-modal.tsx` | Registration completion modal UI |
+[`session.ts`](../../lib/server/session.ts) defines the server checks. Search BFF, registration and story-question contact require a Google session. Profile updates additionally require an app user id and completed registration. General contact stays public. The onboarding modal handles `registration-required` users; it does not replace these server checks.
 
----
+## Identity and session trust
 
-## Session Contract
+Identity originates in the verified Google provider account. Browser input to `useSession().update()` only triggers a server lookup and cannot replace JWT identity/profile fields. At sign-in and explicit update, [`lookupSessionUser`](../../lib/server/session-user.ts) validates the backend user and checks its Google id. A missing user clears app profile fields, retains the Google identity and existing token email, and requires onboarding. Ordinary session reads reuse the JWT fields without fetching the backend profile again.
 
-```ts
-// types/next-auth.d.ts
-interface Session.user {
-  id: string;                        // app user id, available after registration
-  googleId: string;                  // Google provider account id / sub
-  email: string;
-  name: string;
-  image?: string;
-  isRegistrationComplete: boolean;   // false until onboarding is complete
-}
-```
+Registration input and its returned user must match the session's Google id and email. Profile mutations target the session's app user id; their schema omits id, Google id and email from mutable fields. Their returned user must match all three identity fields before it is passed to client state.
 
-Rules:
-- Code that needs `id` must check `isRegistrationComplete` or use `googleId`.
-- Do not rely on session fields outside this contract.
-- Adding a session field requires updating both `types/next-auth.d.ts` and `callbacks.session` in `auth-options.ts`.
+The [callbacks](../../app/api/auth/[...nextauth]/auth-options.ts) and proxy enforce [`AUTH_IDENTITY_VERSION`](../../lib/auth-identity.ts), currently 1. Older cookies require a fresh sign-in. Internal search remains available to sitemap without a browser session. [Session tests](../../tests/unit/auth-session.test.ts) and [boundary tests](../../tests/unit/auth-boundaries.test.ts) cover these trust rules; the [quality foundation record](../planning/project-quality-foundation.md) records execution evidence.
 
----
+## Failure behavior
 
-## First Login Flow
+Only a genuine upstream 404 means a new/unregistered user. Network errors, invalid upstream data and server failures must not silently turn an existing account into a new one. Never log tokens, cookies, Google secrets or profile payloads. Check session readiness before auth-dependent client interactions.
 
-```text
-1. User clicks "Sign in"
-   -> AuthContext.openLoginModal()
-   -> LoginModal shows Google button
-2. signIn('google') redirects to Google
-3. Google returns to /api/auth/callback/google
-4. callbacks.jwt creates a token with googleId and isRegistrationComplete=false
-5. callbacks.session copies token fields into session.user
-6. User returns to / or callbackUrl
-7. AuthProvider sees isRegistrationComplete=false and opens OnboardingModal
-8. User submits onboarding form
-   -> POST /api/user/register
-   -> core API creates user
-9. Response returns { id, isRegistrationComplete: true }
-10. useUserStore.setUser runs and the modal closes
-11. The JWT is updated with the completed user fields
-```
-
-Rules:
-- `LoginModal` and `OnboardingModal` are mounted only once in `app/providers.tsx`.
-- `AuthContext` controls modal open/closed state. Components request opening through context.
-- Use `useAuth().openLoginModal()` from components that need login.
-
----
-
-## Guest Story Flow
-
-```text
-1. /story/[id] RSC calls getStory() and returns the public story
-2. <ExpandableAnswerPanel isLocked={!canViewExpansion} />
-3. Guest requests expansion access
-   -> onRequestAccess
-   -> login flow
-4. After login, the user returns to the story and isLocked=false
-```
-
-Story body, legal question, and short answer are public. This is required for SEO and guest value.
-
----
-
-## `/profile` Flow
-
-```text
-1. Request /profile
-2. proxy.ts calls getToken()
-   -> no token redirects to /
-3. With token, the page loads
-4. page.tsx (RSC) renders <ProfileView /> directly — no RSC data fetch
-5. ProfileView reads useUserStore (populated by SessionUserSync from JWT)
-6. After profile edits: updateSession() refreshes the JWT so the store stays in sync
-```
-
-`/profile/page.tsx` does not perform auth redirects and does not call `getCurrentUser()`. Protection is handled in `proxy.ts`. User data is always available from `useUserStore` because `SessionUserSync` populated it from the JWT before navigation.
-
----
-
-## `proxy.ts`
-
-Handles two cases for unauthenticated requests:
-- **API routes** (`/api/*` in matcher): returns `401 { error: 'Unauthorized' }` — the client store catches this as `UnauthenticatedError`.
-- **Page routes**: redirects to `/` or `/contact` with an `?alert=` param that triggers the login modal.
-
-```ts
-export const config = {
-  matcher: [
-    '/profile/:path*',
-    '/story/((?!featured).+)',      // story pages except /story/featured/*
-    '/api/stories/((?!featured).+)', // BFF routes except featured
-    '/contact',
-  ],
-};
-```
-
-To add a protected route, add it to `matcher`. Do not add page-level auth redirects or per-route session checks in BFF handlers — the middleware covers it.
-
----
-
-## Server Auth Helpers
-
-```ts
-// lib/server/user.ts
-requireSessionUser()    // throws 401 when there is no app user id; use for mutations
-requireGoogleSession()  // throws 401 when there is no googleId; use for registration
-getCurrentUser()        // returns null when there is no session; use in RSC pages
-```
-
-Server-side auth checks always live in `lib/server/*`, not in route handlers. Routes only invoke server helpers and wrap responses.
-
----
-
-## Session And Store Sync
-
-`<SessionUserSync>` connects auth status to `useUserStore`:
-
-```ts
-useEffect(() => {
-  if (status === 'authenticated' && session?.user?.id && !useUserStore.getState().user) {
-    setUser(session.user as UserData);
-  } else if (status === 'unauthenticated') {
-    clearUser();
-  }
-}, [session, status]);
-```
-
-Rule: session is an auth-status signal, not always the richest profile source. If `getCurrentUser()` hydrated a full user through `<StoreHydrator>`, `SessionUserSync` must not overwrite it with a partial session object.
-
----
-
-## Auth Error Handling
-
-| Situation | Handling |
-|-----------|----------|
-| `/profile` without session | `proxy.ts` redirects to `/` |
-| Mutation without session | `runRoute` returns 401 and store renders an error |
-| Google OAuth failure | Redirect to `/auth/error?error=...` |
-| Invalid JWT | NextAuth clears/ignores the cookie and client status becomes `unauthenticated` |
-| Core API returns 404 for `/api/users/google/<id>` | `getCurrentUser()` returns null, meaning registration is incomplete |
-
----
-
-## Design Decisions
-
-- JWT-only sessions avoid a DB call on every access check.
-- Login and onboarding modals are mounted at provider level to avoid duplicated UI.
-- Soft-gate and hard-gate are separate code paths.
-- NextAuth v4 has no universal `auth()` helper, so server code uses `getServerSession(authOptions)`.
-- Google refresh-token flow is not needed because the app does not call Google APIs after login.
-
----
-
-## Checklist For Adding A Protected Route
-
-- [ ] Add the route to `proxy.ts` `matcher`.
-- [ ] The page calls `getCurrentUser()` or `requireSessionUser()` as appropriate.
-- [ ] Client components read `useUserStore`, not `useSession` directly, except for `status`.
-- [ ] Mutations go through BFF; server helpers call `requireSessionUser()`.
-- [ ] Private pages set `robots: { index: false }` when they should not be indexed.
-
----
-
-## Non-Urgent Recommendations
-
-1. **Auth.js v5 migration.** Do in a dedicated PR when auth work already justifies it, such as adding another provider.
-2. **`AuthContext` to store.** Modal open/closed state can live in a small Zustand UI store.
-3. **Role-based access.** Add `role` to the JWT and route checks in `proxy.ts` when admin routes exist.
-4. **Rate limit login attempts.** Relevant if email/password auth is added.
-5. **Better Auth.** Do not replace a working NextAuth setup unless a real project need appears.
-6. **Email magic link.** NextAuth v4 supports it if the product needs non-Google users.
+The test suite uses sessions signed with a dedicated local secret. There is no application login-bypass route. Real Google OAuth and popup/provider interaction still require a manual staging check.

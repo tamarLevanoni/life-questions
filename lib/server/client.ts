@@ -1,26 +1,44 @@
 import 'server-only';
-import { BackendError } from './errors';
+import { BackendError, SchemaError } from './errors';
 
 const BACKEND_API_URL = process.env.BACKEND_API_URL!;
 const INTERNAL_API_SECRET = process.env.INTERNAL_API_SECRET!;
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${BACKEND_API_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...init.headers,
-      'x-api-secret': INTERNAL_API_SECRET,
-    },
-  });
-
-  const body = await res.json();
-
-  if (!res.ok || !body.success) {
-    throw new BackendError(res.status, body.error ?? 'Backend error');
+  if (!BACKEND_API_URL || !INTERNAL_API_SECRET) {
+    throw new BackendError(503, 'Backend service is not configured');
   }
 
-  return body.data as T;
+  let res: Response;
+  try {
+    res = await fetch(`${BACKEND_API_URL.replace(/\/+$/, '')}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...init.headers,
+        'x-api-secret': INTERNAL_API_SECRET,
+      },
+    });
+  } catch {
+    throw new BackendError(502, 'Backend connection failed');
+  }
+
+  const body: unknown = await res.json().catch(() => null);
+  const envelope = body && typeof body === 'object' && !Array.isArray(body) ? body : null;
+
+  if (!res.ok) {
+    if (envelope && 'success' in envelope && envelope.success === false &&
+      'error' in envelope && typeof envelope.error === 'string') {
+      throw new BackendError(res.status, envelope.error);
+    }
+    if (res.status >= 500) throw new BackendError(res.status, 'Backend request failed');
+    throw new SchemaError();
+  }
+
+  if (!envelope || !('success' in envelope) || envelope.success !== true || !('data' in envelope)) {
+    throw new SchemaError();
+  }
+  return envelope.data as T;
 }
 
 export const serverClient = {

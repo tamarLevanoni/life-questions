@@ -72,14 +72,6 @@ export const storyWithNeighborsSchema = storySchema.extend({
 });
 export type StoryWithNeighbors = z.infer<typeof storyWithNeighborsSchema>;
 
-export const paginatedStoriesSchema = z.object({
-  stories: z.array(storySchema),
-  total: z.number(),
-  page: z.number(),
-  limit: z.number(),
-});
-export type PaginatedStories = z.infer<typeof paginatedStoriesSchema>;
-
 export const paginatedStoryCardsSchema = z.object({
   stories: z.array(storyCardSchema),
   total: z.number(),

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useAppDataStore } from '@/lib/stores/app-data-store';
@@ -23,6 +23,7 @@ export function useSearch() {
   const stories = useStoriesStore((s) => s.searchResults);
   const total = useStoriesStore((s) => s.total);
   const loading = useStoriesStore((s) => s.loading);
+  const error = useStoriesStore((s) => s.error);
   const authRequired = useStoriesStore((s) => s.authRequired);
   const clearAuthRequired = useStoriesStore((s) => s.clearAuthRequired);
   const searchStories = useStoriesStore((s) => s.searchStories);
@@ -32,13 +33,16 @@ export function useSearch() {
   const topics = useAppDataStore((s) => s.topics);
   const books = useAppDataStore((s) => s.books);
 
-  const [filters, setFilters] = useState<UiSearchFilters>(() => {
+  const hasInitialParams = Boolean(searchParams.get('q') || searchParams.get('bookId'));
+  const [initialFilters] = useState<UiSearchFilters>(() => {
     const q = searchParams.get('q') ?? undefined;
     const bookId = searchParams.get('bookId');
     return { q, bookIds: bookId ? [bookId] : undefined };
   });
-  const [hasSearched, setHasSearched] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [filters, setFilters] = useState(initialFilters);
+  const [hasSearched, setHasSearched] = useState(hasInitialParams);
+  const [filtersOpen, setFiltersOpen] = useState(!hasInitialParams);
+  const initialSearchStarted = useRef(false);
   // Snapshot of the filters actually searched — ActiveFilterTags reads
   // this instead of the live filters, so the tags only change when a
   // search is submitted, not while the user is still picking.
@@ -99,8 +103,8 @@ export function useSearch() {
       openLoginModal();
       return;
     }
-    loadMoreStories(buildApiParams(filters));
-  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories, buildApiParams, filters]);
+    loadMoreStories(buildApiParams(applied));
+  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories, buildApiParams, applied]);
 
   const handleStoryClick = useCallback(
     (story: { id: string }) => {
@@ -116,12 +120,15 @@ export function useSearch() {
     clearAuthRequired();
   }, [authRequired, showToast, openLoginModal, clearAuthRequired]);
 
-  const hasInitialParams = Boolean(searchParams.get('q') || searchParams.get('bookId'));
   useEffect(() => {
-    if (!hasInitialParams) return;
-    handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!hasInitialParams || authStatus === 'idle' || initialSearchStarted.current) return;
+    if (authStatus !== 'authenticated') {
+      openLoginModal();
+      return;
+    }
+    initialSearchStarted.current = true;
+    void searchStories(buildApiParams(initialFilters));
+  }, [hasInitialParams, authStatus, openLoginModal, searchStories, buildApiParams, initialFilters]);
 
   const hasMore = stories.length < total;
 
@@ -138,6 +145,7 @@ export function useSearch() {
     stories,
     total,
     loading,
+    error,
     masechtot,
     shuSections,
     topics,

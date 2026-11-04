@@ -29,7 +29,7 @@ export function MotionFadeIn({
   const common = {
     initial: { opacity: 0, y },
     transition: { duration: 0.6, delay },
-    className,
+    className: ['motion-fade-in', className].filter(Boolean).join(' '),
     ...rest,
   };
 

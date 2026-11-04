@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -11,6 +12,7 @@ interface PreferencesSectionProps {
   user: UserData | null;
   marketingConsent: boolean;
   onConsentChange: (checked: boolean) => void;
+  error?: string;
 }
 
 export function PreferencesSection({
@@ -18,7 +20,9 @@ export function PreferencesSection({
   user,
   marketingConsent,
   onConsentChange,
+  error,
 }: PreferencesSectionProps) {
+  const consentId = useId();
   return (
     <GlassCard variant="light" className="p-6">
       <h2 className="text-base font-semibold font-hebrew text-foreground mb-5 flex items-center gap-2">
@@ -30,12 +34,15 @@ export function PreferencesSection({
         {isEditing ? (
           <>
             <Checkbox
-              id="marketingConsent"
+              id={consentId}
               checked={marketingConsent}
+              aria-required="true"
+              aria-invalid={!!error}
+              aria-describedby={error ? `${consentId}-error` : undefined}
               onCheckedChange={(checked) => onConsentChange(checked === true)}
             />
-            <Label htmlFor="marketingConsent" className="text-sm font-hebrew cursor-pointer">
-              אני מעוניין לקבל עדכונים ותוכן חדש במייל
+            <Label htmlFor={consentId} className="text-sm font-hebrew cursor-pointer">
+              אני מסכים לקבל עדכונים ותוכן שיווקי במייל (חובה)
             </Label>
           </>
         ) : (
@@ -59,12 +66,15 @@ export function PreferencesSection({
             </div>
             <p className="text-sm font-hebrew">
               {user?.marketingConsent
-                ? 'מסכים לקבל עדכונים ותוכן חדש במייל'
-                : 'לא מסכים לקבל עדכונים במייל'}
+                ? 'מסכים לקבל עדכונים ותוכן שיווקי במייל'
+                : 'טרם ניתנה הסכמה לעדכונים ותוכן שיווקי במייל'}
             </p>
           </div>
         )}
       </div>
+      {isEditing && error && (
+        <p id={`${consentId}-error`} className="mt-2 text-sm text-destructive font-hebrew">{error}</p>
+      )}
     </GlassCard>
   );
 }

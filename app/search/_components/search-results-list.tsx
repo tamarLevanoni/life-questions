@@ -1,5 +1,6 @@
 'use client';
 
+import { SkeletonCardList } from '@/components/common/loading-skeleton';
 import { cn } from '@/lib/utils';
 import type { SearchResultsListProps } from '@/lib/types';
 import { ScenarioCard } from '@/components/story/scenario-card';
@@ -20,11 +21,7 @@ export function SearchResultsList({
   // Loading state
   if (isLoading && stories.length === 0) {
     return (
-      <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="skeleton h-32 w-full" />
-        ))}
-      </div>
+      <div role="status" aria-label="טוען תוצאות חיפוש"><SkeletonCardList count={3} /></div>
     );
   }
 

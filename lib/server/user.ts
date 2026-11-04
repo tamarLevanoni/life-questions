@@ -1,57 +1,35 @@
 import 'server-only';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-options';
 import { serverClient } from './client';
 import {
   userDataSchema,
   updateUserSchema,
   registerUserSchema,
   type UserData,
-  type UpdateUserBody,
-  type RegisterUserBody,
 } from '@/lib/schemas';
 import { BackendError, SchemaError } from './errors';
+import { requireGoogleSession, requireRegisteredUser } from './session';
 
-async function requireSessionUser() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) throw new BackendError(401, 'Unauthorized');
-  return session.user;
-}
-
-async function requireGoogleSession() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.googleId) throw new BackendError(401, 'Unauthorized');
-  return session.user;
-}
-
-export async function getCurrentUser(): Promise<UserData | null> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.googleId) return null;
-  try {
-    const data = await serverClient.get(`/api/users/google/${session.user.googleId}`);
-    const parsed = userDataSchema.safeParse(data);
-    if (!parsed.success) throw new SchemaError();
-    return parsed.data;
-  } catch {
-    return null;
-  }
-}
-
-export async function updateCurrentUser(partial: UpdateUserBody): Promise<UserData> {
-  const validated = updateUserSchema.parse(partial);
-  const user = await requireSessionUser();
-  const data = await serverClient.patch(`/api/users/profile/${user.id}`, validated);
+export async function updateCurrentUser(partial: unknown): Promise<UserData> {
+  const user = await requireRegisteredUser();
+  const validated = updateUserSchema.safeParse(partial);
+  if (!validated.success) throw new BackendError(400, 'פרטי פרופיל לא תקינים');
+  const data = await serverClient.patch(`/api/users/profile/${encodeURIComponent(user.id)}`, validated.data);
   const parsed = userDataSchema.safeParse(data);
-  if (!parsed.success) throw new SchemaError();
+  if (!parsed.success || parsed.data.id !== user.id || parsed.data.googleId !== user.googleId ||
+    parsed.data.email !== user.email) throw new SchemaError();
   return parsed.data;
 }
 
-export async function registerUser(body: RegisterUserBody): Promise<UserData> {
-  const validated = registerUserSchema.parse(body);
+export async function registerUser(body: unknown): Promise<UserData> {
   const sessionUser = await requireGoogleSession();
-  if (validated.googleId !== sessionUser.googleId) throw new BackendError(403, 'Forbidden');
-  const data = await serverClient.post('/api/users', validated);
+  const validated = registerUserSchema.safeParse(body);
+  if (!validated.success) throw new BackendError(400, 'פרטי הרשמה לא תקינים');
+  if (validated.data.googleId !== sessionUser.googleId || validated.data.email !== sessionUser.email) {
+    throw new BackendError(403, 'Forbidden');
+  }
+  const data = await serverClient.post('/api/users', validated.data);
   const parsed = userDataSchema.safeParse(data);
-  if (!parsed.success) throw new SchemaError();
+  if (!parsed.success || parsed.data.googleId !== sessionUser.googleId ||
+    parsed.data.email !== sessionUser.email) throw new SchemaError();
   return parsed.data;
 }

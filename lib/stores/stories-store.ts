@@ -66,7 +66,7 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
       if (signal.aborted) return; // בקשה חדשה כבר יצאה — תוצאות אלו לא רלוונטיות
       set({ searchResults: data.stories, total: data.total, page: 1, loading: false });
     } catch (err) {
-      if (isAbort(err)) return;
+      if (signal.aborted || isAbort(err)) return;
       if (err instanceof UnauthenticatedError) {
         set({ loading: false, authRequired: true });
         return;
@@ -92,7 +92,7 @@ export const useStoriesStore = create<StoriesState>((set, get) => ({
         loading: false,
       }));
     } catch (err) {
-      if (isAbort(err)) return;
+      if (signal.aborted || isAbort(err)) return;
       if (err instanceof UnauthenticatedError) {
         set({ loading: false, authRequired: true });
         return;

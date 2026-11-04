@@ -26,10 +26,10 @@ describe('Protected server entrypoints', () => {
   test('profile update targets the authenticated user and strips identity changes', async () => {
     signIn();
     fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { ...testUser, firstName: 'חדש' } }));
-    const input = { firstName: 'חדש', id: 'victim', googleId: 'other', email: 'other@example.test' };
+    const input = { firstName: 'חדש', marketingConsent: true, id: 'victim', googleId: 'other', email: 'other@example.test' };
     await updateCurrentUser(input);
     expect(String(fetchMock.mock.calls[0][0])).toEndWith(`/api/users/profile/${testUser.id}`);
-    expect(JSON.parse(String(fetchMock.mock.calls[0][1]!.body))).toEqual({ firstName: 'חדש' });
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]!.body))).toEqual({ firstName: 'חדש', marketingConsent: true });
   });
 
   test('registration rejects a mismatching Google id or email', async () => {
@@ -58,8 +58,8 @@ describe('Protected server entrypoints', () => {
   });
 
   test('internal search callers such as sitemap do not require a browser session', async () => {
-    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { stories: [], total: 0, page: 1, limit: 1000 } }));
-    expect((await searchStories({ limit: 1000 })).stories).toEqual([]);
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { stories: [], total: 0, page: 1, limit: 50 } }));
+    expect((await searchStories({ limit: 50 })).stories).toEqual([]);
     expect(getSession).not.toHaveBeenCalled();
   });
 
@@ -72,6 +72,46 @@ describe('Protected server entrypoints', () => {
 
   test('invalid contact data cannot reach the backend', async () => {
     await expect(submitContact({ ...validContact, email: 'invalid' })).rejects.toMatchObject({ status: 400 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test('server registration enforces form consent and field constraints', async () => {
+    signIn();
+    for (const input of [{ ...testUser, marketingConsent: false }, { ...testUser, firstName: 'א' }, { ...testUser, occupations: [] }]) {
+      await expect(registerUser(input)).rejects.toMatchObject({ status: 400 });
+    }
+    await expect(updateCurrentUser({ firstName: 'א', marketingConsent: true })).rejects.toMatchObject({ status: 400 });
+    await expect(updateCurrentUser({})).rejects.toMatchObject({ status: 400 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test.each([false, undefined, null, 'true'])('mutations reject missing or invalid consent: %j', async marketingConsent => {
+    signIn();
+    await expect(registerUser({ ...testUser, marketingConsent })).rejects.toMatchObject({ status: 400 });
+    await expect(updateCurrentUser({ firstName: 'חדש', marketingConsent })).rejects.toMatchObject({ status: 400 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test('profile changes can clear an institution with explicit consent', async () => {
+    signIn();
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { ...testUser, institutionName: null } }));
+    expect(await updateCurrentUser({ institutionName: null, marketingConsent: true }))
+      .toMatchObject({ institutionName: null, marketingConsent: true });
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ institutionName: null, marketingConsent: true });
+  });
+
+  test('mutation responses cannot replace the current user identity', async () => {
+    signIn();
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { ...testUser, id: 'another-user' } }));
+    await expect(updateCurrentUser({ firstName: 'חדש', marketingConsent: true })).rejects.toThrow();
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { ...testUser, googleId: 'another-google-user' } }));
+    await expect(registerUser(testUser)).rejects.toThrow();
+  });
+
+  test.each([{ page: 0 }, { page: 1.5 }, { limit: 51 }, { limit: -1 }])('invalid pagination is rejected before upstream access: %j', async body => {
+    signIn();
+    const response = await POST(new Request('http://localhost/api/stories/search', { method: 'POST', body: JSON.stringify(body) }));
+    expect(response.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 

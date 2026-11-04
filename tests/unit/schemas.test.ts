@@ -21,10 +21,11 @@ describe('Core API and form schemas', () => {
     expect(bookSchema.safeParse({ ...makeBundle().books[0], orderIndex: 'first' }).success).toBe(false);
   });
 
-  test('registration requires consent while profile editing permits withdrawal', () => {
+  test('registration and profile editing require explicit marketing consent', () => {
     expect(onboardingSchema.safeParse(testUser).success).toBe(true);
     expect(onboardingSchema.safeParse({ ...testUser, marketingConsent: false }).success).toBe(false);
-    expect(profileEditSchema.safeParse({ ...testUser, marketingConsent: false }).success).toBe(true);
+    expect(profileEditSchema.safeParse({ ...testUser, marketingConsent: false }).success).toBe(false);
+    expect(userDataSchema.safeParse({ ...testUser, marketingConsent: false }).success).toBe(true);
     expect(onboardingSchema.safeParse({ ...testUser, occupations: [] }).success).toBe(false);
   });
 

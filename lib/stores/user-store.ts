@@ -3,7 +3,7 @@ import {
   registerUser as registerUserAction,
   updateCurrentUser as updateUserAction,
 } from '@/lib/server/actions';
-import type { UserData, MutableUserData } from '@/lib/schemas';
+import type { UserData, UpdateUserBody } from '@/lib/schemas';
 import type { RegisterBody } from '@/lib/types';
 
 export type AuthStatus = 'idle' | 'authenticated' | 'registration-required' | 'unauthenticated';
@@ -19,7 +19,7 @@ interface UserState {
   clearUser: () => void;
 
   registerUser: (body: RegisterBody) => Promise<UserData>;
-  updateUser: (partial: Partial<MutableUserData>) => Promise<UserData>;
+  updateUser: (partial: UpdateUserBody) => Promise<UserData>;
 }
 
 export const useUserStore = create<UserState>((set) => ({

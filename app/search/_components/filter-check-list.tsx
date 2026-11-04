@@ -20,10 +20,11 @@ export function FilterCheckList({
     <div className="flex flex-col gap-0.5">
       {searchable && (
         <input
+          aria-label="סינון אפשרויות"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="חיפוש..."
-          className="w-full px-2 py-1.5 mb-1 text-xs font-hebrew bg-muted/40 border border-border rounded-md outline-none placeholder:text-muted-foreground"
+          className="w-full px-2 py-1.5 mb-1 text-xs font-hebrew bg-muted/40 border border-border rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
         />
       )}
       <div className={cn('overflow-y-auto', maxHeight)}>
@@ -31,6 +32,8 @@ export function FilterCheckList({
           const isChecked = selected.includes(opt.value);
           return (
             <button
+              type="button"
+              aria-pressed={!!isChecked}
               key={opt.value}
               onClick={() => onToggle(opt.value)}
               className="flex items-center gap-2 w-full px-1 py-1.5 rounded-md text-sm font-hebrew text-right hover:bg-accent transition-colors"

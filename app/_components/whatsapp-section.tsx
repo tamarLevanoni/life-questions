@@ -75,7 +75,7 @@ export function WhatsAppSection() {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-hebrew font-bold transition-all hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-green-500/25"
+                  className="inline-flex items-center justify-center gap-3 px-6 py-3.5 bg-green-700 hover:bg-green-800 text-white rounded-xl font-hebrew font-bold transition-all hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-green-500/25"
                 >
                   <WhatsAppIcon className="w-5 h-5" />
                   {label}

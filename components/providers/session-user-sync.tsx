@@ -19,10 +19,9 @@ export function SessionUserSync() {
   const institutionName = u?.institutionName;
   const phone = u?.phone ?? '';
   const marketingConsent = u?.marketingConsent ?? false;
-  const occupationsKey = u?.occupations?.join(',') ?? '';
+  const occupationsKey = JSON.stringify(u?.occupations ?? []);
 
   // u?.occupations identity changes on every poll — שימוש ב-occupationsKey
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const userData = useMemo<UserData>(() => ({
     id,
     googleId,
@@ -31,7 +30,7 @@ export function SessionUserSync() {
     lastName,
     institutionName,
     phone,
-    occupations: u?.occupations ?? [],
+    occupations: JSON.parse(occupationsKey) as UserData['occupations'],
     marketingConsent,
   }), [id, googleId, email, firstName, lastName, institutionName, phone, occupationsKey, marketingConsent]);
 

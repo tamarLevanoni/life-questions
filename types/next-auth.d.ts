@@ -22,6 +22,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   // JWT מכיל את שדות UserData (ללא email שנמצאים ב-token.email)
   interface JWT extends Partial<UserData> {
+    identityVersion?: number;
     isRegistrationComplete?: boolean; // flag זמני של OAuth — לא מגיע מהשרת
   }
 }

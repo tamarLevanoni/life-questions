@@ -9,10 +9,10 @@ import { Scale, Coins, PackageSearch, BookOpen, HandHeart, Library } from 'lucid
 export const CATEGORY_PALETTE = [
   { bg: 'bg-violet-600', glow: 'bg-violet-500/20' },
   { bg: 'bg-blue-600', glow: 'bg-blue-500/20' },
-  { bg: 'bg-amber-600', glow: 'bg-amber-500/20' },
-  { bg: 'bg-teal-600', glow: 'bg-teal-500/20' },
+  { bg: 'bg-amber-700', glow: 'bg-amber-500/20' },
+  { bg: 'bg-teal-700', glow: 'bg-teal-500/20' },
   { bg: 'bg-rose-600', glow: 'bg-rose-500/20' },
-  { bg: 'bg-sky-600', glow: 'bg-sky-500/20' },
+  { bg: 'bg-sky-700', glow: 'bg-sky-500/20' },
 ] as const;
 
 export function getCategoryColor(index: number) {

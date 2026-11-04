@@ -28,14 +28,15 @@ type StepDef = {
   title: string;
   description: string;
   color: string;
+  textClass: string;
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number; color?: string }>;
 };
 
 const STEPS: StepDef[] = [
-  { index: 1, number: "01", title: "סיפור",    description: "סיפור קצר מהחיים",  color: "#f97316", Icon: BookOpen      },
-  { index: 2, number: "02", title: "שאלה",    description: "התמודדות עם השאלה",    color: "#a855f7", Icon: HelpCircle    },
-  { index: 3, number: "03", title: "תשובה",  description: "גילוי התשובה הקצרה",  color: "#22c55e", Icon: Lightbulb     },
-  { index: 4, number: "04", title: "הרחבה",   description: "העמקה במקורות",     color: "#06b6d4", Icon: GraduationCap },
+  { index: 1, number: "01", title: "סיפור",    description: "סיפור קצר מהחיים",  color: "#f97316", textClass: "text-orange-700 dark:text-orange-400", Icon: BookOpen      },
+  { index: 2, number: "02", title: "שאלה",    description: "התמודדות עם השאלה",    color: "#a855f7", textClass: "text-purple-700 dark:text-purple-400", Icon: HelpCircle    },
+  { index: 3, number: "03", title: "תשובה",  description: "גילוי התשובה הקצרה",  color: "#22c55e", textClass: "text-green-700 dark:text-green-400", Icon: Lightbulb     },
+  { index: 4, number: "04", title: "הרחבה",   description: "העמקה במקורות",     color: "#06b6d4", textClass: "text-cyan-700 dark:text-cyan-400", Icon: GraduationCap },
 ];
 
 /* ─── connector: small tab pointing left, flush against the ring (desktop row) ── */
@@ -123,15 +124,13 @@ function StepCircle({ step, next }: { step: StepDef; next?: StepDef }) {
 
           <div dir="rtl" className="flex items-start justify-center w-7/10 gap-1.5">
             <span
-              className="font-black leading-none shrink-0 text-[18px] sm:text-[26px]"
-              style={{ color }}
+              className={`font-black leading-none shrink-0 text-[18px] sm:text-[26px] ${step.textClass}`}
             >
               {number}
             </span>
             <div className="text-right">
               <span
-                className="font-bold leading-none text-[12px] sm:text-[16px]"
-                style={{ color }}
+                className={`font-bold leading-none text-[12px] sm:text-[16px] ${step.textClass}`}
               >
                 {title}
               </span>

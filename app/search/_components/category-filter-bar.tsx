@@ -19,7 +19,7 @@ export function CategoryFilterBar({
 
   const toggle = (key: string) => setOpenSections((prev) => {
     const next = new Set(prev);
-    next.has(key) ? next.delete(key) : next.add(key);
+    if (next.has(key)) next.delete(key); else next.add(key);
     return next;
   });
 
@@ -102,7 +102,7 @@ export function CategoryFilterBar({
             {shuRefs.map((ref, idx) => (
               <div key={ref.id} className="flex items-start gap-1">
                 <ShulchanAruchSubFilters shuSections={shuSections} sourceRef={ref} onRefChange={(u) => handleShuRefChange(idx, u)} usedSimanim={shuRefs.filter((_, i) => i !== idx && _.shuSectionId && _.simanId).map((_) => ({ shuSectionId: _.shuSectionId!, simanId: _.simanId! }))} className="grid grid-cols-2 gap-1 flex-1" />
-                <button onClick={() => handleRemoveShu(idx)} className="p-1.5 mt-0.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button aria-label={`הסרת חלק ${idx + 1}`} onClick={() => handleRemoveShu(idx)} className="p-1.5 mt-0.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             ))}
             <button onClick={handleAddShu} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew"><Plus className="w-3.5 h-3.5" />הוספת חלק</button>
@@ -117,7 +117,7 @@ export function CategoryFilterBar({
             {shasRefs.map((ref, idx) => (
               <div key={ref.id} className="flex items-start gap-1">
                 <ShasSubFilters masechtot={masechtot} sourceRef={ref} onRefChange={(u) => handleShasRefChange(idx, u)} usedDafs={shasRefs.filter((_, i) => i !== idx && _.masechetId && _.daf !== undefined).map((_) => ({ masechetId: _.masechetId!, daf: _.daf! }))} className="grid grid-cols-2 gap-1 flex-1" />
-                <button onClick={() => handleRemoveShas(idx)} className="p-1.5 mt-0.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                <button aria-label={`הסרת מסכת ${idx + 1}`} onClick={() => handleRemoveShas(idx)} className="p-1.5 mt-0.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
               </div>
             ))}
             <button onClick={handleAddShas} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew"><Plus className="w-3.5 h-3.5" />הוספת מסכת</button>

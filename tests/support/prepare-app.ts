@@ -7,7 +7,7 @@ await Bun.write('.cache/e2e/tsconfig.json', JSON.stringify({
   extends: '../../tsconfig.json',
   compilerOptions: { incremental: false },
   include: ['../../next-env.d.ts', '../../app/**/*.ts', '../../app/**/*.tsx', '../../components/**/*.tsx', '../../lib/**/*.ts', '../../lib/**/*.tsx', '../../types/**/*.d.ts', '../../.next-e2e/types/**/*.ts'],
-  exclude: ['../../node_modules', '../../_boilerplate-reference', '../../.claude'],
+  exclude: ['../../node_modules', '../../.claude'],
 }, null, 2) + '\n');
 
 const mode = process.argv[2] ?? 'start';

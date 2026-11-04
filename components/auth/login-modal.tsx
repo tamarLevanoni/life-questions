@@ -40,6 +40,7 @@ function GoogleIcon() {
 export function LoginModal() {
   const { isLoginModalOpen, closeLoginModal } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const popupIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const clearPopupInterval = () => {
@@ -89,6 +90,8 @@ export function LoginModal() {
   return (
     <Dialog open={isLoginModalOpen} onOpenChange={handleOpenChange}>
       <DialogContent
+        onOpenAutoFocus={() => { returnFocusRef.current = document.activeElement as HTMLElement | null; }}
+        onCloseAutoFocus={(event) => { event.preventDefault(); returnFocusRef.current?.focus(); }}
         className="sm:max-w-md glass-panel border-black/10 dark:border-white/10"
         dir="rtl"
       >

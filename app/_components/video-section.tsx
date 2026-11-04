@@ -90,7 +90,7 @@ export function VideoSection() {
                     see docs/planning/weekly-story-shareable-link.md before removing */}
                 <Link
                   href={`/story/featured/${weeklyStory.id}`}
-                  className="inline-flex items-center gap-2 self-start px-6 py-3 bg-brand-orange text-white rounded-full font-hebrew font-medium text-sm hover:opacity-90 transition-all"
+                  className="inline-flex items-center gap-2 self-start px-6 py-3 bg-brand-orange text-brand-dark rounded-full font-hebrew font-medium text-sm hover:opacity-90 transition-all"
                 >
                   מעבר לתשובה
                   <ArrowLeft className="w-4 h-4" />

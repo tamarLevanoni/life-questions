@@ -21,13 +21,13 @@ function toJsonResponse<T>(data: T, status = 200) {
 
 function errorResponse(err: unknown) {
   if (err instanceof BackendError) {
-    return NextResponse.json({ success: false, error: err.message }, { status: err.status });
+    return NextResponse.json({ success: false, error: err.status >= 500 ? 'השירות אינו זמין כרגע. נסו שוב מאוחר יותר.' : err.message }, { status: err.status });
   }
   if (err instanceof SchemaError) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 502 });
+    return NextResponse.json({ success: false, error: 'התקבלה תשובה לא תקינה. נסו שוב מאוחר יותר.' }, { status: 502 });
   }
-  const msg = err instanceof Error ? err.message : 'שגיאה לא ידועה';
-  return NextResponse.json({ success: false, error: msg }, { status: 500 });
+  console.error('[api] Unexpected failure', { errorType: err instanceof Error ? err.name : 'Unknown' });
+  return NextResponse.json({ success: false, error: 'אירעה שגיאה. נסו שוב מאוחר יותר.' }, { status: 500 });
 }
 
 export async function runRoute<T>(handler: () => Promise<T>, successStatus = 200) {

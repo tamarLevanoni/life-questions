@@ -1,7 +1,5 @@
 import 'server-only';
 import { cache } from 'react';
-import { cacheLife, cacheTag } from 'next/cache';
-import { z } from 'zod';
 import { serverClient } from './client';
 import {
   storyWithNeighborsSchema,
@@ -14,7 +12,7 @@ import {
 import { BackendError, SchemaError } from './errors';
 
 export const getStory = cache(async (id: string): Promise<StoryWithNeighbors> => {
-  const data = await serverClient.get(`/api/stories/${id}`);
+  const data = await serverClient.get(`/api/stories/${encodeURIComponent(id)}`);
   const parsed = storyWithNeighborsSchema.safeParse(data);
   if (!parsed.success) throw new SchemaError();
   return parsed.data;

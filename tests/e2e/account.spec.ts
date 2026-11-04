@@ -33,7 +33,30 @@ test('profile rejects invalid edits without calling the backend', async ({ page,
   expect((await backendRequests(request)).filter(r => r.method === 'PATCH')).toHaveLength(0);
 });
 
-test('new Google user completes onboarding using the real Server Action boundary', async ({ page, context }) => {
+test('profile requires marketing consent before saving and can clear its institution', async ({ page, context, request }) => {
+  await login(context); await page.goto('/profile');
+  await page.getByRole('button', { name: 'עריכת פרטים' }).click();
+  await page.getByPlaceholder('ישיבה, בית ספר, קהילה...').fill('');
+  const consent = page.getByRole('checkbox', { name: 'אני מסכים לקבל עדכונים ותוכן שיווקי במייל (חובה)' });
+  await consent.uncheck();
+  await page.getByRole('button', { name: 'שמירה', exact: true }).click();
+  await expect(consent).toHaveAttribute('aria-invalid', 'true');
+  await expect(consent).toHaveAccessibleDescription('יש לאשר קבלת עדכונים ותוכן שיווקי במייל');
+  expect((await backendRequests(request)).filter(r => r.method === 'PATCH')).toHaveLength(0);
+  await consent.focus();
+  await page.keyboard.press('Space');
+  await expect(consent).toBeChecked();
+  await page.getByRole('button', { name: 'שמירה', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'עריכת פרטים' })).toBeVisible();
+  expect((await backendRequests(request)).find(r => r.method === 'PATCH')?.body)
+    .toMatchObject({ institutionName: null, marketingConsent: true });
+  await page.reload();
+  await expect(page.getByText('מסכים לקבל עדכונים ותוכן שיווקי במייל', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'עריכת פרטים' }).click();
+  await expect(page.getByPlaceholder('ישיבה, בית ספר, קהילה...')).toHaveValue('');
+});
+
+test('new Google user must explicitly consent before completing onboarding', async ({ page, context, request }) => {
   await login(context, false); await page.goto('/');
   const dialog = page.getByRole('dialog', { name: 'השלמת הרשמה' });
   await expect(dialog).toBeVisible();
@@ -41,6 +64,12 @@ test('new Google user completes onboarding using the real Server Action boundary
   await dialog.getByLabel('שם משפחה', { exact: true }).fill('חדש');
   await dialog.getByLabel('טלפון', { exact: true }).fill('0501234567');
   await dialog.getByRole('button', { name: 'לומד', exact: true }).click();
+  const consent = dialog.getByRole('checkbox', { name: 'אני מסכים לקבל עדכונים ותוכן שיווקי במייל (חובה)' });
+  await expect(consent).not.toBeChecked();
+  await dialog.getByRole('button', { name: 'סיום הרשמה' }).click();
+  await expect(consent).toHaveAccessibleDescription('יש לאשר קבלת עדכונים ותוכן שיווקי במייל');
+  expect((await backendRequests(request)).filter(r => r.path === '/api/users' && r.method === 'POST')).toHaveLength(0);
+  await consent.check();
   await dialog.getByRole('button', { name: 'סיום הרשמה' }).click();
   await expect(dialog).toBeHidden();
   const response = await context.request.get('/api/auth/session');
@@ -81,6 +110,7 @@ test('failed onboarding preserves details without marking registration complete'
   await dialog.getByLabel('שם משפחה', { exact: true }).fill('חדש');
   await dialog.getByLabel('טלפון', { exact: true }).fill('0501234567');
   await dialog.getByRole('button', { name: 'לומד', exact: true }).click();
+  await dialog.getByRole('checkbox', { name: 'אני מסכים לקבל עדכונים ותוכן שיווקי במייל (חובה)' }).check();
   await dialog.getByRole('button', { name: 'סיום הרשמה' }).click();
   await expect(page.getByRole('status')).toBeVisible();
   await expect(dialog.getByRole('button', { name: 'סיום הרשמה' })).toBeEnabled();

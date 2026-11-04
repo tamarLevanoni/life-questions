@@ -31,5 +31,3 @@ export function useStoryDetail() {
     requestExpansionAccess,
   };
 }
-
-export type UseStoryDetailReturn = ReturnType<typeof useStoryDetail>;

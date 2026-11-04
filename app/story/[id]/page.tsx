@@ -63,7 +63,7 @@ async function StoryContent({ params }: StoryPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <StoryHydrator story={story} />
+      <StoryHydrator key={story.id} story={story} />
       <StoryView />
     </>
   );

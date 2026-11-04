@@ -17,12 +17,6 @@ export type AppDataBundle = {
   weeklyStory: Story | null;
 };
 
-// ==================== BFF / UTILITY TYPES ====================
-
-export type StandardResponse<T = unknown> =
-  | { success: true; data: T }
-  | { success: false; error: string };
-
 // RegisterBody נגזר מ-RegisterUserBody — מקור אמת אחד
 export type { RegisterUserBody as RegisterBody } from '@/lib/schemas';
 
@@ -89,10 +83,4 @@ export interface SearchResultsListProps {
   onStoryClick: (story: { id: string }) => void;
   emptyMessage?: string;
   emptyHint?: string;
-}
-
-export interface AppHeaderProps {
-  showSearch?: boolean;
-  onSearchClick?: () => void;
-  onMenuClick?: () => void;
 }

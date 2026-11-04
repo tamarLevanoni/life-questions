@@ -1,64 +1,27 @@
-# Source Of Truth Spec
+# Documentation authority
 
 ## Goal
-Define how the project specs are read, updated, and implemented so they remain stable throughout the lifetime of the project.
 
----
+Keep one maintained source for each project decision and distinguish implemented behavior from future work.
 
-## Document Hierarchy
+## Authority and reading order
 
-| Document | Purpose | Authority |
-|----------|---------|-----------|
-| `docs/specs/*` | Long-lived architecture, domain, UX, and quality contract | Binding source of truth |
-| `AGENTS.md`, `CLAUDE.md` | Operational summary for coding agents | Derived from the specs; not a replacement |
-| `README.md` | Project onboarding and quick-start documentation | Useful documentation, not an architecture contract |
-| `docs/planning/*` | Migration plans, PR decisions, temporary task lists | Temporary; not a long-lived source of truth |
-When documents conflict, `docs/specs/*` wins. If code or another document requires an architectural change, update the relevant spec first, then update the implementation.
+- `docs/specs/` owns project architecture, domain, UX and quality decisions. Its descriptions match the implementation; known unsafe behavior is tracked for correction, never endorsed as a best practice.
+- `AGENTS.md` is a short operational entrypoint and task-to-spec map, not a second architecture manual.
+- Framework API details come from the version-matched documentation in `node_modules/next/dist/docs/`. Consult the relevant guide before Next.js changes. Generic skills do not override project decisions or supported framework APIs.
+- `README.md` covers setup, orientation and the solo development workflow. The [testing guide](../testing.md) covers checks, reports, Husky and CI.
+- `docs/planning/` contains proposals and active work. `done/` is historical, not agent instruction. Open work is indexed in [Planning](../planning/README.md) and [Backlog](../planning/backlog.md).
 
----
+## Maintaining decisions
 
-## How To Write Specs
+Update the relevant spec with a behavior/architecture change, then update operational pointers only when necessary. Keep API shapes in schemas and visual values in CSS/config instead of copying them into multiple manuals. Mark unverified upstream assumptions explicitly. Do not claim a workflow, endpoint or test exists until it is implemented and checked.
 
-A spec describes a stable decision, not a transition state. Therefore:
-- Use binding, neutral language: "Every page is a Server Component", "Reference data is loaded in RSC".
-- Do not write "currently", "for now", "after we enable", "TODO", or "remove later".
-- Do not document refactor debt inside a spec. Debt, sequencing, and implementation gaps belong in `docs/planning/*`.
-- Do not keep two legitimate ways to do the same thing. If a temporary alternative exists, it belongs only in a migration plan.
+A feature, structural change or design change spanning screens needs a plan before implementation. A small UI fix does not need a plan solely because it touches two files. Use one plan with progress for a related change rather than generating many tiny plans.
 
----
+Branches and PRs are optional according to change size; small changes may go directly to main. Keep the archive available without maintaining a classification table for every historical plan.
 
-## How To Change Specs
+## Ownership
 
-A spec change is a product or architecture change, not a side note.
+The [spec index](README.md) maps each decision to its owning document. Link to that owner instead of duplicating its rules. Link implementation claims to the relevant source so they can be checked after code changes.
 
-Process:
-1. Define the stable decision in the relevant spec.
-2. Update derived documents when needed (`AGENTS.md`, `CLAUDE.md`, `README.md`).
-3. If implementation differs from the spec, document the migration in `docs/planning/<feature>.md`.
-4. Implement code changes according to the spec, one step at a time.
-
----
-
-## Decision Boundaries
-
-| Area | Decision Owner |
-|------|----------------|
-| Architecture, RSC, SEO, errors | `01-architecture.md` |
-| Core API access, BFF, response contracts | `02-server-access.md` |
-| Stores, hydration, Cache Components | `03-stores-and-cache.md` |
-| Route structure, page/view/hook split | `04-route-structure.md` |
-| Auth, session, gating | `05-auth.md` |
-| Design system, tokens, RTL, accessibility | `06-design-system.md` |
-| Domain model and schemas | `07-domain-model.md` |
-| Modals, toasts, interactions | `08-modals-and-notifications.md` |
-| Environment, deploy, secrets | `09-environment-deployment.md` |
-| Testing, CI, quality gates | `10-testing-and-quality.md` |
-| Core API endpoints and payload contract | `11-core-api-contract.md` |
-
----
-
-## Non-Urgent Recommendations
-
-1. Add document ownership when the team grows.
-2. Add a short changelog for major spec changes.
-3. Add a CI check that warns when `AGENTS.md` and `CLAUDE.md` drift from each other.
+Do not silently resolve product questions through documentation cleanup. Record them in the backlog. Do not migrate Auth, rename stores or introduce an additional caching/state system as incidental cleanup.

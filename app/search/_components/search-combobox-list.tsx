@@ -23,10 +23,11 @@ export function SearchComboboxList({
     <div dir="rtl" className="flex flex-col gap-0.5">
       {searchable && (
         <input
+          aria-label={placeholder}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 text-sm font-hebrew bg-transparent border-b border-border outline-none placeholder:text-muted-foreground mb-1"
+          className="w-full px-3 py-2 text-sm font-hebrew bg-transparent border-b border-border outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground mb-1"
         />
       )}
       <div className="max-h-[220px] overflow-y-auto">
@@ -37,6 +38,8 @@ export function SearchComboboxList({
             const isChecked = isMulti ? activeValues?.includes(opt.value) : activeValue === opt.value;
             return (
               <button
+                type="button"
+                aria-pressed={!!isChecked}
                 key={opt.value}
                 onClick={() => onSelect(opt.value)}
                 className={cn(

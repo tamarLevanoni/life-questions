@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { ScenarioCardProps } from '@/lib/types';
 import { Video } from 'lucide-react';
@@ -10,7 +11,6 @@ export function ScenarioCard({ story, bookName, topicName, onClick, className }:
 
   return (
     <article
-      onClick={onClick}
       className={cn(
         'story-card cursor-pointer overflow-hidden',
         'font-hebrew',
@@ -19,7 +19,7 @@ export function ScenarioCard({ story, bookName, topicName, onClick, className }:
       )}
       dir="rtl"
     >
-      <div className="flex">
+      <Link href={`/story/${story.id}`} onClick={onClick ? (event) => { event.preventDefault(); onClick(); } : undefined} className="flex focus-visible:outline-2 focus-visible:outline-ring">
         {/* Accent line — מתרחב ב-hover */}
         <div className="w-[4px] hover:w-[6px] shrink-0 rounded-r-full bg-linear-to-b from-primary via-primary/60 to-primary/20 transition-all duration-150" />
 
@@ -74,7 +74,7 @@ export function ScenarioCard({ story, bookName, topicName, onClick, className }:
             </div>
           )}
         </div>
-      </div>
+      </Link>
     </article>
   );
 }

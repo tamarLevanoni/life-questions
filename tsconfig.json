@@ -5,6 +5,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "types": ["bun", "node"],
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -30,5 +31,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "_boilerplate-reference"]
+  "exclude": ["node_modules", ".cache", ".next-e2e", ".claude"]
 }

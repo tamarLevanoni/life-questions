@@ -51,7 +51,7 @@ export function PersonalInfoSection({ isEditing, user, register, errors }: Perso
             <>
               <Mail className="w-3.5 h-3.5" />
               אימייל
-              <span className="inline-flex items-center gap-0.5 text-muted-foreground/60">
+              <span className="inline-flex items-center gap-0.5 text-muted-foreground">
                 <Lock className="w-3 h-3" />
                 <span className="text-[10px]">מ-Google</span>
               </span>
@@ -86,7 +86,7 @@ export function PersonalInfoSection({ isEditing, user, register, errors }: Perso
             <>
               <Building2 className="w-3.5 h-3.5" />
               מוסד
-              {isEditing && <span className="text-muted-foreground/60 text-[10px]">(אופציונלי)</span>}
+              {isEditing && <span className="text-muted-foreground text-[10px]">(אופציונלי)</span>}
             </>
           }
         >

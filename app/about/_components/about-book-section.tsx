@@ -1,7 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
-import { BOOK_SHOP_URL } from '@/lib/config/book-shop';
+import { SHOP_URL } from '@/lib/config/shop';
 
 export function AboutBookSection() {
   return (
@@ -28,7 +28,7 @@ export function AboutBookSection() {
             </p>
           </div>
           <a
-            href={BOOK_SHOP_URL}
+            href={SHOP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-teal-600 px-6 py-3 text-base md:text-lg font-bold font-hebrew text-white shadow-lg shadow-teal-600/20 transition-all hover:bg-teal-700 hover:shadow-xl hover:shadow-teal-600/30 hover:-translate-y-0.5 dark:bg-teal-500 dark:hover:bg-teal-400"

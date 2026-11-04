@@ -53,6 +53,7 @@ export function ProfileView() {
         isEditing={form.isEditing}
         user={user}
         marketingConsent={form.marketingConsent}
+        error={form.errors.marketingConsent?.message}
         onConsentChange={(checked) =>
           form.setValue('marketingConsent', checked, { shouldValidate: true })
         }

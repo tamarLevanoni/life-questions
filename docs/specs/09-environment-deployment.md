@@ -1,172 +1,31 @@
-# Environment And Deployment Spec
+# Environment and deployment
 
 ## Goal
-Define required environment variables, where they are configured, how local/preview/production differ, and how deployment works.
 
----
+Keep local/test/deployed environments explicit and secrets server-side.
 
-## Environment Variables
+## Variables
 
-### Required In Every Environment
+[.env.example](../../.env.example) documents `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BACKEND_API_URL`, `INTERNAL_API_SECRET` and `NEXT_PUBLIC_SITE_URL`. Copy it to `.env.local` for local setup and supply real local/staging credentials outside Git.
 
-| Variable | Role | Read By | Public? |
-|----------|------|---------|---------|
-| `BACKEND_API_URL` | Core Node.js API URL | `lib/backend-fetch.ts` | No |
-| `INTERNAL_API_SECRET` | Secret attached as `x-api-secret` to core API calls | `lib/backend-fetch.ts` | No |
-| `NEXTAUTH_SECRET` | JWT signing secret | NextAuth + `proxy.ts` | No |
-| `NEXTAUTH_URL` | Canonical app URL for NextAuth | NextAuth | No |
-| `GOOGLE_CLIENT_ID` | OAuth client id | NextAuth provider | No |
-| `GOOGLE_CLIENT_SECRET` | OAuth client secret | NextAuth provider | No |
-| `NEXT_PUBLIC_SITE_URL` | Public app base URL for sitemap/OG/canonical URLs | `app/sitemap.ts`, metadata | Yes |
+`BACKEND_API_URL` points to the Core API origin; its local server defaults to port 3001. The frontend's `INTERNAL_API_SECRET` must equal the backend's `API_SECRET`. The names differ by service; the HTTP header is `x-api-secret` on both sides. Browser-to-Next requests use the site's own origin and session cookie; the browser does not send this backend credential.
 
-### Variable Rules
+The `NEXT_PUBLIC_` prefix exposes a variable to browser code. Server data passed as client props or returned through API/actions also becomes browser-visible. Never serialize backend/internal secrets or place them in public configuration, logs, fixtures or reports. Do not print `.env.local` while debugging. The Core API secret is attached server-side as `x-api-secret`.
 
-1. `NEXT_PUBLIC_*` is the only prefix exposed to the browser. Secrets must never use this prefix.
-2. Files that read `process.env.<X>!` at module scope, such as `lib/backend-fetch.ts`, must import `'server-only'` when they are server-only.
-3. Client code reads environment only through `NEXT_PUBLIC_*`.
-4. Required variables do not get magic fallbacks such as `process.env.X ?? 'default'`; fail early instead.
+Set `NEXT_PUBLIC_SITE_URL` to the deployed site's canonical origin. Without it, robots/sitemap use the placeholder `https://life-questions.example`. Keep `NEXTAUTH_URL` consistent with the environment's OAuth callback origin.
 
----
+## Local and production
 
-## `.env` Files
+Use `bun install --frozen-lockfile` for reproducible installs, `bun dev` for development and `bun run build` / `bun start` for production builds. Do not run builds into the same output directory as an active development server. Remote hosts for Next image optimization are listed in [`next.config.ts`](../../next.config.ts); this list does not constrain raw `<img>` elements or external iframes.
 
-Recommended structure:
+Fonts are loaded by next/font; builds may need network access to their provider. Deploy configuration/secrets belong to the hosting environment, not committed env files. This repository's implementation does not prove a hosting dashboard, staging instance, monitoring service or branch protection is configured.
 
-```text
-.env.example          # committed; documents fields without real values
-.env.local            # local development; real values; not committed
-.env.development      # optional local overrides
-.env.production       # only for self-hosting; Vercel uses dashboard env vars
-```
+## Automated tests
 
-Rule: when adding a variable, update `.env.example`, then local env, then Vercel env values.
+[`tests/support/environment.ts`](../../tests/support/environment.ts) sets dedicated localhost frontend/backend ports and fake credentials, overriding inherited connection/auth values. [`prepare-app.ts`](../../tests/support/prepare-app.ts) sets these values before starting Next. `QUALITY_TEST=1` selects `.next-e2e` and a separate generated TypeScript config; reserve it for the isolated test environment. The mock Core API receives server-to-server requests as well as action/BFF flows. The app must contain no test-only authentication bypass endpoint.
 
-Example `.env.example`:
+Browser reports, sessions and screenshots are generated artifacts ignored by Git. Use only fictional users in automated reports. Google Form/YouTube/shop/WhatsApp/widget behavior is external and needs separate manual checks when changed.
 
-```bash
-# Backend
-BACKEND_API_URL=https://api.dev.example.com
-INTERNAL_API_SECRET=changeme
+## Operational boundaries
 
-# Auth
-NEXTAUTH_SECRET=run_openssl_rand_base64_32
-NEXTAUTH_URL=http://localhost:3000
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-
-# Public
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
-
----
-
-## Environments
-
-| Environment | URL | Branch | Variables |
-|-------------|-----|--------|-----------|
-| Local dev | `localhost:3000` | working branch | `.env.local` |
-| Vercel preview | `<branch>.vercel.app` | any non-`main` branch | Vercel Preview env |
-| Vercel production | production domain | `main` | Vercel Production env |
-
-Rules:
-- `BACKEND_API_URL` in preview may point to staging or production; the team must choose that policy explicitly.
-- `NEXT_PUBLIC_SITE_URL` must match the environment for sitemap and canonical URLs.
-- `INTERNAL_API_SECRET` may be shared across preview/prod only if the core API does not separate those environments.
-
----
-
-## Security
-
-1. Never write secrets in code, PR descriptions, commit messages, or tests.
-2. Rotate `INTERNAL_API_SECRET` at least quarterly or after developer offboarding.
-3. Generate `NEXTAUTH_SECRET` with `openssl rand -base64 32`. Rotating it logs out existing sessions.
-4. Rotate `GOOGLE_CLIENT_SECRET` only through Google Cloud Console. Redirect URIs must exist for every environment.
-5. Ensure `backendFetch` never logs the internal secret.
-
----
-
-## Build And Deploy
-
-### Vercel
-
-The app deploys to Vercel as a native Next.js project:
-1. Connect the Vercel project to the GitHub repository.
-2. Framework: Next.js auto-detected.
-3. Build command: `bun run build`; install command: `bun install`.
-4. Node version: latest LTS; Bun runtime: latest available.
-5. Environment variables are configured through Vercel UI per Preview/Production.
-
-### Build Artifacts
-- Next.js build uses Turbopack, configured in [next.config.ts](../../next.config.ts).
-- `cacheComponents: true` enables Cache Components and PPR. Cached server functions must run on the Node.js runtime; do not set `runtime = 'edge'` on routes that read from `'use cache'` functions.
-- Static assets in `public/` are served through Vercel CDN.
-
-### Deploy Lifecycle
-1. Merge to `main` triggers production deployment according to Vercel project settings.
-2. Any other branch creates a unique preview URL.
-3. Rollback uses Vercel UI and restores a previous deployment.
-
----
-
-## External Images And Links
-
-[next.config.ts](../../next.config.ts) defines allowed `remotePatterns` for external media hosts:
-- `media.licdn.com`
-- `cdn.hailuoai.video`
-- `www.youtube.com`
-
-Rule: add any new image host to `remotePatterns` before using it with `next/image`.
-
----
-
-## CI
-
-Every PR runs a basic GitHub Actions workflow:
-
-```yaml
-- bun install
-- bun lint
-- bunx tsc --noEmit
-- bun build
-```
-
----
-
-## Observability
-
-Observability sits behind central APIs:
-- **Sentry / Logfire** through `instrumentation.ts` for RSC and route handlers.
-- **Vercel Analytics** for basic usage metrics.
-- **Web Vitals** through `useReportWebVitals` and an internal analytics endpoint.
-
----
-
-## DNS And Fonts
-
-- Fonts are loaded through `next/font`, not external CDNs. See [01-architecture.md](01-architecture.md).
-- Manual `<link rel="preconnect">` is not required for fonts handled by `next/font`.
-
----
-
-## Pre-Deploy Checklist
-
-- [ ] `.env.example` updated if a variable was added.
-- [ ] Vercel preview passed.
-- [ ] `bun build` runs locally without warnings.
-- [ ] `bunx tsc --noEmit` is clean.
-- [ ] `bun lint` is clean.
-- [ ] New external image hosts are added to `remotePatterns`.
-- [ ] Auth changes are reflected in Google OAuth redirect URIs.
-- [ ] `NEXT_PUBLIC_SITE_URL` is correct per environment.
-
----
-
-## Non-Urgent Recommendations
-
-1. **`instrumentation.ts`.** Add Sentry/OTel integration.
-2. **Vercel Edge Config.** Use for feature flags instead of redeploying.
-3. **Story image CDN.** Move core-served images to Cloudinary/Imgix or similar if optimization is needed.
-4. **Health check endpoint.** Add `app/api/health/route.ts` that verifies core API reachability.
-5. **Protected staging branch.** Add a stable staging branch with isolated data.
-6. **Vercel storage products.** Consider `@vercel/blob` or `@vercel/postgres` only if the project moves storage into Vercel.
-7. **Deploy preview comments.** Add PR comments with screenshots of key pages through Vercel + Playwright.
+Updating repo CI files does not enable branch protection or deploy a site. Deployment, account settings, Auth migration and external monitoring require their own scoped work. [Quality](10-testing-and-quality.md) owns the actual checks; [backlog](../planning/backlog.md) owns future operational improvements.

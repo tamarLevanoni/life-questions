@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { serverClient } from '@/lib/server/client';
-import type { UserData } from '@/lib/schemas';
+import { AUTH_IDENTITY_VERSION } from '@/lib/auth-identity';
+import { applySessionUser, lookupSessionUser } from '@/lib/server/session-user';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -19,53 +19,29 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (account?.provider !== 'google') return true;
+      if (account?.provider !== 'google') return false;
 
       try {
-        const googleId = account.providerAccountId;
-        const data = await serverClient.get<UserData>(`/api/users/google/${googleId}`);
-        user.backendData = data as typeof user.backendData;
-      } catch {
-        // 404 = new user / backend unreachable — allow sign-in, backendData stays undefined
+        user.backendData = await lookupSessionUser(account.providerAccountId) ?? undefined;
+      } catch (err) {
+        console.error('[auth] User lookup failed', { errorType: err instanceof Error ? err.name : 'Unknown' });
+        return false;
       }
 
       return true;
     },
 
-    async jwt({ token, user, account, trigger, session }) {
-      // Initial sign-in: persist backend data into the JWT
-      if (account && user) {
-        if (user.backendData) {
-          token.id = user.backendData.id;
-          token.googleId = user.backendData.googleId;
-          token.email = user.backendData.email;
-          token.firstName = user.backendData.firstName;
-          token.lastName = user.backendData.lastName;
-          token.institutionName = user.backendData.institutionName;
-          token.phone = user.backendData.phone;
-          token.occupations = user.backendData.occupations;
-          token.marketingConsent = user.backendData.marketingConsent;
-          token.isRegistrationComplete = true;
-        } else {
-          token.isRegistrationComplete = false;
-        }
+    async jwt({ token, user, account, trigger }) {
+      if (account?.provider === 'google' && user) {
+        return applySessionUser(token, user.backendData ?? null, account.providerAccountId);
       }
-
-      // Session update (from onboarding modal or profile edits)
-      if (trigger === 'update' && session) {
-        if (session.firstName !== undefined) token.firstName = session.firstName;
-        if (session.lastName !== undefined) token.lastName = session.lastName;
-        if (session.institutionName !== undefined) token.institutionName = session.institutionName;
-        if (session.phone !== undefined) token.phone = session.phone;
-        if (session.occupations !== undefined) token.occupations = session.occupations;
-        if (session.marketingConsent !== undefined) token.marketingConsent = session.marketingConsent;
-        if (session.isRegistrationComplete !== undefined)
-          token.isRegistrationComplete = session.isRegistrationComplete;
-        if (session.id !== undefined) token.id = session.id;
-        if (session.googleId !== undefined) token.googleId = session.googleId;
-        if (session.email !== undefined) token.email = session.email;
+      if (token.identityVersion !== AUTH_IDENTITY_VERSION || !token.sub) {
+        throw new Error('Session expired; sign in again');
       }
-
+      // session.update input is attacker-controlled; read the profile from the server.
+      if (trigger === 'update') {
+        return applySessionUser(token, await lookupSessionUser(token.sub), token.sub);
+      }
       return token;
     },
 

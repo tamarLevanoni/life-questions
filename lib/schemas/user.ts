@@ -28,42 +28,9 @@ export const userDataSchema = z.object({
 export type UserData = z.infer<typeof userDataSchema>;
 
 // שדות שמותר לעדכן — id/email הם קריאה בלבד
-export type MutableUserData = Omit<UserData, 'id' | 'email'>;
+export type MutableUserData = Omit<UserData, 'id' | 'googleId' | 'email'>;
 
-export const registerUserSchema = userDataSchema.omit({ id: true });
-export type RegisterUserBody = z.infer<typeof registerUserSchema>;
-
-export const updateUserSchema = userDataSchema
-  .omit({ id: true, googleId: true })
-  .partial();
-export type UpdateUserBody = z.infer<typeof updateUserSchema>;
-
-// onboardingSchema נגזר מ-userDataSchema — שינוי שדה מתפשט אוטומטית
-export const onboardingSchema = userDataSchema
-  .pick({
-    firstName: true,
-    lastName: true,
-    institutionName: true,
-    phone: true,
-    occupations: true,
-    marketingConsent: true,
-  })
-  .extend({
-    firstName: z.string().min(2, 'שם פרטי חייב להכיל לפחות 2 תווים'),
-    lastName: z.string().min(2, 'שם משפחה חייב להכיל לפחות 2 תווים'),
-    phone: z.string().min(9, 'מספר טלפון לא תקין'),
-    occupations: z.array(occupationEnum).min(1, 'יש לבחור לפחות עיסוק אחד'),
-    marketingConsent: z
-      .boolean()
-      .refine((val) => val === true, { message: 'יש לאשר קבלת עדכונים' }),
-  });
-
-export type OnboardingFormData = z.infer<typeof onboardingSchema>;
-
-// טיפוס Occupation נגזר מה-enum — מקור אמת אחד
-export type Occupation = z.infer<typeof occupationEnum>;
-
-// profileEditSchema — כמו onboardingSchema אבל ללא ה-refine על marketingConsent
+// כללי הפרופיל משותפים לטפסים ולכניסות השרת.
 export const profileEditSchema = userDataSchema
   .pick({
     firstName: true,
@@ -78,10 +45,26 @@ export const profileEditSchema = userDataSchema
     lastName: z.string().min(2, 'שם משפחה חייב להכיל לפחות 2 תווים'),
     phone: z.string().min(9, 'מספר טלפון לא תקין'),
     occupations: z.array(occupationEnum).min(1, 'יש לבחור לפחות עיסוק אחד'),
-    marketingConsent: z.boolean(),
+    marketingConsent: z.boolean().refine((value) => value === true, {
+      message: 'יש לאשר קבלת עדכונים ותוכן שיווקי במייל',
+    }),
   });
 
 export type ProfileEditFormData = z.infer<typeof profileEditSchema>;
+
+export const onboardingSchema = profileEditSchema;
+export type OnboardingFormData = z.infer<typeof onboardingSchema>;
+
+export const registerUserSchema = userDataSchema.omit({ id: true }).extend({
+  ...onboardingSchema.shape,
+  institutionName: z.string().optional(),
+});
+export type RegisterUserBody = z.infer<typeof registerUserSchema>;
+
+export const updateUserSchema = profileEditSchema.partial().required({ marketingConsent: true });
+export type UpdateUserBody = z.infer<typeof updateUserSchema>;
+
+export type Occupation = z.infer<typeof occupationEnum>;
 
 // ==================== CONTACT ====================
 

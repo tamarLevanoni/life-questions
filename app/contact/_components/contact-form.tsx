@@ -41,10 +41,11 @@ export function ContactForm({ storyId, storyTitle }: ContactFormProps) {
                   <button
                     key={value}
                     type="button"
+                    aria-pressed={form.category === value}
                     onClick={() => form.handleCategoryChange(value)}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium font-hebrew transition-all ${
                       form.category === value
-                        ? 'bg-linear-to-l from-brand-teal to-brand-blue text-white shadow-sm'
+                        ? 'bg-linear-to-l from-brand-teal to-brand-blue text-brand-dark shadow-sm'
                         : 'bg-muted text-muted-foreground hover:bg-muted/70'
                     }`}
                   >
@@ -101,7 +102,7 @@ export function ContactForm({ storyId, storyTitle }: ContactFormProps) {
             <Button
               type="submit"
               disabled={form.isSubmitting}
-              className="w-full gap-2 font-hebrew bg-linear-to-l from-brand-teal to-brand-blue text-white border-0 hover:opacity-90"
+              className="w-full gap-2 font-hebrew bg-linear-to-l from-brand-teal to-brand-blue text-brand-dark border-0 hover:opacity-90"
             >
               <Send className="w-4 h-4" />
               {form.isSubmitting ? 'שולח...' : 'שלח פנייה'}

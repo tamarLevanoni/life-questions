@@ -3,7 +3,6 @@ import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkStaged, git } from '../../scripts/check-staged';
-import { stopCheck } from '../../scripts/codex-stop';
 import { markdownLinks } from '../../scripts/check-docs';
 
 let root: string;
@@ -35,19 +34,6 @@ test('staged documentation checks links against staged targets', async () => {
   expect(await checkStaged(root)).not.toHaveLength(0);
   git(['add', 'docs/a file.md'], root);
   expect(await checkStaged(root)).toEqual([]);
-});
-
-test('stop hook skips docs-only, planning and continued turns, checks code once per state', async () => {
-  await writeFile(join(root, 'README.md'), '# Documentation\n');
-  expect(await stopCheck({ cwd: root })).toEqual({});
-  await writeFile(join(root, 'a file.js'), 'console.log(1);\n');
-  expect(await stopCheck({ cwd: root, permission_mode: 'plan' })).toEqual({});
-  expect(await stopCheck({ cwd: root, stop_hook_active: true })).toEqual({});
-  expect((await stopCheck({ cwd: root })).systemMessage).toContain('passed');
-  expect(await stopCheck({ cwd: root })).toEqual({});
-  await writeFile(join(root, 'a file.js'), 'const unused = 1;\n');
-  expect((await stopCheck({ cwd: root })).systemMessage).toContain('failed');
-  expect(await stopCheck({ cwd: root })).toEqual({});
 });
 
 test('documentation checks local paths while skipping URLs and fenced examples', () => {

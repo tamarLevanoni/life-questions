@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { cn } from '@/lib/utils';
 import { X, ChevronsUpDown } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -22,6 +22,7 @@ export function SearchCombobox({
   placeholder: string; popoverWidth: string; searchable?: boolean;
   externalChips?: boolean; fullWidth?: boolean;
 }) {
+  const contentId = useId();
   const [search, setSearch] = useState('');
 
   const isMulti = activeValues !== undefined;
@@ -47,8 +48,10 @@ export function SearchCombobox({
         )}
         <PopoverTrigger asChild>
           <button
-            role="combobox"
+            type="button"
+            aria-label={fieldLabel ? `${fieldLabel}: ${label}` : label}
             aria-expanded={open}
+            aria-controls={open ? contentId : undefined}
             className={cn('filter-chip flex items-center justify-between gap-3', fullWidth && 'w-full')}
             style={fullWidth ? undefined : { minWidth, maxWidth: showChipsInside ? 260 : undefined }}
           >
@@ -82,7 +85,7 @@ export function SearchCombobox({
           </button>
         </PopoverTrigger>
       </div>
-      <PopoverContent className={cn('p-1', popoverWidth)} align="end" side="bottom">
+      <PopoverContent id={contentId} className={cn('p-1', popoverWidth)} align="end" side="bottom">
         <SearchComboboxList
           options={options} isMulti={isMulti} activeValue={activeValue} activeValues={activeValues}
           onSelect={handleSelect} searchable={searchable} search={search} onSearchChange={setSearch}

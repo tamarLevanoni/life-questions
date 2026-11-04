@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Search } from 'lucide-react';
+import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { motion } from 'framer-motion';
 import { useWhatsAppInvite } from '@/lib/whatsapp-context';
 import { HERO_IMAGE } from '@/lib/config/hero-image';
@@ -130,14 +131,9 @@ export function HeroSection() {
         <HeroBackgroundMobile />
 
         <div className="[grid-area:1/1] relative flex items-end pb-[6%] px-[6%]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full"
-          >
+          <MotionFadeIn trigger="mount" className="w-full">
             <HeroFloatingCtas openWhatsAppModal={openWhatsAppModal} />
-          </motion.div>
+          </MotionFadeIn>
         </div>
       </div>
 
@@ -145,14 +141,9 @@ export function HeroSection() {
         <HeroBackground />
 
         <div className="[grid-area:1/1] relative flex items-end pb-[8%] px-[4%]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="w-full"
-          >
+          <MotionFadeIn trigger="mount" className="w-full">
             <HeroFloatingCtas openWhatsAppModal={openWhatsAppModal} />
-          </motion.div>
+          </MotionFadeIn>
         </div>
       </div>
     </section>

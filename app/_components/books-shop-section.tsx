@@ -15,7 +15,7 @@ export function BooksShopSection() {
           {/* Text sits inside its own frame */}
           <div className="w-full md:w-140 rounded-2xl border-4 border-amber-500/40 dark:border-amber-400/30 text-center md:text-right relative z-0 p-6 md:p-10">
             <MotionFadeIn trigger="view" delay={0}>
-              <span className="inline-flex items-center gap-1.5 text-[11px] md:text-xs font-hebrew font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-full px-3 py-1">
+              <span className="inline-flex items-center gap-1.5 text-[11px] md:text-xs font-hebrew font-semibold text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-full px-3 py-1">
                 <BookOpen className="w-3.5 h-3.5" />
                 המארז המלא, מודפס
               </span>
@@ -28,7 +28,7 @@ export function BooksShopSection() {
             </MotionFadeIn>
 
             <MotionFadeIn trigger="view" delay={0.2}>
-              <p className="mt-2 text-base md:text-2xl font-hebrew font-bold text-amber-700 dark:text-amber-300">
+              <p className="mt-2 text-base md:text-2xl font-hebrew font-bold text-amber-800 dark:text-amber-300">
                 עכשיו גם על המדף שלכם
               </p>
             </MotionFadeIn>
@@ -44,7 +44,7 @@ export function BooksShopSection() {
                 href={SHOP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 md:mt-8 inline-flex items-center gap-2 px-7 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-hebrew font-bold text-base md:text-lg -rotate-1 transition-all hover:rotate-0 hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-amber-500/30"
+                className="mt-6 md:mt-8 inline-flex items-center gap-2 px-7 py-4 bg-amber-500 hover:bg-amber-600 text-brand-dark rounded-xl font-hebrew font-bold text-base md:text-lg -rotate-1 transition-all hover:rotate-0 hover:scale-[1.03] active:scale-[0.97] shadow-xl shadow-amber-500/30"
               >
                 למעבר לחנות
                 <ArrowLeft className="w-5 h-5" />

@@ -1,223 +1,34 @@
-# Route Structure Spec
+# Routes and forms
 
 ## Goal
-Define how a new route is created: folder shape, responsibility split, and when to extract components or hooks.
 
----
+Keep content routes readable, with shared primitives and explicit interactive boundaries.
 
-## Full Route Anatomy
+## Route structure
 
-```text
-app/<route>/
-├── page.tsx                          # Server Component, ideally <=30 lines
-├── _components/
-│   ├── <route>-view.tsx              # Client orchestrator
-│   ├── use-<route>.ts                # State + logic
-│   ├── use-<route>-form.ts           # Only when the route has a form
-│   └── <feature>-section.tsx ...     # Child components
-└── error.tsx / loading.tsx           # Only when needed
-```
+Content `page.tsx` files are Server Components, compose `PageShell` and define route-specific metadata where needed. Fetch server data through `lib/server/*`. Use Suspense around data-dependent content when streaming is useful. Do not enforce an imaginary generic `StoreHydrator`: use the existing app-data/story hydrators where relevant.
 
-Responsibilities:
+Interactive screens use a route-local view, child sections and hooks in `_components/`. Hooks own state/handlers and read stores; form hooks use react-hook-form + schemas from `lib/schemas/`. Static informational pages can compose server sections without a store or client view.
 
-| File | Runtime | Responsibility |
-|------|---------|----------------|
-| `page.tsx` | Server | `generateMetadata`, RSC fetch, wrap in `<PageShell>` + `<StoreHydrator>`, render `<XView />` |
-| `<route>-view.tsx` | Client | Calls `useX()`, composes child components, no internal business state |
-| `use-<route>.ts` | Client | Reads stores, effects, handlers, transient state; never reads `initial*` props |
-| `use-<route>-form.ts` | Client | `react-hook-form` + Zod setup and submit handler |
-| `<feature>-section.tsx` | Usually client | Pure display for one section; props only |
+Auth signin/callback/error pages are existing Client Components for OAuth flow and feedback. Do not put auth redirects in content pages; route policy is in [Auth](05-auth.md).
 
----
+Keep pages, route-local components and hooks at most 200 lines when adding/changing them. Extract by responsibility, not by arbitrary tiny fragments. Shared primitives must not be shadowed by local components of the same name.
 
-## Hard Rules
+## Primitives
 
-1. **`page.tsx` is a Server Component.** Never add `'use client'`.
-2. **120 lines is a hard limit** for files in `_components/`, page files, and hooks. Split before crossing it.
-3. **Folders and files are English kebab-case.** Hebrew belongs only in JSX strings or label maps.
-4. **File name matches export name.** `story-view.tsx` exports `StoryView`.
-5. **One component per file.** If an internal component grows beyond 20 lines, extract it.
-6. **Shared primitive names are reserved.** Do not define a local `SectionHeader` when `components/ui/section-header.tsx` exists.
-7. **Do not duplicate `<AppHeader>` or `<main>`.** Page layout goes through `<PageShell>`.
+- `PageShell`: header/main, width and page spacing.
+- `GlassCard`, `SectionHeader`, `FormField`: existing presentation building blocks; visual treatment may evolve.
+- `MotionFadeIn`: shared fade/reveal behavior; extend it when needed rather than copying motion blocks.
+- `EmptyState`, `SkeletonLines`, `SkeletonCardList`: recovery and loading feedback.
 
----
+## Forms and navigation
 
-## Typical Route Example
+Wrap fields in [`FormField`](../../components/ui/form-field.tsx); it associates a label/error with one direct `Input`, `input`, `textarea` or `select` child. For grouped or nested custom controls, wire labels, descriptions and invalid state explicitly. Keep schema validation both in forms and at server boundaries; [Domain](07-domain-model.md) owns the shared constraints. Preserve entered values on request failure; prevent duplicate submissions while pending.
 
-```tsx
-// app/<route>/page.tsx
-import type { Metadata } from 'next';
-import { PageShell } from '@/components/common/page-shell';
-import { StoreHydrator } from '@/components/common/store-hydrator';
-import { getX } from '@/lib/server/x';
-import { XView } from './_components/x-view';
+Clearing the optional institution field in profile editing sends `null`; omitting a PATCH field leaves its previous value intact. Registration omits an empty institution instead, matching the Core API's create contract.
 
-export const metadata: Metadata = { title: 'Page | Life Questions' };
+Use `Link` for ordinary internal navigation. Use router methods when an interaction requires them. [`useSearch`](../../app/search/_components/use-search.ts) initializes `q` and a single `bookId` from the URL on mount. It keeps draft/applied filters locally and does not serialize edits back to the URL. Initial automatic search waits for registered auth status and starts once per mount. Pagination uses the last submitted filters.
 
-export default async function XPage() {
-  const x = await getX();
-  return (
-    <PageShell maxWidth="2xl">
-      <StoreHydrator x={x}>
-        <XView />
-      </StoreHydrator>
-    </PageShell>
-  );
-}
-```
+Story contact relies on a full story already in `useStoriesStore`. If a `storyId` is present but absent from the store, [`ContactPageContent`](../../app/contact/_components/contact-page-content.tsx) replaces the URL with `/contact`. A direct link or reload therefore falls back to general contact rather than fetching the story. The server independently requires valid story context and a Google session for `story_question` submissions.
 
-```tsx
-// _components/x-view.tsx
-'use client';
-import { useX } from './use-x';
-import { HeaderSection } from './header-section';
-import { BodySection } from './body-section';
-
-export function XView() {
-  const x = useX();
-  if (x.loading) return <SkeletonLines count={4} />;
-  if (x.error) return <EmptyState title="Error" subtitle={x.error} />;
-  return (
-    <>
-      <HeaderSection x={x.x} />
-      <BodySection items={x.items} onAction={x.handleAction} />
-    </>
-  );
-}
-```
-
-```ts
-// _components/use-x.ts
-'use client';
-import { useXStore } from '@/lib/stores/x-store';
-
-export function useX() {
-  const { x, items, loading, error, doAction } = useXStore();
-  return { x, items, loading, error, handleAction: doAction };
-}
-```
-
----
-
-## PageShell Rules
-
-`<PageShell>` is always called from a Server Component, but its children may be client components.
-
-| Page Type | Wrapper |
-|-----------|---------|
-| Main content: profile, story, contact | `<PageShell maxWidth="2xl/3xl/5xl">` |
-| Landing / search | `<PageShell fullWidth>` |
-| Auth / not-found / error | No PageShell; use a centered layout with `<GlassCard>` when needed |
-
----
-
-## Forms
-
-Always use `react-hook-form` + Zod:
-
-```ts
-// _components/use-contact-form.ts
-'use client';
-export function useContactForm() {
-  const form = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-    defaultValues: { ... },
-  });
-
-  const onSubmit = async (data) => {
-    // ...
-  };
-  return { ...form, onSubmit };
-}
-```
-
-In the view:
-
-```tsx
-<form onSubmit={form.handleSubmit(form.onSubmit)}>
-  <FormField label="Full name" error={form.formState.errors.name?.message}>
-    <Input {...form.register('name')} />
-  </FormField>
-</form>
-```
-
-Rules:
-- Every input is wrapped in `<FormField label error>`. Do not hand-roll label/input/error rows.
-- The schema lives in `lib/schemas.ts`; types are derived via `z.infer`.
-- Submit handlers return `Promise`; the view uses `form.formState.isSubmitting`.
-
----
-
-## Navigation And Links
-
-- Use `<Link href="/...">`, not `<a>`, for internal navigation.
-- Use `router.push()` only when logic must happen before navigation, such as validation or confirmation.
-- Persist route state such as search query and filters in the URL through `useSearchParams()` + `router.replace(...)`, not in a global Zustand store.
-
----
-
-## Route Protection
-
-| Type | Mechanism |
-|------|-----------|
-| Soft-gate, partial content locked for guests | Client UI: `<ExpandableAnswerPanel isLocked />`. The page loads normally. |
-| Hard-gate, entire route closed | `proxy.ts` with `config.matcher`, for example `['/profile/:path*']`. Do not add page-level auth redirects. |
-
-The page itself does not perform auth redirects. Hard-gates live in `proxy.ts`, so protected pages do not render for guests.
-
----
-
-## Required Primitives
-
-| Primitive | Path | Purpose |
-|-----------|------|---------|
-| `<PageShell>` | `components/common/page-shell.tsx` | Page wrapper |
-| `<StoreHydrator>` | `components/common/store-hydrator.tsx` | RSC-to-store hydration |
-| `<GlassCard>` | `components/ui/glass-card.tsx` | Glass-style containers |
-| `<SectionHeader>` | `components/ui/section-header.tsx` | Section title + subtitle |
-| `<FormField>` | `components/ui/form-field.tsx` | Input row |
-| `<MotionFadeIn>` | `components/common/motion-fade-in.tsx` | Motion primitive |
-| `<EmptyState>` | `components/common/empty-state.tsx` | Empty and error states |
-| `<SkeletonLines>` / `<SkeletonCardList>` | `components/common/loading-skeleton.tsx` | Loading states |
-
-Rule: if a Tailwind pattern repeats three times, extract a primitive into `components/common/` or `components/ui/` before the fourth use.
-
----
-
-## When To Use `<Suspense>`
-
-- Use separate `<Suspense fallback={...}>` boundaries for page sections that have different loading times.
-- With Next.js 16 Cache Components, `<Suspense>` defines dynamic holes inside a shell that can be rendered earlier.
-
----
-
-## Route-Level `loading.tsx` / `error.tsx`
-
-- **`loading.tsx`:** use when route-level RSC work takes more than about 300ms and a meaningful placeholder exists.
-- **`error.tsx`:** use when the route needs a local recovery UI instead of the global error boundary, such as a story page with a link back to search.
-
----
-
-## New Route Checklist
-
-- [ ] `app/<route>/` exists.
-- [ ] `page.tsx` is a Server Component, <=30 lines where practical, and owns metadata.
-- [ ] `_components/<route>-view.tsx` and `use-<route>.ts` exist.
-- [ ] Forms have a separate `use-<route>-form.ts`.
-- [ ] Child components are <=120 lines each.
-- [ ] Only `<PageShell>` wraps top-level page layout; no manual `<AppHeader>` or `<main>`.
-- [ ] Empty and error states use `<EmptyState>`.
-- [ ] Loading states use `<SkeletonLines>`, `<SkeletonCardList>`, or `<Suspense>`.
-- [ ] No `app/api/` endpoint is added unless a real client action needs it.
-- [ ] Protected routes update `proxy.ts` `matcher`.
-
----
-
-## Non-Urgent Recommendations
-
-1. **Route Groups (`(marketing)`, `(auth)`).** Add when more pages need grouped layouts.
-2. **Parallel Routes.** Use `@modal/(.)login` if the login modal needs a shareable/deep-linkable URL.
-3. **Intercepting Routes.** Open a story from search results as a modal while keeping a shareable full URL.
-4. **`loading.tsx` for slow RSC routes.** Use when the fallback belongs at route level instead of component level.
-5. **Storybook for `_components/`.** Add only when the team needs visual documentation.
-6. **i18n routing.** Use `app/[locale]/...` with `next-intl` if another product language is added.
+Page-specific components remain local; patterns used by multiple routes belong in shared components. File names are English kebab-case. Visual and interactive acceptance criteria are in [UI](06-design-system.md) and [Quality](10-testing-and-quality.md).

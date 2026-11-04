@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/common/empty-state';
 import { ActiveFilterTags } from './active-filter-tags';
 import { SearchResultsList } from './search-results-list';
 import type { UseSearchReturn } from './use-search';
@@ -13,6 +14,7 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
     applied,
     hasSearched,
     loading,
+    error,
     stories,
     total,
     hasMore,
@@ -35,7 +37,8 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
       />
 
       <div className="max-h-[60vh] overflow-y-auto pl-1">
-        <SearchResultsList
+        {error && <div role="alert"><EmptyState title="אירעה שגיאה בחיפוש" description={error} /></div>}
+        {!error && <SearchResultsList
           stories={stories}
           books={books}
           topics={topics}
@@ -50,7 +53,7 @@ export function SearchResultsPanel({ search }: SearchResultsPanelProps) {
           emptyHint={
             hasSearched ? 'נסו לצמצם או לשנות את הסינון, או להוסיף מילת מפתח' : undefined
           }
-        />
+        />}
       </div>
     </div>
   );
