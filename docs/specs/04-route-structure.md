@@ -12,7 +12,7 @@ Interactive screens use a route-local view, child sections and hooks in `_compon
 
 Auth signin/callback/error pages are existing Client Components for OAuth flow and feedback. Do not put auth redirects in content pages; route policy is in [Auth](05-auth.md).
 
-Keep pages, route-local components and hooks at most 200 lines when adding/changing them. Extract by responsibility, not by arbitrary tiny fragments. Shared primitives must not be shadowed by local components of the same name.
+Keep pages, route-local components and hooks at most 200 lines when adding/changing them. Extract by responsibility, not by arbitrary tiny fragments. After a change, reassess whether affected files still justify their separation: inline trivial wrappers that no longer own distinct behavior or meaningful reuse, while preserving useful boundaries and readable file sizes. Shared primitives must not be shadowed by local components of the same name.
 
 ## Primitives
 

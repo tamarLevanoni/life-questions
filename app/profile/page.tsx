@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ProfilePage() {
   return (
-    <PageShell maxWidth="2xl">
+    <PageShell maxWidth="4xl">
       <ProfileView />
     </PageShell>
   );

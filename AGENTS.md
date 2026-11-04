@@ -23,6 +23,7 @@ Use **Bun only**, never npm/yarn. The scripts in package.json are authoritative.
 - Cache Components is the caching model. Never share user/session/search/mutation data through a persistent cache. Do not add a parallel manual cache.
 - Existing stores are useAppDataStore, useStoriesStore, useUserStore and useContactStore. Do not rename/split them as incidental cleanup. App-data store initialization is provider-scoped.
 - Content pages are Server Components using PageShell. Use existing primitives, do not shadow them. English kebab-case files; Hebrew UI copy. Pages, route-local components and hooks stay within 200 lines when changed.
+- After a change, check whether each affected file still warrants being separate. Inline trivial wrappers that no longer have a distinct responsibility or meaningful reuse; preserve useful boundaries and readable file sizes.
 - Schemas live in lib/schemas/, types derive from them, and Zod imports use `zod`.
 - NextAuth **v4**, Google only; no v5 APIs. Test sessions must not create an application auth bypass.
 - UI principles stay stable; current colors/effects/layout may change intentionally. Test behavior, mobile, RTL, themes and keyboard use.
