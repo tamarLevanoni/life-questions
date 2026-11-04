@@ -31,6 +31,26 @@ test('form labels focus unique controls and validation describes the first inval
   expect(new Set(ids).size).toBe(ids.length);
 });
 
+for (const theme of ['light', 'dark']) {
+  test(`${theme} guest search skips covered content when tabbing in both directions`, async ({ page }) => {
+    await page.addInitScript(value => localStorage.setItem('theme', value), theme);
+    await page.goto('/search');
+    const main = page.getByRole('main');
+    const trigger = main.getByRole('button', { name: 'יש להתחבר כדי לחפש' });
+    await expect(trigger).toBeVisible();
+    await expect(page.locator('html')).toHaveClass(new RegExp(theme));
+    await trigger.focus();
+    await page.keyboard.press('Shift+Tab');
+    expect(await main.evaluate(node => node.contains(document.activeElement))).toBe(false);
+    await page.keyboard.press('Tab');
+    await expect(trigger).toBeFocused();
+    await page.keyboard.press('Tab');
+    expect(await main.evaluate(node => node.contains(document.activeElement))).toBe(false);
+    await page.keyboard.press('Shift+Tab');
+    await expect(trigger).toBeFocused();
+  });
+}
+
 test('login dialog opens by keyboard, traps focus, closes and returns focus', async ({ page }) => {
   await page.goto('/search');
   const trigger = page.getByRole('button', { name: 'יש להתחבר כדי לחפש' });

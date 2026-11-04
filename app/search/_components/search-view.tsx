@@ -13,17 +13,19 @@ export function SearchView() {
   return (
     <div className={styles.page}>
       <div className="max-w-6xl mx-auto space-y-4">
-        <div className="relative flex flex-col gap-4" dir="rtl">
-          <div className={styles.controls}>
-            <SearchHeader />
-            <SearchFiltersPanel
-              search={search}
-              isOpen={search.filtersOpen}
-              onToggle={search.toggleFilters}
-              onSearch={search.handleSearch}
-            />
+        <div className="relative" dir="rtl">
+          <div className="flex flex-col gap-4" inert={search.isUnauthenticated}>
+            <div className={styles.controls}>
+              <SearchHeader />
+              <SearchFiltersPanel
+                search={search}
+                isOpen={search.filtersOpen}
+                onToggle={search.toggleFilters}
+                onSearch={search.handleSearch}
+              />
+            </div>
+            <SearchResultsPanel search={search} />
           </div>
-          <SearchResultsPanel search={search} />
           {search.isUnauthenticated && <AuthRequiredOverlay onClick={search.openLoginModal} />}
         </div>
       </div>
