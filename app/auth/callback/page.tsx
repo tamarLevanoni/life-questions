@@ -1,18 +1,28 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { getSession } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthCallbackPage() {
+  const sessionRequest = useRef<ReturnType<typeof getSession> | null>(null);
+
   useEffect(() => {
-    // מודיע לחלון האב שההתחברות הושלמה וסוגר את ה-popup
-    if (window.opener) {
+    if (!window.opener) {
+      // Reload so the normal page initializes its own SessionProvider.
+      window.location.replace('/');
+      return;
+    }
+
+    let active = true;
+    // Reuse the request when development Strict Mode reconnects this effect.
+    sessionRequest.current ??= getSession();
+    void sessionRequest.current.then(() => {
+      if (!active) return;
       window.opener.postMessage({ type: 'auth-callback' }, window.location.origin);
       window.close();
-    } else {
-      // fallback - אם נפתח בלי popup, מפנה לדף הבית
-      window.location.href = '/';
-    }
+    });
+    return () => { active = false; };
   }, []);
 
   return (

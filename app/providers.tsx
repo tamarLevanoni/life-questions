@@ -3,12 +3,15 @@
 import { Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { SessionProvider } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 import { AuthProvider } from '@/lib/auth-context';
 import { ToastProvider } from '@/lib/toast-context';
 import { WhatsAppProvider } from '@/lib/whatsapp-context';
 import { AuthRuntime } from '@/components/auth/auth-runtime';
 import { WhatsAppInviteModal } from '@/components/whatsapp/whatsapp-invite-modal';
 export function Providers({ children }: { children: React.ReactNode }) {
+  const isAuthCallback = usePathname() === '/auth/callback';
+
   return (
     <ThemeProvider
       attribute="class"
@@ -16,7 +19,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <SessionProvider>
+      {/* The closing callback window owns its single explicit session request. */}
+      <SessionProvider session={isAuthCallback ? null : undefined}>
         <ToastProvider>
           <WhatsAppProvider>
             <AuthProvider>

@@ -10,6 +10,8 @@ NextAuth **v4** with Google OAuth and HttpOnly JWT session cookies. Do not mix A
 
 `LoginModal` opens `/auth/signin` in a popup; it starts Google login. `/api/auth/callback/google` completes OAuth. `/auth/callback` notifies the opener with a same-origin message and closes. `SessionUserSync` refreshes the session and synchronizes `useUserStore`. `AuthRuntime` hosts login/onboarding UI under Suspense.
 
+The callback owns one explicit `getSession()` request and waits for it to finish before notifying the opener and closing. It reuses that request across development effect reconnections. On this route, `SessionProvider` starts with `session={null}` so it does not start a competing initial request that closing would abort. Other routes retain normal session loading. The notification only requests a session refresh; it does not authenticate the opener. Opening the callback without an opener reloads home so its provider initializes normally.
+
 User-store auth states are `idle`, `unauthenticated`, `registration-required`, `authenticated`; these differ from NextAuth's session status. A Google session can exist before app registration is complete. New Google users complete the onboarding form through a Server Action. Profile edits also use a Server Action. Both flows call `useSession().update()` to refresh profile data from the backend.
 
 ## Route policy
