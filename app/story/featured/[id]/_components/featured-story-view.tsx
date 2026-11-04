@@ -1,17 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { Search, AlertCircle } from 'lucide-react';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { EmptyState } from '@/components/common/empty-state';
 import { StoryPanels } from '@/components/story/story-panels';
 import { useAppDataStore } from '@/lib/stores/app-data-store';
 
-export function FeaturedStoryView() {
-  // Read the real, current URL param client-side rather than receiving it
-  // from the server component — see page.tsx for why.
-  const { id: storyId } = useParams<{ id: string }>();
+export function FeaturedStoryView({ storyId }: { storyId: string }) {
   const featuredStories = useAppDataStore((s) => s.featuredStories);
   const weeklyStory = useAppDataStore((s) => s.weeklyStory);
   const books = useAppDataStore((s) => s.books);
@@ -22,12 +18,6 @@ export function FeaturedStoryView() {
   const book = story ? books.find((b) => b.id === story.bookId) : undefined;
 
   if (!story) {
-    console.error('[FeaturedStoryView] story not found in store', {
-      storyId,
-      featuredStoriesCount: featuredStories.length,
-      featuredStoryIds: featuredStories.map((s) => s.id),
-      weeklyStoryId: weeklyStory?.id ?? null,
-    });
     return (
       <EmptyState
         icon={AlertCircle}

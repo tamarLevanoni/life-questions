@@ -40,7 +40,7 @@ Only public, session-independent GET data in the table may be cached. Never read
 
 ## Featured and weekly routes
 
-The root bundle contains full `Story[]` examples and `Story | null` weekly content. `/story/featured/[id]` resolves from that bundle, including the weekly story. A missing story renders an empty state. The weekly story link uses that route too. Its shareability is an open product question, not a license to redirect it during cleanup.
+The root bundle contains full `Story[]` examples and `Story | null` weekly content. `/story/featured/[id]` resolves from that bundle, including the weekly story. The page resolves its `params` inside Suspense and passes a fixed story id to the client view; retained Activity trees must not use the destination URL's params for this lookup. A missing story renders an empty state. The weekly story link uses that route too. Its shareability is an open product question, not a license to redirect it during cleanup.
 
 ## Deferred work
 
