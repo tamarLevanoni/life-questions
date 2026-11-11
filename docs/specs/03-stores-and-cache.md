@@ -19,7 +19,7 @@ These are the current store names. Do not rename or split them as incidental mai
 
 `AppDataLoader` fetches the bundle server-side and wraps consumers. `AppDataHydrator` uses lazy `useState` to create a store per provider/SSR tree; it never mutates a shared app-data store during render. The root provider retains that initial bundle through client navigation.
 
-[`StoryHydrator`](../../components/story/story-hydrator.tsx) synchronously primes `useStoriesStore` with a lazy initializer; the server keys the bridge by story id so a new story initializes on mount. Unlike app data, the story/user/contact stores are module-level Zustand stores. The app-data SSR isolation tests do not establish request isolation for those stores. Client story consumers read the store, not an initial-prop fallback.
+[`StoryHydrator`](../../components/story/story-hydrator.tsx) synchronously primes `useStoriesStore` with a lazy initializer; the server keys the bridge by story id and expansion access so the store reflects the current story payload. Unlike app data, the story/user/contact stores are module-level Zustand stores. The app-data SSR isolation tests do not establish request isolation for those stores. Client story consumers read the store, not an initial-prop fallback.
 
 Auth status begins `idle`; session synchronization runs in a client effect. Render loading UI while auth data is pending. These stores use in-memory state without persistence middleware; a full reload creates new browser state.
 
@@ -33,14 +33,16 @@ Auth status begins `idle`; session synchronization runs in a client effect. Rend
 | Featured full stories | GET selection cached for hours | `featured` |
 | Weekly story, nullable | GET cached with `cacheLife('weeks')` | `weekly` |
 | Recommendations | GET cached for hours | `recommendations` |
-| `getStory(id)` | `react.cache`, no persistent story cache | none |
+| `getStory(id, readerId?)` | `react.cache` within the request, Core fetch uses `no-store` | none |
 | Search, user, mutations | no persistent shared cache | none |
 
 Only public, session-independent GET data in the table may be cached. Never read cookies, headers, roles or user state inside a shared cache. Tags exist, but a webhook/invalidation endpoint is not implemented. Do not invent one in an example as if it were deployed.
 
 ## Featured and weekly routes
 
-The root bundle contains full `Story[]` examples and `Story | null` weekly content. `/story/featured/[id]` resolves from that bundle, including the weekly story. The page resolves its `params` inside Suspense and passes a fixed story id to the client view; retained Activity trees must not use the destination URL's params for this lookup. A missing story renders an empty state. The weekly story link uses that route too. Its shareability is an open product question, not a license to redirect it during cleanup.
+The root bundle contains full `Story[]` examples and `Story | null` weekly content for the home page. Example and weekly links open the public `/story/[id]` route, which loads the story by id through `getStory`, independently of the current bundle. A shared link therefore continues to work after the home selection changes, as long as the story remains available from the server. Missing stories render the not-found page.
+
+The story page resolves its `params` inside Suspense and passes a fixed story id to the client view; retained Activity trees must not use the destination URL's params for their story lookup. `/story/featured/[id]` has been removed; old links return 404 without a redirect. The root bundle, existing stores and cache lifetimes are unchanged.
 
 ## Deferred work
 

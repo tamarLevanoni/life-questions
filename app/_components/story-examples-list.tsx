@@ -33,7 +33,7 @@ export function StoryExamplesList() {
             return (
               <MotionFadeIn key={story.id} delay={index * 0.1}>
                 <Link
-                  href={`/story/featured/${story.id}`}
+                  href={`/story/${story.id}`}
                   className="story-card flex items-stretch overflow-hidden hover-lift"
                 >
                   <div className={`w-1 shrink-0 ${color.bg}`} />

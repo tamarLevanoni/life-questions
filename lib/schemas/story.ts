@@ -46,6 +46,7 @@ export const storySchema = z.object({
   legalQuestionSource: z.string(),
   shortAnswer: z.string(),
   expansion: z.string().nullable(),
+  hasExpansion: z.boolean().optional(),
   conceptsAi: z.array(z.string()),
   conceptsFromIndex: z.array(z.string()),
   videoUrl: z.string().nullable(),

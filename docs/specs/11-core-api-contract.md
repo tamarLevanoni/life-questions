@@ -33,7 +33,7 @@ The exact schemas live in [story.ts](../../lib/schemas/story.ts), [reference.ts]
 - [`POST /api/stories/search`](../../app/api/stories/search/route.ts) requires a Google session, then delegates through `runRoute` to the server search function. Invalid JSON is passed as null to input validation and returns 400 for an authenticated caller.
 - `/api/auth/[...nextauth]` is NextAuth's v4 handler.
 - Profile, onboarding and contact use exported Server Actions from `lib/server/actions.ts`; REST `/api/user/*` and `/api/contact` handlers do not exist in this frontend.
-- Reference/featured/story reads are server-side. Featured lookup uses the root bundle and does not add a browser story-fetch endpoint.
+- Reference/featured/weekly/story reads are server-side. The root bundle supplies home selections; every story page fetches by id, including examples and the weekly story. Story metadata uses the public view. The server passes `x-story-reader-id` from a verified registered session for the detailed view. Public responses carry `hasExpansion` with null expansion text.
 
 ## Validation limits
 

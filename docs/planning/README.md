@@ -12,4 +12,4 @@
 
 - [תשתית האיכות ויומן האימות](done/project-quality-foundation.md): המימוש המקומי הושלם; האימותים החיצוניים שנותרו הועברו ל־backlog.
 - [הצעת מסכי החיפוש](done/search-results-screens.md): הוחלפה במימוש החיפוש מ־2026-11-09; ההבדלים מתועדים בראש ההצעה.
-- [ניתוב סיפור השבוע](done/weekly-story-shareable-link.md): המימוש והמפרטים מיושרים; ההחלטה על קישור קבוע נשארה ב־backlog.
+- [ניתוב סיפור השבוע](done/weekly-story-shareable-link.md): רקע היסטורי לנתיב featured שהוסר. כיום סיפורי הדוגמה וסיפור השבוע מקשרים ל־`/story/[id]`, הפתוח לאורחים; הקישורים הישנים מחזירים 404 ללא הפניה. ראה [המימוש הנוכחי](../specs/03-stores-and-cache.md#featured-and-weekly-routes).

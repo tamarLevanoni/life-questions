@@ -19,9 +19,9 @@ The exact fields/nullable values are owned by [`lib/schemas/story.ts`](../../lib
 
 [`lib/schemas/reference.ts`](../../lib/schemas/reference.ts) owns books, topics, masechtot/pages and Shulchan Aruch sections/simanim. Books expose `orderIndex` and nullable `coverUrl`; no static frontend cover map is needed. Topics reference a book. Shas refs identify a page and contain the expanded page/masechet data. Shulchan Aruch refs contain a siman and seif.
 
-[`AppDataBundle`](../../lib/types.ts) combines reference lists, full featured stories and nullable weekly story. The bundle is fetched server-side and passed to the browser, including any expansions in those public stories.
+[`AppDataBundle`](../../lib/types.ts) combines reference lists, full featured stories and nullable weekly story. The bundle is fetched server-side and passed to the browser with expansion availability and null expansion content.
 
-The weekly story from the Core API and `/weekly-question` are separate surfaces. The former opens through the featured route. The latter embeds a Google Form configured in [`weekly-question.ts`](../../lib/config/weekly-question.ts); it has no app-managed answer submission or grading flow.
+The weekly story from the Core API and `/weekly-question` are separate surfaces. The former opens through `/story/[id]`, like home examples and search results. The latter embeds a Google Form configured in [`weekly-question.ts`](../../lib/config/weekly-question.ts); it has no app-managed answer submission or grading flow.
 
 ## Search
 
@@ -33,7 +33,7 @@ The weekly story from the Core API and `/weekly-question` are separate surfaces.
 
 The server uses `registerUserSchema` and `updateUserSchema`, derived from these form constraints. Both require an explicit boolean `marketingConsent: true`; missing, false, null and string values are rejected. Profile updates accept partial changes to other mutable fields. `institutionName: null` clears the stored institution; omitted optional fields are unchanged. Response validation uses the separate `userDataSchema`, which accepts either consent value so existing profiles remain readable. An existing profile without consent must approve it before saving changes; this rule does not independently change sign-in or read access.
 
-A story-question contact requires story context; general contact does not. The contact UI includes an expansion only for a registered user. The normal story view locks expansion display for unregistered users; featured/weekly story views expose their available expansion publicly. Client locks do not remove content already sent to the browser. [Auth](05-auth.md) owns access rules, including server checks.
+A story-question contact requires story context; general contact does not. The contact UI includes an expansion only for a registered user. All story links use the normal story view, which locks expansion display for unregistered users, including home examples and the weekly story. The server sends expansion text only for a registered reader and sends availability for the locked panel. [Auth](05-auth.md) owns access rules, including server checks.
 
 ## Exports and upstream
 

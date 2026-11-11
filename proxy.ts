@@ -25,10 +25,7 @@ export async function proxy(req: NextRequest) {
       }
     }
     const home = new URL('/', req.url);
-    if (req.nextUrl.pathname.startsWith('/story/')) {
-      home.searchParams.set('alert', 'auth-story');
-      return NextResponse.redirect(home);
-    } else if (req.nextUrl.pathname.startsWith('/profile')) {
+    if (req.nextUrl.pathname.startsWith('/profile')) {
       home.searchParams.set('alert', 'auth-profile');
       return NextResponse.redirect(home);
     }
@@ -39,7 +36,6 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     '/profile/:path*',
-    '/story/((?!featured).+)',
     '/contact',
   ],
 };

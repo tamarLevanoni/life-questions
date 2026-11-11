@@ -8,17 +8,16 @@ import { StoryPanels } from '@/components/story/story-panels';
 import { StoryNavigation } from './story-navigation';
 import { useStoryDetail } from './use-story-detail';
 
-export function StoryView() {
+export function StoryView({ storyId }: { storyId: string }) {
   const {
     story,
     book,
-    storyId,
     canViewExpansion,
     prevId,
     nextId,
     storyTitleEncoded,
     requestExpansionAccess,
-  } = useStoryDetail();
+  } = useStoryDetail(storyId);
 
   if (!story) return <SkeletonLines count={5} />;
 

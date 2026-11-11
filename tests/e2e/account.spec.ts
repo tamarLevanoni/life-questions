@@ -1,10 +1,10 @@
 import { test, expect, login, backendRequests } from './fixtures';
 import { apiSecret, backendOrigin } from '../support/environment';
 
-test('guest profile and ordinary stories redirect while examples stay public @smoke', async ({ page }) => {
+test('guest profile redirects while ordinary stories stay public @smoke', async ({ page }) => {
   const profile = await page.goto('/profile'); expect(new URL(profile!.url()).searchParams.get('alert')).toBe('auth-profile');
-  const story = await page.goto('/story/story-1'); expect(new URL(story!.url()).searchParams.get('alert')).toBe('auth-story');
-  await page.goto('/story/featured/story-1');
+  await page.goto('/story/story-1');
+  await expect(page).toHaveURL('/story/story-1');
   await expect(page.getByRole('heading', { name: 'סיפור בדיקה 1' })).toBeVisible();
 });
 

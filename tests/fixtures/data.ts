@@ -13,7 +13,8 @@ export function makeStory(index = 1): StoryWithNeighbors {
     storyOrder: index, title: `סיפור בדיקה ${index}`, storyBody: 'זהו סיפור בדיוני המשמש לבדיקת האתר בלבד.',
     legalQuestion: 'מה עושים במקרה הבדיקה?', legalQuestionSource: 'מקור בדיקה',
     shortAnswer: 'זו תשובה קצרה לבדיקה.', expansion: 'זו הרחבה למשתמשים מחוברים בלבד.',
-    conceptsAi: [], conceptsFromIndex: [], videoUrl: null, imageUrl: null,
+    conceptsAi: [], conceptsFromIndex: [],
+    videoUrl: index === 4 ? 'https://www.youtube.com/watch?v=test-video1' : null, imageUrl: null,
     shasRefs: [], shuRefs: [], centralShuSiman: null, sourceReferencesText: 'מקור בדיקה',
     createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
     neighbors: {
@@ -52,7 +53,7 @@ export function makeBundle(): AppDataBundle {
     ],
     masechtot: [{ id: 'masechet-1', name: 'ברכות', orderIndex: 1, pages: [{ id: 'page-1', daf: 2, amud: 'a' }, { id: 'page-2', daf: 3, amud: 'a' }] }],
     shuSections: [{ id: 'section-1', name: 'אורח חיים', simanim: [{ id: 'siman-1', siman: 1, title: 'סימן בדיקה' }] }],
-    featuredStories: [makeStory(1), makeStory(2), makeStory(3)], weeklyStory: null,
+    featuredStories: [makeStory(1), makeStory(2), makeStory(3)], weeklyStory: makeStory(4),
   };
 }
 

@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageShell } from '@/components/common/page-shell';
-import { getStory } from '@/lib/server/stories';
+import { getStory, getStoryForViewer } from '@/lib/server/stories';
 import { BackendError } from '@/lib/server/errors';
 import { SkeletonLines } from '@/components/common/loading-skeleton';
 import { StoryHydrator } from '@/components/story/story-hydrator';
@@ -43,7 +43,7 @@ async function StoryContent({ params }: StoryPageProps) {
 
   let story;
   try {
-    story = await getStory(id);
+    story = await getStoryForViewer(id);
   } catch (err) {
     if (err instanceof BackendError && err.status === 404) notFound();
     throw err;
@@ -63,8 +63,8 @@ async function StoryContent({ params }: StoryPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <StoryHydrator key={story.id} story={story} />
-      <StoryView />
+      <StoryHydrator key={`${story.id}:${story.expansion !== null}`} story={story} />
+      <StoryView storyId={id} />
     </>
   );
 }

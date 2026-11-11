@@ -9,9 +9,9 @@ test('home shows the public example stories @smoke', async ({ page }) => {
 test('a home example opens the matching full story @smoke', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: /סיפור בדיקה 1/ }).click();
-  await expect(page).toHaveURL(/\/story\/featured\/story-1$/);
+  await expect(page).toHaveURL(/\/story\/story-1$/);
   await expect(page.getByRole('heading', { name: 'סיפור בדיקה 1' })).toBeVisible();
-  await expect(page.getByText('זהו סיפור בדיוני המשמש לבדיקת האתר בלבד.')).toBeVisible();
+  await expect(page.getByRole('article').getByText('זהו סיפור בדיוני המשמש לבדיקת האתר בלבד.')).toBeVisible();
 });
 
 test('invalid contact submission explains required fields @smoke', async ({ page }) => {

@@ -30,7 +30,7 @@ const server = Bun.serve({
     const references: Record<string, unknown> = {
       '/api/reference/masechtot': bundle.masechtot, '/api/reference/shu-sections': bundle.shuSections,
       '/api/reference/topics': bundle.topics, '/api/reference/books': bundle.books,
-      '/api/stories/featured': bundle.featuredStories, '/api/stories/weekly': null, '/api/recommendations': [],
+      '/api/stories/featured': bundle.featuredStories, '/api/stories/weekly': bundle.weeklyStory, '/api/recommendations': [],
     };
     if (path in references) return ok(references[path]);
     if (path === '/api/stories/search' && request.method === 'POST') {

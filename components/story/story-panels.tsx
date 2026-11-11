@@ -148,11 +148,11 @@ export function StoryPanels({
         />
       </MotionFadeIn>
 
-      {story.expansion !== null && (
+      {(story.hasExpansion ?? story.expansion !== null) && (
         <MotionFadeIn trigger="mount" delay={0.2} className="mb-8">
           <ExpandableAnswerPanel
             title="הרחבה"
-            content={story.expansion}
+            content={story.expansion ?? ''}
             variant="expansion"
             isLocked={expansionLocked}
             defaultExpanded={false}

@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import type { UserData } from '@/lib/schemas';
 
 export function SessionUserSync() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const { closeLoginModal } = useAuth();
 
   const u = session?.user;
@@ -55,15 +55,20 @@ export function SessionUserSync() {
   }, [status, userData, image, isRegistrationComplete]);
 
   useEffect(() => {
-    const handleMessage = async (event: MessageEvent) => {
+    const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (event.data?.type !== 'auth-callback') return;
-      await update();
+      // Installed NextAuth v4 skips update() for guests. Notify its provider
+      // directly: a popup's storage broadcast can be lost within the same second.
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'nextauth.message',
+        newValue: JSON.stringify({ event: 'session', data: { trigger: 'auth-callback' } }),
+      }));
       closeLoginModal();
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [update, closeLoginModal]);
+  }, [closeLoginModal]);
 
   return null;
 }

@@ -28,9 +28,9 @@ Keep page files, route-local components and hooks at most 200 lines; split respo
 
 `BackendError`, `SchemaError` and `runRoute` live in `lib/server/errors.ts`. Search route errors use the standard response envelope. Server Actions propagate failures to callers, which show form/toast feedback. `app/error.tsx` and `app/not-found.tsx` provide recovery UI. Never silently discard unexpected failures or expose secrets in errors/logs.
 
-Pages define route-specific metadata where implemented; the featured-story shell inherits the layout metadata. [Story metadata and content](../../app/story/[id]/page.tsx) share `getStory` with request-level deduplication. The [layout](../../app/layout.tsx) defines icons, fonts and site metadata. Dynamic Open Graph image generation, a logger service and an invalidation endpoint are not implemented.
+Pages define route-specific metadata where implemented. All story links, including home examples and the weekly story, use `/story/[id]`. [Story metadata and content](../../app/story/[id]/page.tsx) share `getStory` with request-level deduplication. The [layout](../../app/layout.tsx) defines icons, fonts and site metadata. Dynamic Open Graph image generation, a logger service and an invalidation endpoint are not implemented.
 
-[robots.ts](../../app/robots.ts) excludes API, profile and auth paths from crawling. [sitemap.ts](../../app/sitemap.ts) combines four static URLs with paginated story search, using the Core API maximum of 50 per page. It deduplicates story URLs and stops at the reported total, a short page or an empty page. If search fails, it returns only the static URLs. It lists ordinary story URLs even though the proxy redirects guests; resolving that SEO/access mismatch remains a [product decision](../planning/backlog.md).
+[robots.ts](../../app/robots.ts) excludes API, profile and auth paths from crawling. [sitemap.ts](../../app/sitemap.ts) combines four static URLs with paginated story search, using the Core API maximum of 50 per page. It deduplicates story URLs and stops at the reported total, a short page or an empty page. If search fails, it returns only the static URLs. Story pages are public; further SEO/indexing policy remains a separate [product decision](../planning/backlog.md).
 
 ## Related contracts
 

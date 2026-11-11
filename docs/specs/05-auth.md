@@ -12,6 +12,8 @@ NextAuth **v4** with Google OAuth and HttpOnly JWT session cookies. Do not mix A
 
 The callback owns one explicit `getSession()` request and waits for it to finish before notifying the opener and closing. It reuses that request across development effect reconnections. On this route, `SessionProvider` starts with `session={null}` so it does not start a competing initial request that closing would abort. Other routes retain normal session loading. The notification only requests a session refresh; it does not authenticate the opener. Opening the callback without an opener reloads home so its provider initializes normally.
 
+In the opener, `SessionUserSync` translates the same-origin callback notification into a local `nextauth.message` storage event for the installed v4 `SessionProvider`, then closes the login modal. The provider fetches the signed session itself. This compatibility path is needed because v4 `update()` skips guest sessions, and popup storage broadcasts with identical second-resolution timestamps can be dropped. No identity is accepted from either event. [Story login tests](../../tests/e2e/story.spec.ts) also run with native cross-window storage events suppressed.
+
 User-store auth states are `idle`, `unauthenticated`, `registration-required`, `authenticated`; these differ from NextAuth's session status. A Google session can exist before app registration is complete. New Google users complete the onboarding form through a Server Action. Profile edits also use a Server Action. Both flows call `useSession().update()` to refresh profile data from the backend.
 
 ## Route policy
@@ -20,13 +22,16 @@ User-store auth states are `idle`, `unauthenticated`, `registration-required`, `
 |---|---|
 | Home, about, weekly question, search screen | public |
 | Search execution | UI requests login; BFF calls `requireGoogleSession()` and returns 401 without a Google session |
-| `/story/[id]` | proxy redirects to home with auth-story alert |
-| `/story/featured/[id]` | public example/weekly lookup, including the available expansion |
+| `/story/[id]` | public story/question/short answer; the server requests expansion text only for a registered reader |
+| Story previous/next controls | open login for guests; disabled while auth is pending; existing onboarding for incomplete registration; links for registered users |
+| `/story/featured/[id]` | removed; 404 without redirect |
 | `/profile` | proxy redirects to home with auth-profile alert |
 | General contact | public |
 | Contact with category=story_question | proxy redirects guest to general contact with auth-contact alert |
 
 Content pages do not implement auth redirects. [`proxy.ts`](../../proxy.ts) checks the signed token's identity version for matched pages; it does not require completed registration. It does not match the search API, whose handler authenticates separately.
+
+Home examples and the weekly story use the ordinary story page and its expansion display rules. Previous/next controls and locked expansions open the existing login modal without navigating; incomplete registration uses existing onboarding. Expansion access waits for resolved auth status. After login/onboarding, a second click follows a neighbor link or opens the expansion. This UI rule does not restrict direct story URLs. Expansion locking remains a client display rule; story payloads and the public root bundle still include expansion data. Server-side content protection and SEO policy are separate work, tracked in the [backlog](../planning/backlog.md).
 
 [`session.ts`](../../lib/server/session.ts) defines the server checks. Search BFF, registration and story-question contact require a Google session. Profile updates additionally require an app user id and completed registration. General contact stays public. The onboarding modal handles `registration-required` users; it does not replace these server checks.
 

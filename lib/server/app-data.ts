@@ -52,12 +52,21 @@ export async function getBooks(): Promise<Book[]> {
   return fetchList('/api/reference/books', z.array(bookSchema));
 }
 
+function storyPreview(story: Story): Story {
+  return {
+    ...story,
+    hasExpansion: story.hasExpansion ?? Boolean(story.expansion?.trim()),
+    expansion: null,
+  };
+}
+
 export async function getFeaturedStories(): Promise<Story[]> {
   'use cache';
   cacheLife('hours');
   cacheTag('featured');
 
-  return fetchList('/api/stories/featured', z.array(storySchema));
+  const stories = await fetchList('/api/stories/featured', z.array(storySchema));
+  return stories.map(storyPreview);
 }
 
 export async function getWeeklyStory(): Promise<Story | null> {
@@ -68,7 +77,7 @@ export async function getWeeklyStory(): Promise<Story | null> {
   const data = await serverClient.get('/api/stories/weekly');
   const parsed = storySchema.nullable().safeParse(data);
   if (!parsed.success) throw new SchemaError();
-  return parsed.data;
+  return parsed.data && storyPreview(parsed.data);
 }
 
 export async function getAppData(): Promise<AppDataBundle> {
