@@ -27,7 +27,7 @@ Next.js App Router / Cache Components, React, TypeScript, Tailwind, Zustand, Nex
 - [Specs and reading map](docs/specs/README.md): maintained architecture/product contracts.
 - [Testing guide](docs/testing.md): checks, browser reports, Husky and CI.
 - [Planning index](docs/planning/README.md): active work, proposals and history.
-- [Quality foundation progress](docs/planning/project-quality-foundation.md): test/tooling rollout and evidence.
+- [Backlog](docs/planning/backlog.md): open decisions and remaining verification.
 - [Agent entrypoint](AGENTS.md): short operational instructions.
 
 ## Daily checks

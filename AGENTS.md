@@ -32,4 +32,4 @@ Use **Bun only**, never npm/yarn. The scripts in package.json are authoritative.
 - Update the owning spec when a decision changes. Proposals/backlog/history are not binding implementation instructions.
 - Keep user changes, worktrees, local settings and secrets intact. No automatic deployment or commit. If committing is requested, write a detailed Hebrew message explaining what and why.
 
-[Active quality work](docs/planning/project-quality-foundation.md) records task status, verification and remaining limitations.
+[Planning](docs/planning/README.md) indexes open work and historical plans. [Backlog](docs/planning/backlog.md) tracks remaining decisions and verification; completed work and past test evidence live in `docs/planning/done/`.

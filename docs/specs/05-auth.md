@@ -36,7 +36,7 @@ Identity originates in the verified Google provider account. Browser input to `u
 
 Registration input and its returned user must match the session's Google id and email. Profile mutations target the session's app user id; their schema omits id, Google id and email from mutable fields. Their returned user must match all three identity fields before it is passed to client state.
 
-The [callbacks](../../app/api/auth/[...nextauth]/auth-options.ts) and proxy enforce [`AUTH_IDENTITY_VERSION`](../../lib/auth-identity.ts), currently 1. Older cookies require a fresh sign-in. Internal search remains available to sitemap without a browser session. [Session tests](../../tests/unit/auth-session.test.ts) and [boundary tests](../../tests/unit/auth-boundaries.test.ts) cover these trust rules; the [quality foundation record](../planning/project-quality-foundation.md) records execution evidence.
+The [callbacks](../../app/api/auth/[...nextauth]/auth-options.ts) and proxy enforce [`AUTH_IDENTITY_VERSION`](../../lib/auth-identity.ts), currently 1. Older cookies require a fresh sign-in. Internal search remains available to sitemap without a browser session. [Session tests](../../tests/unit/auth-session.test.ts) and [boundary tests](../../tests/unit/auth-boundaries.test.ts) cover these trust rules; the [quality foundation record](../planning/done/project-quality-foundation.md) records execution evidence.
 
 ## Failure behavior
 

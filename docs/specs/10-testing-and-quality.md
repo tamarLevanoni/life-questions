@@ -6,7 +6,7 @@ Verify behavior with fast feedback and explain failures clearly to a first-time 
 
 ## Commands and evidence
 
-[`bun run check`](../../package.json) runs lint, TypeScript, active-document local links and Bun tests. `test:unit`, `test:ui`, `test:e2e`, `test:report` and `test:release` are implemented. Read the [Hebrew testing guide](../testing.md) for setup, investigation and CI. The [quality foundation record](../planning/project-quality-foundation.md) distinguishes local evidence from pending external checks.
+[`bun run check`](../../package.json) runs lint, TypeScript, active-document local links and Bun tests. `test:unit`, `test:ui`, `test:e2e`, `test:report` and `test:release` are implemented. Read the [Hebrew testing guide](../testing.md) for setup, investigation and CI. The [archived quality foundation record](../planning/done/project-quality-foundation.md) preserves past test evidence; the [backlog](../planning/backlog.md) tracks remaining external verification.
 
 [`check:docs`](../../scripts/check-docs.ts) checks local Markdown target paths in active documentation; it excludes historical plans. It does not check heading anchors, external URLs or whether prose matches code. Review those separately when changing a spec.
 

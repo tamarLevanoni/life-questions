@@ -22,7 +22,7 @@ Use existing Radix dialog primitives for focus trapping, Escape handling and foc
 
 [`useToast().showToast(message, typeOrOptions)`](../../lib/toast-context.tsx) supports success/error/info, persistence and top/bottom positioning. Errors default to the top; other types default to the bottom. Toasts announce through `role="status"` with polite live updates. Use form validation inline for field errors and a toast/dialog for submission feedback. Preserve form content on failure. Do not replace recoverable UI with `window.alert` or silently swallow failures.
 
-The toast provider is a custom implementation; no external toast library or global logger service is installed. [Accessibility tests](../../tests/e2e/accessibility.spec.ts) exercise form error descriptions/focus, login focus handling and onboarding leave confirmation. They do not establish screen-reader announcement behavior; that requires a manual check. The [quality foundation record](../planning/project-quality-foundation.md) tracks completed runs and remaining limitations.
+The toast provider is a custom implementation; no external toast library or global logger service is installed. [Accessibility tests](../../tests/e2e/accessibility.spec.ts) exercise form error descriptions/focus, login focus handling and onboarding leave confirmation. They do not establish screen-reader announcement behavior; that requires a manual check. The [archived quality foundation record](../planning/done/project-quality-foundation.md) preserves completed runs; remaining verification is tracked in the [backlog](../planning/backlog.md).
 
 ## Design changes
 

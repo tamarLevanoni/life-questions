@@ -107,4 +107,4 @@ bun run test:release --project=chromium --project=mobile-chromium --project=fire
 
 ב־GitHub פתחי Actions → Quality ובחרי הרצה כדי לראות איזה שלב נכשל. דוח הדפדפן והצילומים נשמרים ב־Artifacts לשבעה ימים, כולל trace בעת כישלון. ניסיון חוזר אינו מסתיר בדיקה לא יציבה: גם מעבר רק בניסיון חוזר מכשיל את ההרצה.
 
-לבדיקת שחרור מלאה בחרי Run workflow וסמני `release` להוספת Firefox ו־WebKit בלינוקס. לאחר העלאת תצורת CI חדשה יש לוודא שההרצה עובדת בפועל; [סטטוס האימות](planning/project-quality-foundation.md) מתעד מה כבר נבדק. הגנת ענף היא אפשרות נפרדת בהגדרות GitHub.
+לבדיקת שחרור מלאה בחרי Run workflow וסמני `release` להוספת Firefox ו־WebKit בלינוקס. לאחר העלאת תצורת CI חדשה יש לוודא שההרצה עובדת בפועל; [ה־backlog](planning/backlog.md) מרכז את האימותים שנותרו, ו־[יומן האיכות שבארכיון](planning/done/project-quality-foundation.md) שומר ראיות מהרצות קודמות. הגנת ענף היא אפשרות נפרדת בהגדרות GitHub.
