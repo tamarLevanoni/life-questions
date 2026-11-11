@@ -13,7 +13,7 @@ Describe the implemented ownership of state and caching without adding parallel 
 | `useUserStore` | profile, authStatus and image | `SessionUserSync`; profile/onboarding actions |
 | `useContactStore` | submission progress and success | contact form actions |
 
-These are the current store names. Do not rename or split them as incidental maintenance. Full stories and partial search cards are different shapes. Do not put featured stories into search results. Search ordering/ranking is owned by the Core API, not browser code.
+These are the current store names. Do not rename or split them as incidental maintenance. Full stories and partial search cards are different shapes. Do not put featured stories into search results. Search ordering/ranking is owned by the Core API, not browser code. The search route owns its draft/submitted filters, active tab and setup/results view locally; switching tabs or returning to the draft does not reset selections or submit a request. Pagination reads the submitted snapshot, including while the desktop results query is being edited. Clear all resets local search state and returns to setup without issuing a request.
 
 ## Hydration
 

@@ -53,14 +53,14 @@ export function ShasSubFilters({ masechtot, sourceRef, onRefChange, usedDafs = [
         fieldLabel="מסכת" label={activeMasechetLabel ?? 'בחרו מסכת...'} activeValue={activeMasechet}
         onClear={() => handleMasechetSelect(activeMasechet!)}
         options={masechetOptions} onSelect={handleMasechetSelect}
-        placeholder="חיפוש מסכת..." popoverWidth="w-[250px]" fullWidth
+        placeholder="חיפוש מסכת..." popoverWidth="w-[250px]"
       />
       <SearchCombobox
         open={dafOpen} onOpenChange={setDafOpen}
         fieldLabel="דף" label={activeDafLabel ?? 'בחרו דף...'} activeValue={activeDaf}
         onClear={() => handleDafSelect(activeDaf!)}
         options={activeMasechet ? dafOptions : []} onSelect={handleDafSelect}
-        placeholder="חיפוש דף..." popoverWidth="w-[200px]" fullWidth
+        disabled={!activeMasechet} placeholder="חיפוש דף..." popoverWidth="w-[200px]"
       />
     </div>
   );

@@ -1,12 +1,21 @@
 'use client';
 
+import { Noto_Serif_Hebrew } from 'next/font/google';
+
+const headingFont = Noto_Serif_Hebrew({
+  subsets: ['hebrew'],
+  weight: '700',
+  display: 'swap',
+});
+
 export function SearchHeader() {
   return (
-    <div className="mb-6">
-      <h1 className="text-2xl md:text-3xl font-bold font-hebrew mb-1">חיפוש סיפורים</h1>
-      <p className="text-muted-foreground font-hebrew text-sm">
-        סננו לפי מסכת ודף, שולחן ערוך וסימן, ספר או נושא — כך מוצאים הכי מהר את הסיפור המדויק
-      </p>
+    <div className="py-3 text-center md:py-4" dir="rtl">
+      <h1
+        className={`${headingFont.className} text-[1.75rem] leading-[1.3] font-bold tracking-normal text-[#005C53] md:text-[2rem] dark:text-[#8FC9C0]`}
+      >
+        לכל שאלה יש סיפור.
+      </h1>
     </div>
   );
 }

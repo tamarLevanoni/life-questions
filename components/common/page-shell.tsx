@@ -30,7 +30,7 @@ export function PageShell({ children, maxWidth = '4xl', fullWidth = false, class
       <Suspense fallback={<AppHeaderSkeleton />}>
         <AppHeader />
       </Suspense>
-      <main className="min-h-screen bg-background" dir="rtl">
+      <main className={cn('min-h-screen bg-background', fullWidth && className)} dir="rtl">
         {fullWidth ? children : (
           <div className="pt-24 pb-12 px-4">
             <div className={cn(maxWidthClasses[maxWidth], 'mx-auto', className)}>

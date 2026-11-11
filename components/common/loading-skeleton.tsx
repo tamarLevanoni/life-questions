@@ -18,10 +18,34 @@ export function SkeletonLines({ count = 4 }: SkeletonLinesProps) {
 
 interface SkeletonCardListProps {
   count?: number;
+  variant?: 'profile' | 'search';
 }
 
 /** GlassCard shimmer list – for profile loading state */
-export function SkeletonCardList({ count = 3 }: SkeletonCardListProps) {
+export function SkeletonCardList({ count = 3, variant = 'profile' }: SkeletonCardListProps) {
+  if (variant === 'search') {
+    return (
+      <div data-search-skeleton aria-hidden="true" className="grid gap-1.5 md:gap-3" dir="rtl">
+        {Array.from({ length: count }, (_, index) => (
+          <div key={index} className="rounded-[0.625rem] border border-border bg-card p-2 shadow-sm md:rounded-2xl md:px-4 md:py-3 motion-safe:animate-pulse">
+            <div className="mb-2 flex items-center justify-between border-b border-border/60 pb-2">
+              <div className="h-3 w-40 max-w-2/3 rounded bg-muted" />
+              <div className="h-3 w-10 rounded-full bg-muted" />
+            </div>
+            <div className="mb-2 h-4 w-2/3 rounded bg-muted" />
+            <div className="space-y-1.5">
+              <div className="h-3 w-full rounded bg-muted" />
+              <div className="h-3 w-4/5 rounded bg-muted" />
+            </div>
+            <div className="mt-2 flex gap-2">
+              <div className="h-4 w-16 rounded bg-muted" />
+              <div className="h-4 w-24 rounded bg-muted" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="space-y-5">
       <GlassCard variant="light" className="p-8 animate-pulse">

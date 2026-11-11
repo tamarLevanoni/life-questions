@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function SearchPage() {
   return (
-    <PageShell fullWidth>
+    <PageShell fullWidth className="min-h-0">
       <Suspense>
         <SearchView />
       </Suspense>

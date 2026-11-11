@@ -1,130 +1,81 @@
 'use client';
 
-import { useState } from 'react';
+import { Tabs } from 'radix-ui';
 import { cn } from '@/lib/utils';
-import type { CategoryFilterBarProps, UiShasRef, UiShuRef } from '@/lib/types';
-import { X, Plus, Trash2 } from 'lucide-react';
-import { ShasSubFilters } from './shas-sub-filters';
-import { ShulchanAruchSubFilters } from './shulchan-aruch-sub-filters';
-import { FilterSectionHeader } from './filter-section-header';
+import type { CategoryFilterBarProps } from '@/lib/types';
+import { selectBooks, type SearchTab } from './search-filter-utils';
+import { ShasSourceFilters } from './shas-source-filters';
+import { ShuSourceFilters } from './shu-source-filters';
 import { FilterCheckList } from './filter-check-list';
+import styles from './search-layout.module.css';
 
-export function CategoryFilterBar({
-  masechtot, shuSections, topics, books,
-  activeFilters, onFiltersChange, className,
-}: CategoryFilterBarProps) {
-  const [openSections, setOpenSections] = useState(new Set(['book', 'topic']));
+interface Props extends CategoryFilterBarProps {
+  activeTab: SearchTab;
+  onTabChange: (value: SearchTab) => void;
+}
 
+const tabClass = 'flex min-h-7 min-w-0 flex-1 items-center justify-center gap-2 rounded-[0.375rem] px-2 py-0.5 text-[0.6875rem] font-semibold leading-4 text-muted-foreground transition-colors data-[state=active]:bg-primary/8 data-[state=active]:text-primary md:min-h-9 md:rounded-xl md:py-1.5 md:text-xs md:leading-6';
+const headingClass = 'flex min-h-6 shrink-0 flex-wrap items-center justify-between gap-1 border-b border-border px-1.5 py-0.5 md:min-h-9 md:px-2 md:py-1.5';
+
+export function CategoryFilterBar({ masechtot, shuSections, topics, books, activeFilters, onFiltersChange, activeTab, onTabChange, className }: Props) {
   const { bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = activeFilters;
-
-  const toggle = (key: string) => setOpenSections((prev) => {
-    const next = new Set(prev);
-    if (next.has(key)) next.delete(key); else next.add(key);
-    return next;
-  });
-
-  const handleBookToggle = (id: string) => {
-    const next = bookIds.includes(id) ? bookIds.filter((x) => x !== id) : [...bookIds, id];
-    const validTopics = topicIds.filter(
-      (tid) => topics.find((t) => t.id === tid && next.includes(t.bookId))
-    );
-    onFiltersChange({ ...activeFilters, bookIds: next.length ? next : undefined, topicIds: validTopics.length ? validTopics : undefined });
+  const bookOptions = books.map((book) => ({ value: book.id, label: book.name }));
+  const availableTopics = bookIds.length ? topics.filter((topic) => bookIds.includes(topic.bookId)) : topics;
+  const topicOptions = availableTopics.map((topic) => ({ value: topic.id, label: topic.name }));
+  const changeTab = (value: string) => {
+    if (value === 'book-topic' || value === 'sources') onTabChange(value);
   };
-
-  const handleTopicToggle = (id: string) => {
-    const next = topicIds.includes(id) ? topicIds.filter((x) => x !== id) : [...topicIds, id];
-    onFiltersChange({ ...activeFilters, topicIds: next.length ? next : undefined });
+  const toggleBook = (id: string) => {
+    const selected = bookIds.includes(id) ? bookIds.filter((bookId) => bookId !== id) : [...bookIds, id];
+    onFiltersChange(selectBooks(activeFilters, selected, topics));
   };
-
-  const handleAddShas = () => {
-    const newRef: UiShasRef = { id: crypto.randomUUID() };
-    onFiltersChange({ ...activeFilters, shasRefs: [...shasRefs, newRef] });
+  const toggleTopic = (id: string) => {
+    const selected = topicIds.includes(id) ? topicIds.filter((topicId) => topicId !== id) : [...topicIds, id];
+    onFiltersChange({ ...activeFilters, topicIds: selected.length ? selected : undefined });
   };
-
-  const handleAddShu = () => {
-    const newRef: UiShuRef = { id: crypto.randomUUID() };
-    onFiltersChange({ ...activeFilters, shuRefs: [...shuRefs, newRef] });
-  };
-
-  const handleRemoveShas = (idx: number) => {
-    const next = shasRefs.filter((_, i) => i !== idx);
-    onFiltersChange({ ...activeFilters, shasRefs: next.length ? next : undefined });
-  };
-
-  const handleRemoveShu = (idx: number) => {
-    const next = shuRefs.filter((_, i) => i !== idx);
-    onFiltersChange({ ...activeFilters, shuRefs: next.length ? next : undefined });
-  };
-
-  const handleShasRefChange = (idx: number, updated: UiShasRef) =>
-    onFiltersChange({ ...activeFilters, shasRefs: shasRefs.map((ref, i) => (i === idx ? updated : ref)) });
-
-  const handleShuRefChange = (idx: number, updated: UiShuRef) =>
-    onFiltersChange({ ...activeFilters, shuRefs: shuRefs.map((ref, i) => (i === idx ? updated : ref)) });
-
-  const bookOptions = books.map((b) => ({ value: b.id, label: b.name }));
-  const topicOptions = (bookIds.length ? topics.filter((t) => bookIds.includes(t.bookId)) : topics)
-    .map((t) => ({ value: t.id, label: t.name }));
-  const hasActiveFilters = bookIds.length > 0 || topicIds.length > 0 || shasRefs.length > 0 || shuRefs.length > 0;
 
   return (
-    <div className={cn('flex flex-col', className)} dir="rtl">
-      {hasActiveFilters && (
-        <div className="flex items-center justify-end pb-3">
-          <button onClick={() => onFiltersChange({ q: activeFilters.q })} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew">
-            <X className="w-3 h-3" />נקה קטגוריות
-          </button>
+    <Tabs.Root data-category-tabs dir="rtl" value={activeTab} onValueChange={changeTab} className={cn(styles.categoryTabs, className)}>
+      <Tabs.List aria-label="מסלול סינון" className="flex gap-1 rounded-[0.5rem] border border-border bg-muted/40 p-0.5 md:gap-2 md:rounded-2xl md:bg-card">
+        <Tabs.Trigger value="book-topic" className={tabClass}>ספר ונושא</Tabs.Trigger>
+        <Tabs.Trigger value="sources" className={tabClass}>מקורות (שו״ע וש״ס)</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="book-topic" className="rounded-2xl focus-visible:outline-offset-4">
+        <div data-book-topic className={cn(styles.bookTopic, 'grid grid-cols-2 overflow-hidden rounded-[0.5rem] border border-border bg-card md:rounded-2xl')}>
+          <section aria-labelledby="book-filter-heading" className="flex min-h-0 min-w-0 flex-col border-b border-border md:border-e md:border-b-0">
+            <div className={headingClass}>
+              <h2 id="book-filter-heading" className="flex items-center gap-1.5 text-[0.6875rem] font-medium leading-(--text-xs--line-height) md:text-xs md:font-semibold md:leading-normal">בחירת ספר</h2>
+              <span className="text-[11px] text-muted-foreground md:text-xs">{bookIds.length} נבחרו</span>
+            </div>
+            <FilterCheckList
+              options={bookOptions} selected={bookIds} onToggle={toggleBook}
+              listClassName={cn(styles.bookList, 'min-h-0 flex-1')} label="ספרים"
+            />
+          </section>
+          <section aria-labelledby="topic-filter-heading" className="flex min-h-0 min-w-0 flex-col">
+            <div className={headingClass}>
+              <h2 id="topic-filter-heading" className="flex items-center gap-1.5 text-[0.6875rem] font-medium leading-(--text-xs--line-height) md:text-xs md:font-semibold md:leading-normal">בחירת נושא</h2>
+              <span className="text-[11px] text-muted-foreground md:text-xs">{topicIds.length} נבחרו</span>
+            </div>
+            <FilterCheckList
+              options={topicOptions} selected={topicIds} onToggle={toggleTopic}
+              listClassName="min-h-0 flex-1" searchable label="נושאים"
+            />
+          </section>
         </div>
-      )}
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* לפי ספר/נושא */}
-        <section className="min-w-0 col-span-2">
-          <h3 className="text-sm font-semibold font-hebrew pb-2">לפי ספר/נושא</h3>
-          <div className="h-px bg-border mb-1" />
-          <div className="grid grid-cols-2 gap-4">
-            <div className="min-w-0">
-              <FilterSectionHeader label="ספר" count={bookIds.length} isOpen={openSections.has('book')} onToggle={() => toggle('book')} />
-              {openSections.has('book') && <FilterCheckList options={bookOptions} selected={bookIds} onToggle={handleBookToggle} maxHeight="h-36" />}
-            </div>
-            <div className="min-w-0">
-              <FilterSectionHeader label="נושא" count={topicIds.length} isOpen={openSections.has('topic')} onToggle={() => toggle('topic')} />
-              {openSections.has('topic') && <FilterCheckList options={topicOptions} selected={topicIds} onToggle={handleTopicToggle} maxHeight="h-28" searchable />}
-            </div>
-          </div>
-        </section>
-
-        {/* לפי שולחן ערוך */}
-        <section className="min-w-0">
-          <h3 className="text-sm font-semibold font-hebrew pb-2">לפי שולחן ערוך</h3>
-          <div className="h-px bg-border mb-3" />
-          <div className="space-y-2">
-            {shuRefs.map((ref, idx) => (
-              <div key={ref.id} className="flex items-start gap-1">
-                <ShulchanAruchSubFilters shuSections={shuSections} sourceRef={ref} onRefChange={(u) => handleShuRefChange(idx, u)} usedSimanim={shuRefs.filter((_, i) => i !== idx && _.shuSectionId && _.simanId).map((_) => ({ shuSectionId: _.shuSectionId!, simanId: _.simanId! }))} className="grid grid-cols-2 gap-1 flex-1" />
-                <button aria-label={`הסרת חלק ${idx + 1}`} onClick={() => handleRemoveShu(idx)} className="p-1.5 mt-0.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
-              </div>
-            ))}
-            <button onClick={handleAddShu} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew"><Plus className="w-3.5 h-3.5" />הוספת חלק</button>
-          </div>
-        </section>
-
-        {/* לפי ש״ס */}
-        <section className="min-w-0">
-          <h3 className="text-sm font-semibold font-hebrew pb-2">לפי ש״ס</h3>
-          <div className="h-px bg-border mb-3" />
-          <div className="space-y-2">
-            {shasRefs.map((ref, idx) => (
-              <div key={ref.id} className="flex items-start gap-1">
-                <ShasSubFilters masechtot={masechtot} sourceRef={ref} onRefChange={(u) => handleShasRefChange(idx, u)} usedDafs={shasRefs.filter((_, i) => i !== idx && _.masechetId && _.daf !== undefined).map((_) => ({ masechetId: _.masechetId!, daf: _.daf! }))} className="grid grid-cols-2 gap-1 flex-1" />
-                <button aria-label={`הסרת מסכת ${idx + 1}`} onClick={() => handleRemoveShas(idx)} className="p-1.5 mt-0.5 text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-accent shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
-              </div>
-            ))}
-            <button onClick={handleAddShas} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-hebrew"><Plus className="w-3.5 h-3.5" />הוספת מסכת</button>
-          </div>
-        </section>
-      </div>
-
-    </div>
+      </Tabs.Content>
+      <Tabs.Content value="sources" className="rounded-2xl focus-visible:outline-offset-4">
+        <div className="grid gap-2 md:grid-cols-2">
+          <ShuSourceFilters
+            shuSections={shuSections} sources={shuRefs}
+            onChange={(sources) => onFiltersChange({ ...activeFilters, shuRefs: sources })}
+          />
+          <ShasSourceFilters
+            masechtot={masechtot} sources={shasRefs}
+            onChange={(sources) => onFiltersChange({ ...activeFilters, shasRefs: sources })}
+          />
+        </div>
+      </Tabs.Content>
+    </Tabs.Root>
   );
 }

@@ -34,9 +34,23 @@ export function makeCard(index = 1): StoryCard {
 
 export function makeBundle(): AppDataBundle {
   return {
-    books: [{ id: 'book-1', name: 'ספר בדיקה', orderIndex: 1, coverUrl: null }],
-    topics: [{ id: 'topic-1', bookId: 'book-1', name: 'נושא בדיקה', orderIndex: 1 }],
-    masechtot: [{ id: 'masechet-1', name: 'ברכות', orderIndex: 1, pages: [{ id: 'page-1', daf: 2, amud: 'a' }] }],
+    books: [
+      { id: 'book-1', name: 'ספר בדיקה', orderIndex: 1, coverUrl: null },
+      { id: 'book-2', name: 'שאלות מהחיים 1 - הלכות אבידה ומציאה, פקדון ושכירות', orderIndex: 2, coverUrl: null },
+      { id: 'book-3', name: 'שאלות מהחיים 2 - דיני שאלה ודיני שכירות פועלים', orderIndex: 3, coverUrl: null },
+      { id: 'book-4', name: 'שאלות מהחיים 3 - דיני מום במקח, גזילה וגניבה', orderIndex: 4, coverUrl: null },
+      { id: 'book-5', name: 'ספר בדיקה נוסף 5', orderIndex: 5, coverUrl: null },
+      { id: 'book-6', name: 'ספר בדיקה נוסף 6', orderIndex: 6, coverUrl: null },
+    ],
+    topics: [
+      { id: 'topic-1', bookId: 'book-1', name: 'נושא בדיקה', orderIndex: 1 },
+      { id: 'topic-2', bookId: 'book-2', name: 'נושא מספר אחר', orderIndex: 1 },
+      { id: 'topic-3', bookId: 'book-1', name: 'נושא ארוך במיוחד לבדיקת תצוגת מסננים במכשיר צר', orderIndex: 2 },
+      ...Array.from({ length: 60 }, (_, index) => ({
+        id: `long-topic-${index + 1}`, bookId: 'book-1', name: `נושא נוסף לבדיקת רשימה ארוכה ${index + 1}`, orderIndex: index + 3,
+      })),
+    ],
+    masechtot: [{ id: 'masechet-1', name: 'ברכות', orderIndex: 1, pages: [{ id: 'page-1', daf: 2, amud: 'a' }, { id: 'page-2', daf: 3, amud: 'a' }] }],
     shuSections: [{ id: 'section-1', name: 'אורח חיים', simanim: [{ id: 'siman-1', siman: 1, title: 'סימן בדיקה' }] }],
     featuredStories: [makeStory(1), makeStory(2), makeStory(3)], weeklyStory: null,
   };

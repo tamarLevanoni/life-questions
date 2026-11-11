@@ -49,14 +49,14 @@ export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange, u
         fieldLabel="חלק" label={activeSectionLabel ?? 'בחרו חלק...'} activeValue={activeSection}
         onClear={() => handleSectionSelect(activeSection!)}
         options={sectionOptions} onSelect={handleSectionSelect}
-        placeholder="חיפוש חלק..." popoverWidth="w-[250px]" fullWidth
+        placeholder="חיפוש חלק..." popoverWidth="w-[250px]"
       />
       <SearchCombobox
         open={simanOpen} onOpenChange={setSimanOpen}
         fieldLabel="סימן" label={activeSimanLabel ?? 'בחרו סימן...'} activeValue={activeSiman}
         onClear={() => handleSimanSelect(activeSiman!)}
         options={activeSection ? simanOptions : []} onSelect={handleSimanSelect}
-        placeholder="חיפוש סימן..." popoverWidth="w-[280px]" fullWidth
+        disabled={!activeSection} placeholder="חיפוש סימן..." popoverWidth="w-[280px]"
       />
     </div>
   );

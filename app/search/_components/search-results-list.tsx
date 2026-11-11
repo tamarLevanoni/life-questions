@@ -1,7 +1,7 @@
 'use client';
 
 import { SkeletonCardList } from '@/components/common/loading-skeleton';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import type { SearchResultsListProps } from '@/lib/types';
 import { ScenarioCard } from '@/components/story/scenario-card';
 import { Loader2, SearchX } from 'lucide-react';
@@ -12,7 +12,6 @@ export function SearchResultsList({
   topics,
   isLoading,
   hasMore,
-  total,
   onLoadMore,
   onStoryClick,
   emptyMessage = 'לא נמצאו תוצאות',
@@ -21,7 +20,7 @@ export function SearchResultsList({
   // Loading state
   if (isLoading && stories.length === 0) {
     return (
-      <div role="status" aria-label="טוען תוצאות חיפוש"><SkeletonCardList count={3} /></div>
+      <SkeletonCardList variant="search" count={3} />
     );
   }
 
@@ -37,16 +36,9 @@ export function SearchResultsList({
   }
 
   return (
-    <div className="space-y-4" dir="rtl">
-      {/* Results count */}
-      {total > 0 && (
-        <p className="text-sm text-muted-foreground font-hebrew">
-          מציג {stories.length} מתוך {total} תוצאות
-        </p>
-      )}
-
+    <div className="space-y-3" dir="rtl">
       {/* Results list */}
-      <div className="grid gap-4">
+      <div data-result-cards className="grid gap-1.5 md:gap-3">
         {stories.map((story) => (
           <ScenarioCard
             key={story.id}
@@ -68,18 +60,9 @@ export function SearchResultsList({
       {/* Load more button */}
       {!isLoading && hasMore && (
         <div className="flex justify-center pt-4">
-          <button
-            onClick={onLoadMore}
-            className={cn(
-              'px-6 py-3 rounded-xl',
-              'bg-primary text-primary-foreground',
-              'font-hebrew font-medium',
-              'hover:opacity-90 transition-opacity',
-              'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
-            )}
-          >
+          <Button type="button" onClick={onLoadMore} variant="outline" className="h-10 w-full rounded-xl border-border bg-card text-muted-foreground text-xs shadow-sm hover:bg-muted hover:text-foreground">
             טען עוד
-          </button>
+          </Button>
         </div>
       )}
 

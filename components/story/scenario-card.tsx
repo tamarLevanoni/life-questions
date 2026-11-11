@@ -1,79 +1,75 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import type { ScenarioCardProps } from '@/lib/types';
-import { Video } from 'lucide-react';
-import { toHebrewNumeral } from '@/lib/hebrew-numerals';
+import Link from "next/link";
+import { Video } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { toHebrewNumeral } from "@/lib/hebrew-numerals";
+import type { ScenarioCardProps } from "@/lib/types";
 
-export function ScenarioCard({ story, bookName, topicName, onClick, className }: ScenarioCardProps) {
+export function ScenarioCard({
+  story,
+  bookName,
+  topicName,
+  onClick,
+  className,
+}: ScenarioCardProps) {
   const shuSiman = story.centralShuSiman;
-
   return (
     <article
       className={cn(
-        'story-card cursor-pointer overflow-hidden',
-        'font-hebrew',
-        'transition-all duration-150 hover:scale-[1.01] hover:shadow-md',
-        className
+        "overflow-hidden rounded-[0.625rem] border border-border bg-card font-hebrew shadow-sm md:rounded-2xl transition-shadow hover:shadow-md",
+        className,
       )}
       dir="rtl"
     >
-      <Link href={`/story/${story.id}`} onClick={onClick ? (event) => { event.preventDefault(); onClick(); } : undefined} className="flex focus-visible:outline-2 focus-visible:outline-ring">
-        {/* Accent line — מתרחב ב-hover */}
-        <div className="w-[4px] hover:w-[6px] shrink-0 rounded-r-full bg-linear-to-b from-primary via-primary/60 to-primary/20 transition-all duration-150" />
-
-        <div className="flex flex-col gap-3 px-4 py-4 flex-1">
-          {/* Breadcrumb: book › topic */}
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
-            <span className="text-xs flex items-center gap-1">
-              <span className="font-semibold text-foreground/70">{bookName}</span>
-              {bookName && topicName && (
-                <span className="text-muted-foreground/30 mx-0.5">›</span>
-              )}
-              <span className="text-muted-foreground/60">{topicName}</span>
-            </span>
-
-            {story.videoUrl && (
-              <span className="video-indicator">
-                <Video className="w-3 h-3" />
-                <span>וידאו</span>
-              </span>
+      <Link
+        href={`/story/${story.id}`}
+        onClick={
+          onClick
+            ? (event) => {
+                event.preventDefault();
+                onClick();
+              }
+            : undefined
+        }
+        className="group block rounded-2xl p-2 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-ring md:px-4 md:py-3"
+      >
+        <div className="mb-2 flex items-start justify-between gap-3 border-b border-border/60 pb-2">
+          <p className="flex min-w-0 flex-wrap items-center gap-1 text-[11px] leading-relaxed text-muted-foreground">
+            {bookName && (
+              <span className="font-medium text-foreground/80">{bookName}</span>
             )}
-          </div>
-
-          {/* Title */}
-          <h3 className="text-base font-semibold text-foreground leading-snug">
-            {story.title}
-          </h3>
-
-          {/* Question preview */}
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {story.legalQuestion}
+            {bookName && topicName && <span aria-hidden="true">‹</span>}
+            {topicName && <span>{topicName}</span>}
           </p>
-
-          {/* Source references */}
-          {shuSiman && (
-            <div className="flex items-center gap-2 pt-1 text-xs flex-wrap">
-              <span className={cn(
-                'px-3 py-1 rounded-full font-medium',
-                'bg-teal-50 text-teal-700 border border-teal-200',
-                'dark:bg-teal-900/20 dark:text-teal-300 dark:border-teal-700/40'
-              )}>
-                {shuSiman.section.name}
-              </span>
-              <span className="text-muted-foreground/60">
-                סימן {toHebrewNumeral(shuSiman.siman)}
-                {shuSiman.title && (
-                  <>
-                    <span className="mx-1.5 opacity-40">·</span>
-                    {shuSiman.title}
-                  </>
-                )}
-              </span>
-            </div>
+          {story.videoUrl && (
+            <Badge className="shrink-0 gap-1 rounded-full bg-rose-600 px-2 py-1 text-[11px] text-white dark:bg-rose-700">
+              <Video aria-hidden="true" className="size-3" />
+              וידאו
+            </Badge>
           )}
         </div>
+        <h2 className="mb-1.5 text-xs md:text-sm font-semibold leading-relaxed text-foreground transition-colors group-hover:text-primary">
+          {story.title}
+        </h2>
+        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+          {story.legalQuestion}
+        </p>
+        {shuSiman && (
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs leading-relaxed">
+            <Badge
+              variant="outline"
+              className="rounded border-primary/20 bg-primary/5 px-2 py-0.5 text-primary"
+            >
+              {shuSiman.section.name}
+            </Badge>
+            <span className="text-muted-foreground">
+              סימן {toHebrewNumeral(shuSiman.siman)}
+              {shuSiman.title && <> · {shuSiman.title}</>}
+            </span>
+          </div>
+        )}
       </Link>
     </article>
   );

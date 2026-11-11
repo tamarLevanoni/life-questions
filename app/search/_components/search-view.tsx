@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { useSearch } from './use-search';
 import { SearchHeader } from './search-header';
 import { SearchFiltersPanel } from './search-filters-panel';
@@ -9,25 +10,29 @@ import styles from './search-layout.module.css';
 
 export function SearchView() {
   const search = useSearch();
+  const previousView = useRef(search.view);
+  const queryRef = useRef<HTMLInputElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (previousView.current === search.view) return;
+    previousView.current = search.view;
+    const target = search.view === 'setup' ? queryRef.current : headingRef.current;
+    target?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [search.view]);
 
   return (
     <div className={styles.page}>
-      <div className="max-w-6xl mx-auto space-y-4">
-        <div className="relative" dir="rtl">
-          <div className="flex flex-col gap-4" inert={search.isUnauthenticated}>
-            <div className={styles.controls}>
-              <SearchHeader />
-              <SearchFiltersPanel
-                search={search}
-                isOpen={search.filtersOpen}
-                onToggle={search.toggleFilters}
-                onSearch={search.handleSearch}
-              />
-            </div>
-            <SearchResultsPanel search={search} />
+      <div className="relative mx-auto max-w-5xl" dir="rtl">
+        <div inert={search.isUnauthenticated}>
+          <div className={styles.setup} hidden={search.view !== 'setup'}>
+            <SearchHeader />
+            <SearchFiltersPanel search={search} queryRef={queryRef} />
           </div>
-          {search.isUnauthenticated && <AuthRequiredOverlay onClick={search.openLoginModal} />}
+          {search.view === 'results' && <SearchResultsPanel search={search} headingRef={headingRef} />}
         </div>
+        {search.isUnauthenticated && <AuthRequiredOverlay onClick={search.openLoginModal} />}
       </div>
     </div>
   );

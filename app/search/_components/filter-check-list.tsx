@@ -1,49 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { Square, CheckSquare } from 'lucide-react';
 
-export function FilterCheckList({
-  options, selected, onToggle, maxHeight = 'max-h-48', searchable = false,
-}: {
+interface FilterCheckListProps {
   options: { value: string; label: string }[];
   selected: string[];
   onToggle: (id: string) => void;
-  maxHeight?: string;
+  listClassName?: string;
   searchable?: boolean;
-}) {
+  label: string;
+}
+
+export function FilterCheckList({ options, selected, onToggle, listClassName = 'max-h-80', searchable = false, label }: FilterCheckListProps) {
   const [search, setSearch] = useState('');
-  const filtered = search ? options.filter((o) => o.label.includes(search)) : options;
+  const listId = useId();
+  const filtered = search ? options.filter((option) => option.label.includes(search)) : options;
 
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex min-h-0 flex-1 flex-col">
       {searchable && (
-        <input
-          aria-label="סינון אפשרויות"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="חיפוש..."
-          className="w-full px-2 py-1.5 mb-1 text-xs font-hebrew bg-muted/40 border border-border rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring placeholder:text-muted-foreground"
-        />
+        <div className="relative m-1.5">
+          <Input
+            aria-label={`סינון ${label}`} value={search} placeholder="חפש נושא..."
+            onChange={(event) => setSearch(event.target.value)}
+            className="h-6.5 rounded-[0.375rem] border-border bg-muted/40 px-2 text-[0.6875rem] leading-(--text-xs--line-height) md:h-8 md:rounded-lg md:text-sm md:leading-(--text-sm--line-height)"
+          />
+        </div>
       )}
-      <div className={cn('overflow-y-auto', maxHeight)}>
-        {filtered.map((opt) => {
-          const isChecked = selected.includes(opt.value);
+      <div role="group" aria-label={label} className={cn('overflow-y-auto overscroll-contain', listClassName)}>
+        {!filtered.length && <p className="px-3 py-6 text-center text-xs text-muted-foreground">לא נמצאו {label}</p>}
+        {filtered.map((option, index) => {
+          const checked = selected.includes(option.value);
+          const id = `${listId}-${index}`;
           return (
-            <button
-              type="button"
-              aria-pressed={!!isChecked}
-              key={opt.value}
-              onClick={() => onToggle(opt.value)}
-              className="flex items-center gap-2 w-full px-1 py-1.5 rounded-md text-sm font-hebrew text-right hover:bg-accent transition-colors"
-            >
-              {isChecked
-                ? <CheckSquare className="w-4 h-4 shrink-0 text-primary" />
-                : <Square className="w-4 h-4 shrink-0 text-muted-foreground/40" />
-              }
-              <span className={cn('truncate', isChecked && 'text-primary font-medium')}>{opt.label}</span>
-            </button>
+            <Label key={option.value} htmlFor={id} className={cn(
+              'relative flex min-h-7 cursor-pointer items-center gap-1.5 border-b border-border/40 px-1.5 py-1 text-[0.6875rem] font-normal leading-[1.3] transition-colors hover:bg-muted/60 md:min-h-8 md:gap-2 md:px-3 md:py-1.5 md:text-xs md:font-medium md:leading-relaxed',
+              checked && 'bg-primary/5 text-primary'
+            )}>
+              <Checkbox id={id} className="size-3.5 [&_svg]:size-3" checked={checked} onCheckedChange={() => onToggle(option.value)} />
+              <span title={option.label} className="line-clamp-2 min-w-0 flex-1 break-words">{option.label}</span>
+            </Label>
           );
         })}
       </div>

@@ -1,9 +1,12 @@
 'use client';
 
+import { useLayoutEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { toHebrewNumeral } from '@/lib/hebrew-numerals';
 import type { UiSearchFilters } from '@/lib/types';
 import type { Book, Topic, MasechetWithPages, ShuSectionWithSimanim } from '@/lib/schemas';
+import type { SearchFilter } from './search-filter-utils';
 
 interface ActiveFilterTagsProps {
   filters: UiSearchFilters;
@@ -11,64 +14,92 @@ interface ActiveFilterTagsProps {
   topics: Topic[];
   masechtot: MasechetWithPages[];
   shuSections: ShuSectionWithSimanim[];
+  onRemove: (filter: SearchFilter) => void;
+  onClear: () => void;
+  onEmpty: () => void;
 }
 
 interface FilterTag {
   key: string;
+  filter: SearchFilter;
   label: string;
 }
 
-export function ActiveFilterTags({
-  filters,
-  books,
-  topics,
-  masechtot,
-  shuSections,
-}: ActiveFilterTagsProps) {
+export function ActiveFilterTags({ filters, books, topics, masechtot, shuSections, onRemove, onClear, onEmpty }: ActiveFilterTagsProps) {
+  const pendingRemoval = useRef<{ index: number; container: HTMLElement } | null>(null);
   const { q = '', bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = filters;
   const tags: FilterTag[] = [];
+  const addTag = (filter: SearchFilter, label: string) => {
+    const key = filter.type === 'query' ? 'query' : filter.type + '-' + filter.id;
+    tags.push({ key, filter, label });
+  };
 
-  if (q.trim()) {
-    tags.push({ key: 'query', label: q.trim() });
-  }
-
+  if (q.trim()) addTag({ type: 'query' }, q.trim());
   bookIds.forEach((id) => {
-    const name = books.find((b) => b.id === id)?.name ?? id;
-    tags.push({ key: `book-${id}`, label: name });
+    addTag({ type: 'book', id }, books.find((book) => book.id === id)?.name ?? id);
   });
-
   topicIds.forEach((id) => {
-    const name = topics.find((t) => t.id === id)?.name ?? id;
-    tags.push({ key: `topic-${id}`, label: name });
+    addTag({ type: 'topic', id }, topics.find((topic) => topic.id === id)?.name ?? id);
+  });
+  shasRefs.forEach((ref) => {
+    if (!ref.masechetId) return;
+    const name = masechtot.find((item) => item.id === ref.masechetId)?.name ?? ref.masechetId;
+    const page = ref.daf ? ' דף ' + toHebrewNumeral(ref.daf) : '';
+    addTag({ type: 'shas', id: ref.id }, 'ש״ס: ' + name + page);
+  });
+  shuRefs.forEach((ref) => {
+    if (!ref.shuSectionId) return;
+    const section = shuSections.find((item) => item.id === ref.shuSectionId);
+    const siman = section?.simanim.find((item) => item.id === ref.simanId);
+    const simanLabel = siman ? ' סימן ' + toHebrewNumeral(siman.siman) : '';
+    const seifLabel = ref.seif ? ' סעיף ' + toHebrewNumeral(ref.seif) : '';
+    addTag({ type: 'shu', id: ref.id }, 'שו״ע: ' + (section?.name ?? ref.shuSectionId) + simanLabel + seifLabel);
   });
 
-  shasRefs.filter((r) => r.masechetId).forEach((ref) => {
-    const masechet = masechtot.find((m) => m.id === ref.masechetId);
-    const label = masechet
-      ? ref.daf ? `${masechet.name} דף ${toHebrewNumeral(ref.daf)}` : masechet.name
-      : ref.masechetId!;
-    tags.push({ key: `shas-${ref.id}`, label });
+  useLayoutEffect(() => {
+    const pending = pendingRemoval.current;
+    if (!pending) return;
+    pendingRemoval.current = null;
+    if (!tags.length) {
+      onEmpty();
+      return;
+    }
+    // Resolve after rendering: removing a book may also remove its topic tags.
+    const buttons = pending.container.querySelectorAll<HTMLButtonElement>('[data-remove-filter]');
+    const target = buttons[Math.min(pending.index, buttons.length - 1)];
+    target?.focus({ preventScroll: true });
   });
 
-  shuRefs.filter((r) => r.shuSectionId).forEach((ref) => {
-    const section = shuSections.find((s) => s.id === ref.shuSectionId);
-    const siman = ref.simanId ? section?.simanim.find((si) => si.id === ref.simanId) : undefined;
-    const label = section
-      ? siman ? `${section.name} ${toHebrewNumeral(siman.siman)}` : section.name
-      : ref.shuSectionId!;
-    tags.push({ key: `shu-${ref.id}`, label });
-  });
-
-  if (tags.length === 0) return null;
+  if (!tags.length) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap" dir="rtl">
-      <span className="text-xs text-muted-foreground font-hebrew shrink-0">מחפש בתוך:</span>
-      {tags.map((tag) => (
-        <Badge key={tag.key} variant="primary">
-          {tag.label}
-        </Badge>
-      ))}
+    <div data-filter-tags aria-label="מסננים פעילים" className="flex flex-nowrap items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 shadow-sm md:px-5">
+      <span className="flex shrink-0 items-center gap-2 text-xs font-semibold">
+        <span className="hidden md:inline">מסננים פעילים</span>
+        <span className="rounded-full bg-primary/10 px-1.5 text-primary">{tags.length}</span>
+      </span>
+      <div className="flex min-w-0 flex-1 items-center gap-x-1 overflow-x-auto overscroll-x-contain">
+        {tags.map((tag, index) => (
+          <Badge key={tag.key} variant="outline" className="my-0.5 max-w-64 shrink-0 gap-1 rounded-full border-border bg-background/50 ps-3 pe-0 text-xs font-normal text-foreground shadow-xs">
+            <span title={tag.label} className="min-w-0 truncate">{tag.label}</span>
+            <Button
+              data-remove-filter
+              type="button" variant="ghost" aria-label={'הסרת מסנן ' + tag.label}
+              className="h-8 rounded-full px-2 text-[11px] text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              onClick={(event) => {
+                const container = event.currentTarget.closest<HTMLElement>('[data-filter-tags]');
+                if (container) pendingRemoval.current = { index, container };
+                onRemove(tag.filter);
+              }}
+            >
+              הסר
+            </Button>
+          </Badge>
+        ))}
+      </div>
+      <Button type="button" variant="ghost" onClick={onClear} className="h-8 rounded-xl text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+        נקה הכל
+      </Button>
     </div>
   );
 }

@@ -16,7 +16,7 @@ Keep pages, route-local components and hooks at most 200 lines when adding/chang
 
 ## Primitives
 
-- `PageShell`: header/main, width and page spacing.
+- `PageShell`: header/main, width and page spacing. `className` applies to the width container normally and to `main` in full-width mode. Search uses natural main height so a short setup does not leave a viewport-sized gap before the footer.
 - `GlassCard`, `SectionHeader`, `FormField`: existing presentation building blocks; visual treatment may evolve.
 - `MotionFadeIn`: shared fade/reveal behavior; extend it when needed rather than copying motion blocks.
 - `EmptyState`, `SkeletonLines`, `SkeletonCardList`: recovery and loading feedback.
@@ -27,7 +27,7 @@ Wrap fields in [`FormField`](../../components/ui/form-field.tsx); it associates 
 
 Clearing the optional institution field in profile editing sends `null`; omitting a PATCH field leaves its previous value intact. Registration omits an empty institution instead, matching the Core API's create contract.
 
-Use `Link` for ordinary internal navigation. Use router methods when an interaction requires them. [`useSearch`](../../app/search/_components/use-search.ts) initializes `q` and a single `bookId` from the URL on mount. It keeps draft/applied filters locally and does not serialize edits back to the URL. Initial automatic search waits for registered auth status and starts once per mount. Pagination uses the last submitted filters.
+Use `Link` for ordinary internal navigation. Use router methods when an interaction requires them. [`useSearch`](../../app/search/_components/use-search.ts) initializes `q` and a single `bookId` from the URL on mount. It keeps `draftFilters` and `submittedFilters` locally and does not serialize edits back to the URL. Initial automatic search waits for registered auth status and starts once per mount. Pagination uses the last submitted filters. Search setup and results are separate local views on `/search`; returning to setup preserves the draft and selected filter tab. Only one of the book/topic and source tabs is displayed at a time. Editing setup does not issue a request until submission. Removing an applied result tag immediately searches again, updates that same selection in the draft and retains unrelated draft edits. Removing a book also clears topics outside the remaining selected books. The results view also has a desktop free-text form, initialized with the current query; unsubmitted text does not affect pagination. Clearing all filters resets the draft, submitted filters and selected tab, returns to setup and does not issue a request. Setup has no return-to-results shortcut; submitting a search is the only way to enter results.
 
 Story contact relies on a full story already in `useStoriesStore`. If a `storyId` is present but absent from the store, [`ContactPageContent`](../../app/contact/_components/contact-page-content.tsx) replaces the URL with `/contact`. A direct link or reload therefore falls back to general contact rather than fetching the story. The server independently requires valid story context and a Google session for `story_question` submissions.
 

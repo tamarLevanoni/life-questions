@@ -8,9 +8,7 @@ import { useUserStore } from '@/lib/stores/user-store';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type { UiSearchFilters } from '@/lib/types';
-import type { SearchBody } from '@/lib/schemas';
-
-const PAGE_LIMIT = 10;
+import { buildSearchParams, removeSearchFilter, type SearchFilter, type SearchTab } from './search-filter-utils';
 
 export function useSearch() {
   const router = useRouter();
@@ -39,63 +37,40 @@ export function useSearch() {
     const bookId = searchParams.get('bookId');
     return { q, bookIds: bookId ? [bookId] : undefined };
   });
-  const [filters, setFilters] = useState(initialFilters);
-  const [hasSearched, setHasSearched] = useState(hasInitialParams);
-  const [filtersOpen, setFiltersOpen] = useState(!hasInitialParams);
+  const [draftFilters, setDraftFilters] = useState(initialFilters);
+  const [view, setView] = useState<'setup' | 'results'>(hasInitialParams ? 'results' : 'setup');
+  const [activeTab, setActiveTab] = useState<SearchTab>('book-topic');
   const initialSearchStarted = useRef(false);
-  // Snapshot of the filters actually searched — ActiveFilterTags reads
-  // this instead of the live filters, so the tags only change when a
-  // search is submitted, not while the user is still picking.
-  const [applied, setApplied] = useState(filters);
+  // Pagination and result tags use the submitted snapshot, independently of draft edits.
+  const [submittedFilters, setSubmittedFilters] = useState(initialFilters);
 
-  const scrollToTop = useCallback(() => {
-    // Blur the clicked button first — otherwise the browser's own
-    // "keep focused element in view" behavior fights the smooth scroll
-    // and snaps the page right back down.
-    (document.activeElement as HTMLElement | null)?.blur();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
-
-  const activeFiltersCount =
-    (filters.bookIds?.length ?? 0) +
-    (filters.topicIds?.length ?? 0) +
-    (filters.shasRefs?.filter((r) => r.masechetId)?.length ?? 0) +
-    (filters.shuRefs?.filter((r) => r.shuSectionId)?.length ?? 0);
-
-  const buildApiParams = useCallback(
-    (uiFilters: UiSearchFilters): SearchBody => {
-      const shasRefs = (uiFilters.shasRefs ?? [])
-        .filter((r) => r.masechetId)
-        .map((r) => ({ masechetId: r.masechetId!, daf: r.daf }));
-
-      const shuRefs = (uiFilters.shuRefs ?? [])
-        .filter((r) => r.shuSectionId)
-        .map((r) => ({ shuSectionId: r.shuSectionId!, simanId: r.simanId, seif: r.seif }));
-
-      return {
-        q: uiFilters.q?.trim() || undefined,
-        bookIds: uiFilters.bookIds?.length ? uiFilters.bookIds : undefined,
-        topicIds: uiFilters.topicIds?.length ? uiFilters.topicIds : undefined,
-        shasRefs: shasRefs.length ? shasRefs : undefined,
-        shuRefs: shuRefs.length ? shuRefs : undefined,
-        limit: PAGE_LIMIT,
-      };
-    },
-    []
-  );
-
-  const handleSearch = useCallback(() => {
-    if (isUnauthenticated) {
-      showToast('יש להתחבר כדי לבצע חיפוש', 'info');
-      openLoginModal();
+  const submit = useCallback((next: UiSearchFilters) => {
+    if (authStatus !== 'authenticated') {
+      if (isUnauthenticated) {
+        showToast('יש להתחבר כדי לבצע חיפוש', 'info');
+        openLoginModal();
+      }
       return;
     }
-    setHasSearched(true);
-    setFiltersOpen(false);
-    setApplied(filters);
-    searchStories(buildApiParams(filters));
-    scrollToTop();
-  }, [isUnauthenticated, showToast, openLoginModal, searchStories, buildApiParams, filters, scrollToTop]);
+    setView('results');
+    setSubmittedFilters(next);
+    void searchStories(buildSearchParams(next));
+  }, [authStatus, isUnauthenticated, showToast, openLoginModal, searchStories]);
+
+  const handleSearch = () => submit(draftFilters);
+  const handleQueryChange = (q: string) => {
+    setDraftFilters((draft) => ({ ...draft, q: q || undefined }));
+  };
+  const handleRemoveFilter = (filter: SearchFilter) => {
+    setDraftFilters((draft) => removeSearchFilter(draft, filter, topics));
+    submit(removeSearchFilter(submittedFilters, filter, topics));
+  };
+  const handleClearAll = () => {
+    setDraftFilters({});
+    setSubmittedFilters({});
+    setActiveTab('book-topic');
+    setView('setup');
+  };
 
   const handleLoadMore = useCallback(() => {
     if (isUnauthenticated) {
@@ -103,8 +78,8 @@ export function useSearch() {
       openLoginModal();
       return;
     }
-    loadMoreStories(buildApiParams(applied));
-  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories, buildApiParams, applied]);
+    loadMoreStories(buildSearchParams(submittedFilters));
+  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories, submittedFilters]);
 
   const handleStoryClick = useCallback(
     (story: { id: string }) => {
@@ -127,19 +102,22 @@ export function useSearch() {
       return;
     }
     initialSearchStarted.current = true;
-    void searchStories(buildApiParams(initialFilters));
-  }, [hasInitialParams, authStatus, openLoginModal, searchStories, buildApiParams, initialFilters]);
+    void searchStories(buildSearchParams(initialFilters));
+  }, [hasInitialParams, authStatus, openLoginModal, searchStories, initialFilters]);
 
   const hasMore = stories.length < total;
 
   return {
-    filters,
-    setFilters,
-    applied,
-    hasSearched,
-    filtersOpen,
-    toggleFilters: () => setFiltersOpen((prev) => !prev),
-    activeFiltersCount,
+    draftFilters,
+    setDraftFilters,
+    submittedFilters,
+    view,
+    setView,
+    activeTab,
+    setActiveTab,
+    canSearch: authStatus === 'authenticated',
+    handleRemoveFilter,
+    handleClearAll,
     hasMore,
     isUnauthenticated,
     stories,
@@ -151,6 +129,7 @@ export function useSearch() {
     topics,
     books,
     handleSearch,
+    handleQueryChange,
     handleLoadMore,
     handleStoryClick,
     openLoginModal,
