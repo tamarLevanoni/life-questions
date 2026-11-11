@@ -93,6 +93,8 @@ bun run test:release --project=chromium --project=mobile-chromium --project=fire
 
 `bun install` מפעיל Husky. ה־pre-commit בודק את התוכן שב־Git index, כולל שמות עם רווחים וקבצים שהוכנסו באופן חלקי; הוא אינו משנה קבצים ואינו מבצע stash. הוא מריץ lint לקוד שנכנס לקומיט ובודק קישורי תיעוד מול קבצים שנכללו ב־index. טיפוסים, בדיקות יחידה ו־build שייכים ל־check/CI, ולא לכל קומיט קטן.
 
+אפליקציות Git גרפיות עשויות להפעיל את ה־hook עם PATH מצומצם. אם Bun אינו ב־PATH, ה־hook מחפש אותו ב־`${BUN_INSTALL:-$HOME/.bun}/bin`, ב־`/opt/homebrew/bin` וב־`/usr/local/bin`. להתקנה במיקום אחר אפשר להוסיף את תיקיית Bun ל־PATH דרך `${XDG_CONFIG_HOME:-$HOME/.config}/husky/init.sh`. אם Bun לא נמצא, הקומיט נעצר עם הסבר; הבדיקות אינן מדולגות.
+
 ## בדיקות ב־GitHub
 
 [Quality](../.github/workflows/quality.yml) רץ בכל דחיפה ל־`main`, בכל Pull Request ובהפעלה ידנית. אפשר לעבוד ישירות על `main`; ענף ו־PR הם אפשרות לפי גודל השינוי. ה־workflow מריץ בדיקות בלבד ואינו פורס את האתר.
