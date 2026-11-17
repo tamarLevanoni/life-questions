@@ -7,6 +7,7 @@ import { useUserStore } from '@/lib/stores/user-store';
 import { useStoriesStore } from '@/lib/stores/stories-store';
 import { useAppDataStore } from '@/lib/stores/app-data-store';
 
+/** מחבר את הסיפור הטעון לנתוני הספר, למצב הגישה להרחבה ולניווט בין סיפורים. */
 export function useStoryDetail(storyId: string) {
   const router = useRouter();
   const { openLoginModal, openOnboardingModal } = useAuth();
@@ -18,6 +19,7 @@ export function useStoryDetail(storyId: string) {
   const canViewExpansion = authStatus === 'authenticated' && story?.expansion != null;
   const shouldLoadExpansion = authStatus === 'authenticated' && story?.hasExpansion && story.expansion === null;
 
+  // לאחר התחברות או השלמת הרשמה, הרענון מאפשר לשרת לשלוח את ההרחבה שהייתה חסומה.
   useEffect(() => {
     if (shouldLoadExpansion) router.refresh();
   }, [router, shouldLoadExpansion]);
@@ -25,6 +27,7 @@ export function useStoryDetail(storyId: string) {
   const nextId = story?.neighbors?.next?.id ?? null;
   const storyTitleEncoded = encodeURIComponent(story?.title ?? '');
 
+  /** פותח התחברות לאורח או השלמת הרשמה למשתמש שעדיין צריך להשלים אותה. */
   const requestExpansionAccess = () => {
     if (authStatus === 'unauthenticated') openLoginModal();
     else if (authStatus === 'registration-required') openOnboardingModal();

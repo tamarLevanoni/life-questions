@@ -7,7 +7,7 @@ mock.module('next-auth', () => ({ getServerSession: getSession }));
 const { updateCurrentUser, registerUser } = await import('@/lib/server/user');
 const { submitContact } = await import('@/lib/server/contact');
 const { POST } = await import('@/app/api/stories/search/route');
-const { searchStories } = await import('@/lib/server/stories');
+const { listSitemapStories } = await import('@/lib/server/stories');
 const { runRoute } = await import('@/lib/server/errors');
 
 let fetchMock: ReturnType<typeof spyOn<typeof globalThis, 'fetch'>>;
@@ -51,15 +51,39 @@ describe('Protected server entrypoints', () => {
     const invalid = await POST(new Request('http://localhost/api/stories/search', { method: 'POST', body: '{"bookIds":"invalid"}' }));
     expect(invalid.status).toBe(400);
     expect(fetchMock).not.toHaveBeenCalled();
-    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { stories: [makeCard()], total: 1, page: 1, limit: 10 } }));
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { stories: [makeCard()], total: 1, pageSize: 10, nextCursor: null, searchMeta: { status: 'complete', matches: {} } } }));
     const valid = await POST(new Request('http://localhost/api/stories/search', { method: 'POST', body: '{"q":"בדיקה"}' }));
     expect(valid.status).toBe(200);
     expect((await valid.json()).data.stories[0].id).toBe('story-1');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]!.body))).toEqual({ q: 'בדיקה' });
   });
 
-  test('internal search callers such as sitemap do not require a browser session', async () => {
-    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { stories: [], total: 0, page: 1, limit: 50 } }));
-    expect((await searchStories({ limit: 50 })).stories).toEqual([]);
+  test('continuation forwards the authenticated account key and cursor', async () => {
+    signIn();
+    const cursor = { resultSetId: '8de628de-e275-416f-b8c1-2b492ad10876', offset: 10 };
+    const body = { cursor };
+    const bad = await POST(new Request('http://localhost/api/stories/search', {
+      method: 'POST', body: JSON.stringify({ ...body, q: 'בדיקה' }),
+    }));
+    expect(bad.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+    fetchMock.mockResolvedValueOnce(Response.json({
+      success: true, data: { stories: [makeCard()], total: 11, pageSize: 10, nextCursor: null,
+        searchMeta: { status: 'complete', matches: {} } },
+    }));
+    const response = await POST(new Request('http://localhost/api/stories/search', {
+      method: 'POST', body: JSON.stringify(body), headers: { 'x-search-account': 'forged' },
+    }));
+    expect(response.status).toBe(200);
+    const init = fetchMock.mock.calls[0][1]!;
+    expect(JSON.parse(String(init.body))).toEqual(body);
+    expect(new Headers(init.headers).get('x-search-account')).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  test('sitemap lists story IDs through the internal endpoint without a browser session', async () => {
+    fetchMock.mockResolvedValueOnce(Response.json({ success: true, data: { stories: [], hasMore: false } }));
+    expect(await listSitemapStories(2)).toEqual({ stories: [], hasMore: false });
+    expect(String(fetchMock.mock.calls[0][0])).toEndWith('/api/stories/sitemap?page=2');
     expect(getSession).not.toHaveBeenCalled();
   });
 
@@ -108,7 +132,7 @@ describe('Protected server entrypoints', () => {
     await expect(registerUser(testUser)).rejects.toThrow();
   });
 
-  test.each([{ page: 0 }, { page: 1.5 }, { limit: 51 }, { limit: -1 }])('invalid pagination is rejected before upstream access: %j', async body => {
+  test.each([{ page: 1, limit: 50 }, { q: 'בדיקה', offset: 5 }, { cursor: {} }])('unsupported search bodies are rejected before upstream access: %j', async body => {
     signIn();
     const response = await POST(new Request('http://localhost/api/stories/search', { method: 'POST', body: JSON.stringify(body) }));
     expect(response.status).toBe(400);

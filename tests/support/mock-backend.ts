@@ -1,6 +1,7 @@
 import { makeBundle, makeCard, makeStory, testUser } from '../fixtures/data';
-import { apiSecret } from './environment';
+import { apiSecret, backendPort } from './environment';
 import type { UserData } from '@/lib/schemas';
+import { cursorSearchBodySchema } from '@/lib/schemas/search';
 
 let users = new Map<string, UserData>();
 let requests: { method: string; path: string; body: unknown }[] = [];
@@ -16,9 +17,10 @@ const fail = (error: string, status: number) => Response.json({ success: false, 
 const bundle = makeBundle();
 
 const server = Bun.serve({
-  hostname: '127.0.0.1', port: 4100,
+  hostname: '127.0.0.1', port: backendPort,
   async fetch(request) {
-    const path = new URL(request.url).pathname;
+    const url = new URL(request.url);
+    const path = url.pathname;
     if (path === '/health') return new Response('ready');
     if (request.headers.get('x-api-secret') !== apiSecret) return fail('Unauthorized', 401);
     if (path === '/__test/reset' && request.method === 'POST') { reset(); return ok(null); }
@@ -33,15 +35,31 @@ const server = Bun.serve({
       '/api/stories/featured': bundle.featuredStories, '/api/stories/weekly': bundle.weeklyStory, '/api/recommendations': [],
     };
     if (path in references) return ok(references[path]);
+    if (path === '/api/stories/sitemap' && request.method === 'GET') {
+      const page = Number(url.searchParams.get('page') ?? 1);
+      const limit = Number(url.searchParams.get('limit') ?? 50);
+      const ids = Array.from({ length: 12 }, (_, index) => ({ id: makeCard(index + 1).id }));
+      return ok({ stories: ids.slice((page - 1) * limit, page * limit), hasMore: page * limit < ids.length });
+    }
     if (path === '/api/stories/search' && request.method === 'POST') {
-      const params = body as { q?: string; page?: number; limit?: number };
-      if (params.q === 'שגיאה') return fail('Search unavailable', 503);
-      if (params.q === 'לא תקין') return ok({ stories: 'invalid' });
-      if (params.q === 'איטי') await Bun.sleep(800);
-      const total = params.q === 'ללא תוצאות' ? 0 : 12;
-      const page = params.page ?? 1; const limit = params.limit ?? 10;
+      const parsed = cursorSearchBodySchema.safeParse(body);
+      if (!parsed.success) return fail('Invalid search request', 422);
+      if (!request.headers.has('x-search-account')) return fail('Missing search account', 401);
+      const cursor = 'cursor' in parsed.data ? parsed.data.cursor : undefined;
+      const q = 'cursor' in parsed.data ? undefined : parsed.data.q;
+      if (q === 'שגיאה') return fail('Search unavailable', 503);
+      if (q === 'לא תקין') return ok({ stories: 'invalid' });
+      if (q === 'איטי') await Bun.sleep(800);
+      const total = q === 'ללא תוצאות' ? 0 : 12;
       const cards = Array.from({ length: total }, (_, index) => makeCard(index + 1));
-      return ok({ stories: cards.slice((page - 1) * limit, page * limit), total, page, limit });
+      if (cursor?.resultSetId === '827e2261-2c40-4dec-b4c5-5b63f0b4c0fe') return fail('search_expired', 410);
+      const offset = cursor?.offset ?? 0;
+      const resultSetId = q === 'פג תוקף' ? '827e2261-2c40-4dec-b4c5-5b63f0b4c0fe' : '8de628de-e275-416f-b8c1-2b492ad10876';
+      return ok({
+        stories: cards.slice(offset, offset + 10), total, pageSize: 10,
+        nextCursor: offset + 10 < total ? { resultSetId, offset: offset + 10 } : null,
+        searchMeta: { status: total ? 'complete' : 'no_useful_match', matches: {} },
+      });
     }
     if (/^\/api\/stories\/story-\d+$/.test(path)) {
       const id = Number(path.split('-').at(-1));

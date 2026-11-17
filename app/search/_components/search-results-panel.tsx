@@ -14,10 +14,11 @@ interface SearchResultsPanelProps {
   headingRef: RefObject<HTMLHeadingElement | null>;
 }
 
+/** מחבר את רשימת הכרטיסים למצבי החיפוש והעימוד. */
 export function SearchResultsPanel({ search, headingRef }: SearchResultsPanelProps) {
   const backButton = useRef<HTMLButtonElement>(null);
   const statusMessage = search.loading
-    ? 'טוען תוצאות חיפוש…'
+    ? search.stories.length ? 'טוען סיפורים נוספים…' : 'מחפשים סיפורים מתאימים ובודקים מקורות…'
     : !search.error ? 'מציג ' + search.stories.length + ' מתוך ' + search.total + ' תוצאות' : '';
 
   return (
@@ -58,15 +59,29 @@ export function SearchResultsPanel({ search, headingRef }: SearchResultsPanelPro
         </h1>
         <p role="status" className="text-xs text-muted-foreground">{statusMessage}</p>
       </div>
+      {search.searchMeta?.sourceMatch === 'same_location' || search.searchMeta?.sourceMatch === 'nearby' ? (
+        <p className="text-sm text-muted-foreground">נמצאו סיפורים ממקורות סמוכים</p>
+      ) : null}
+      {search.searchMeta?.status === 'partial' && (
+        <p className="text-sm text-muted-foreground">החיפוש הושלם חלקית. אפשר לנסות שוב.</p>
+      )}
+      {search.expired && (
+        <div className="flex flex-wrap items-center gap-2">
+          <p role="status" className="text-sm text-muted-foreground">פג הזמן לטעינת סיפורים נוספים.</p>
+          <Button type="button" variant="outline" onClick={search.handleRestart}>חיפוש מחדש</Button>
+        </div>
+      )}
+      {search.continuationError && (
+        <p role="alert" className="text-sm text-muted-foreground">{search.continuationError}</p>
+      )}
       {search.error ? (
         <div role="alert"><EmptyState title="אירעה שגיאה בחיפוש" description={search.error} /></div>
       ) : (
         <SearchResultsList
           stories={search.stories} books={search.books} topics={search.topics} isLoading={search.loading}
-          hasMore={search.hasMore} total={search.total}
+          hasMore={search.hasMore} total={search.total} expired={search.expired}
+          matches={search.searchMeta?.matches}
           onLoadMore={search.handleLoadMore} onStoryClick={search.handleStoryClick}
-          emptyMessage="לא נמצאו תוצאות לחיפוש זה"
-          emptyHint="נסו לצמצם או לשנות את הסינון, או להוסיף מילת מפתח"
         />
       )}
     </section>

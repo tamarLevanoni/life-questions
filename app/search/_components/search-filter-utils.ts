@@ -1,4 +1,4 @@
-import type { Topic, SearchBody } from '@/lib/schemas';
+import type { Topic, SearchStart } from '@/lib/schemas';
 import type { UiSearchFilters } from '@/lib/types';
 
 export type SearchTab = 'book-topic' | 'sources';
@@ -6,7 +6,8 @@ export type SearchFilter =
   | { type: 'query' }
   | { type: 'book' | 'topic' | 'shas' | 'shu'; id: string };
 
-export function buildSearchParams(filters: UiSearchFilters): SearchBody {
+/** מתרגם את הטיוטה לבקשת חיפוש ומשמיט שורות מקור שעדיין חסרה בהן בחירה ראשית. */
+export function buildSearchParams(filters: UiSearchFilters): SearchStart {
   const shasRefs = (filters.shasRefs ?? []).flatMap((ref) =>
     ref.masechetId ? [{ masechetId: ref.masechetId, daf: ref.daf }] : []
   );
@@ -14,15 +15,15 @@ export function buildSearchParams(filters: UiSearchFilters): SearchBody {
     ref.shuSectionId ? [{ shuSectionId: ref.shuSectionId, simanId: ref.simanId, seif: ref.seif }] : []
   );
   return {
-    q: filters.q?.trim() || undefined,
+    q: filters.q?.trim() ? filters.q : undefined,
     bookIds: filters.bookIds?.length ? filters.bookIds : undefined,
     topicIds: filters.topicIds?.length ? filters.topicIds : undefined,
     shasRefs: shasRefs.length ? shasRefs : undefined,
     shuRefs: shuRefs.length ? shuRefs : undefined,
-    limit: 10,
   };
 }
 
+/** מעדכן את הספרים ושומר מתוך הנושאים שנבחרו רק את אלה ששייכים לספרים שנותרו בבחירה. */
 export function selectBooks(filters: UiSearchFilters, bookIds: string[], topics: Topic[]): UiSearchFilters {
   const topicIds = filters.topicIds?.filter((id) =>
     topics.some((topic) => topic.id === id && bookIds.includes(topic.bookId))
@@ -34,6 +35,7 @@ export function selectBooks(filters: UiSearchFilters, bookIds: string[], topics:
   };
 }
 
+/** מסיר מסנן לפי סוג ומזהה ומעדכן גם בחירות תלויות כשמסירים ספר. */
 export function removeSearchFilter(filters: UiSearchFilters, filter: SearchFilter, topics: Topic[]): UiSearchFilters {
   switch (filter.type) {
     case 'query':

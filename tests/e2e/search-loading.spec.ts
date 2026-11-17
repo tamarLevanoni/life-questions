@@ -13,7 +13,7 @@ for (const theme of ['light', 'dark']) {
       await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
       const status = page.getByRole('region', { name: 'תוצאות החיפוש', exact: true }).getByRole('status');
       await expect(status).toHaveCount(1);
-      await expect(status).toHaveText('טוען תוצאות חיפוש…');
+      await expect(status).toHaveText('מחפשים סיפורים מתאימים ובודקים מקורות…');
       const loading = page.locator('[data-search-skeleton]');
       await expect(loading).toBeVisible();
       await expect(page.getByRole('button', { name: 'הצג תוצאות', exact: true })).toBeHidden();

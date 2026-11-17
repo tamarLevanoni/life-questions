@@ -8,6 +8,7 @@ import { StoryPanels } from '@/components/story/story-panels';
 import { StoryNavigation } from './story-navigation';
 import { useStoryDetail } from './use-story-detail';
 
+/** מחבר את התוכן שכבר נטען לפאנלים, לניווט בספר ולטופס פנייה עם הקשר לסיפור. */
 export function StoryView({ storyId }: { storyId: string }) {
   const {
     story,

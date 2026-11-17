@@ -1,5 +1,7 @@
-export const appOrigin = 'http://localhost:3100';
-export const backendOrigin = 'http://127.0.0.1:4100';
+export const appPort = process.env.E2E_APP_PORT ?? '3100';
+export const backendPort = Number(process.env.E2E_BACKEND_PORT ?? '4100');
+export const appOrigin = `http://localhost:${appPort}`;
+export const backendOrigin = `http://127.0.0.1:${backendPort}`;
 export const sessionSecret = 'local-test-session-secret-not-for-deployment';
 export const apiSecret = 'local-test-api-secret';
 

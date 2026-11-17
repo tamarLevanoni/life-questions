@@ -1,103 +1,121 @@
 import { create } from 'zustand';
-import { apiCall, UnauthenticatedError } from '@/lib/api-client';
-import type { StoryCard, StoryWithNeighbors, SearchBody, PaginatedStoryCards } from '@/lib/schemas';
+import { apiCall, ApiRequestError, UnauthenticatedError } from '@/lib/api-client';
+import type {
+  StoryCard, StoryWithNeighbors, SearchStart, SearchCursor, CursorStoryCards, SearchPageMeta,
+} from '@/lib/schemas';
 
 interface StoriesState {
-  // Entity cache — full stories by ID
   stories: Record<string, StoryWithNeighbors>;
   setStory: (story: StoryWithNeighbors) => void;
-
-  // Search results — ordered list + UI state
   searchResults: StoryCard[];
   total: number;
-  page: number;
+  cursor: SearchCursor | null;
+  searchMeta: SearchPageMeta | null;
   loading: boolean;
   error: string | null;
+  continuationError: string | null;
+  expired: boolean;
   authRequired: boolean;
-  searchStories: (params: SearchBody) => Promise<void>;
-  loadMoreStories: (params: SearchBody) => Promise<void>;
+  searchStories: (params: SearchStart) => Promise<void>;
+  loadMoreStories: () => Promise<void>;
+  resetSearch: () => void;
   clearAuthRequired: () => void;
 }
 
-function buildInit(body: SearchBody, signal: AbortSignal): RequestInit {
-  return {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    signal,
-  };
-}
+const emptySearch = {
+  searchResults: [], total: 0, cursor: null, searchMeta: null,
+  loading: false, error: null, continuationError: null, expired: false, authRequired: false,
+};
 
-function isAbort(err: unknown): boolean {
-  return err instanceof DOMException && err.name === 'AbortError';
-}
-
-// מבטל את הבקשה הקודמת כדי שרק החיפוש האחרון ישפיע על ה-state
 let activeController: AbortController | null = null;
 
-function nextSignal(): AbortSignal {
+/** מבטל בקשת חיפוש קודמת כדי שרק הבקשה העדכנית תוכל לעדכן את המסך. */
+function nextSignal() {
   activeController?.abort();
   activeController = new AbortController();
   return activeController.signal;
 }
 
+/** שולח ל־BFF בקשת פתיחה עם מסננים או בקשת המשך עם סמן. */
+function requestPage(body: SearchStart | { cursor: SearchCursor }, signal: AbortSignal) {
+  return apiCall<CursorStoryCards>('/api/stories/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+/** מזהה ביטול צפוי שאינו מצריך הודעת שגיאה. */
+function ignoreFailure(signal: AbortSignal, error: unknown) {
+  return signal.aborted || error instanceof DOMException && error.name === 'AbortError';
+}
+
+/** מחלץ הודעה להצגה מהשגיאה או משתמש בהודעת ברירת מחדל. */
+function message(error: unknown) {
+  return error instanceof Error ? error.message : 'שגיאה לא ידועה';
+}
+
+/** שומר את הכרטיסים שנצברו בחיפוש הנוכחי ואת הסמן שהתקבל לעמוד הבא. */
 export const useStoriesStore = create<StoriesState>((set, get) => ({
   stories: {},
-  setStory: (story) =>
-    set((s) => ({ stories: { ...s.stories, [story.id]: story } })),
+  /** שומר את פרטי המקרה לפי מזהה כשכבר נטענו בעמוד המקרה. */
+  setStory: (story) => set((s) => ({ stories: { ...s.stories, [story.id]: story } })),
+  ...emptySearch,
 
-  searchResults: [],
-  total: 0,
-  page: 1,
-  loading: false,
-  error: null,
-  authRequired: false,
-
-  clearAuthRequired: () => set({ authRequired: false }),
-
+  /** מנקה את תוצאות החיפוש הקודם וטוען עמוד ראשון עם סמן חדש. */
   searchStories: async (params) => {
     const signal = nextSignal();
-    set({ loading: true, error: null, searchResults: [], total: 0, page: 1 });
+    set({ ...emptySearch, loading: true });
     try {
-      const data = await apiCall<PaginatedStoryCards>(
-        '/api/stories/search',
-        buildInit({ ...params, page: 1 }, signal)
-      );
-      if (signal.aborted) return; // בקשה חדשה כבר יצאה — תוצאות אלו לא רלוונטיות
-      set({ searchResults: data.stories, total: data.total, page: 1, loading: false });
-    } catch (err) {
-      if (signal.aborted || isAbort(err)) return;
-      if (err instanceof UnauthenticatedError) {
-        set({ loading: false, authRequired: true });
-        return;
-      }
-      set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
+      const data = await requestPage(params, signal);
+      if (signal.aborted) return;
+      set({
+        searchResults: data.stories, total: data.total, cursor: data.nextCursor,
+        searchMeta: data.searchMeta, loading: false,
+      });
+    } catch (error) {
+      if (ignoreFailure(signal, error)) return;
+      set(error instanceof UnauthenticatedError
+        ? { loading: false, authRequired: true }
+        : { loading: false, error: message(error) });
     }
   },
 
-  loadMoreStories: async (params) => {
+  /** שולח בקשת המשך אחת בכל רגע ומצרף את הכרטיסים ואת הסימונים לתוצאות הקיימות. */
+  loadMoreStories: async () => {
+    const { cursor, loading } = get();
+    if (loading || !cursor) return;
     const signal = nextSignal();
-    const nextPage = get().page + 1;
-    set({ loading: true, error: null });
+    set({ loading: true, continuationError: null });
     try {
-      const data = await apiCall<PaginatedStoryCards>(
-        '/api/stories/search',
-        buildInit({ ...params, page: nextPage }, signal)
-      );
-      if (signal.aborted) return; // בקשה חדשה כבר יצאה — תוצאות אלו לא רלוונטיות
+      const data = await requestPage({ cursor }, signal);
+      if (signal.aborted) return;
       set((state) => ({
         searchResults: [...state.searchResults, ...data.stories],
         total: data.total,
-        page: nextPage,
+        cursor: data.nextCursor,
+        searchMeta: { ...data.searchMeta, matches: { ...state.searchMeta?.matches, ...data.searchMeta.matches } },
         loading: false,
       }));
-    } catch (err) {
-      if (signal.aborted || isAbort(err)) return;
-      if (err instanceof UnauthenticatedError) {
+    } catch (error) {
+      if (ignoreFailure(signal, error)) return;
+      if (error instanceof UnauthenticatedError) {
         set({ loading: false, authRequired: true });
-        return;
+      } else if (error instanceof ApiRequestError && error.status === 410) {
+        // שומרים את הכרטיסים שכבר נטענו ומאפשרים למשתמש להתחיל את אותו חיפוש מחדש.
+        set({ loading: false, cursor: null, expired: true });
+      } else {
+        set({ loading: false, continuationError: message(error) });
       }
-      set({ loading: false, error: err instanceof Error ? err.message : 'שגיאה לא ידועה' });
     }
   },
+
+  /** מבטל את הבקשה הפעילה ומחזיר את מצב החיפוש לברירת המחדל. */
+  resetSearch: () => {
+    activeController?.abort();
+    set(emptySearch);
+  },
+  /** מנקה את אות ההתחברות אחרי שהמסך טיפל בו. */
+  clearAuthRequired: () => set({ authRequired: false }),
 }));

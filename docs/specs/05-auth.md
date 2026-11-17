@@ -31,7 +31,7 @@ User-store auth states are `idle`, `unauthenticated`, `registration-required`, `
 
 Content pages do not implement auth redirects. [`proxy.ts`](../../proxy.ts) checks the signed token's identity version for matched pages; it does not require completed registration. It does not match the search API, whose handler authenticates separately.
 
-Home examples and the weekly story use the ordinary story page and its expansion display rules. Previous/next controls and locked expansions open the existing login modal without navigating; incomplete registration uses existing onboarding. Expansion access waits for resolved auth status. After login/onboarding, a second click follows a neighbor link or opens the expansion. This UI rule does not restrict direct story URLs. Expansion locking remains a client display rule; story payloads and the public root bundle still include expansion data. Server-side content protection and SEO policy are separate work, tracked in the [backlog](../planning/backlog.md).
+Home examples and the weekly story use the ordinary story page and its expansion display rules. Previous/next controls and locked expansions open the existing login modal without navigating; incomplete registration uses existing onboarding. Expansion access waits for resolved auth status. After login/onboarding, a second click follows a neighbor link or opens the expansion. This UI rule does not restrict direct story URLs. The Core API sends expansion text only for a verified registered reader. Public story responses and home previews send `hasExpansion` so the page can display a locked panel when an expansion exists.
 
 [`session.ts`](../../lib/server/session.ts) defines the server checks. Search BFF, registration and story-question contact require a Google session. Profile updates additionally require an app user id and completed registration. General contact stays public. The onboarding modal handles `registration-required` users; it does not replace these server checks.
 
@@ -41,7 +41,7 @@ Identity originates in the verified Google provider account. Browser input to `u
 
 Registration input and its returned user must match the session's Google id and email. Profile mutations target the session's app user id; their schema omits id, Google id and email from mutable fields. Their returned user must match all three identity fields before it is passed to client state.
 
-The [callbacks](../../app/api/auth/[...nextauth]/auth-options.ts) and proxy enforce [`AUTH_IDENTITY_VERSION`](../../lib/auth-identity.ts), currently 1. Older cookies require a fresh sign-in. Internal search remains available to sitemap without a browser session. [Session tests](../../tests/unit/auth-session.test.ts) and [boundary tests](../../tests/unit/auth-boundaries.test.ts) cover these trust rules; the [quality foundation record](../planning/done/project-quality-foundation.md) records execution evidence.
+The [callbacks](../../app/api/auth/[...nextauth]/auth-options.ts) and proxy enforce [`AUTH_IDENTITY_VERSION`](../../lib/auth-identity.ts), currently 1. Older cookies require a fresh sign-in. The sitemap lists story IDs through the private Core API without a browser session. [Session tests](../../tests/unit/auth-session.test.ts) and [boundary tests](../../tests/unit/auth-boundaries.test.ts) cover these trust rules; the [quality foundation record](../planning/done/project-quality-foundation.md) records execution evidence.
 
 ## Failure behavior
 

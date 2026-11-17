@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { searchCursorSchema } from './search';
 import { masechetSchema, shuSimanSchema, topicSchema } from './reference';
 
 export const shasPageSchema = z.object({
@@ -23,6 +24,7 @@ export const shuRefSchema = z.object({
 });
 export type ShuRef = z.infer<typeof shuRefSchema>;
 
+/** מגדיר את השדות שמסך התוצאות צריך להצגת כרטיס. */
 export const storyCardSchema = z.object({
   id: z.string(),
   bookId: z.string(),
@@ -36,6 +38,7 @@ export const storyCardSchema = z.object({
 });
 export type StoryCard = z.infer<typeof storyCardSchema>;
 
+/** מגדיר את תוכן הסיפור והמקורות המשותפים לעמוד הפרטים ולתצוגות בדף הבית. */
 export const storySchema = z.object({
   id: z.string(),
   bookId: z.string(),
@@ -62,21 +65,42 @@ export const storySchema = z.object({
 export type Story = z.infer<typeof storySchema>;
 
 const storyRefSchema = z.object({ id: z.string(), title: z.string() }).nullable();
+/** מגדיר את הקישורים לקודם ולבא בסדר הספר. כל כיוון יכול להיות חסר. */
 export const storyNeighborsSchema = z.object({
   prev: storyRefSchema,
   next: storyRefSchema,
 });
 export type StoryNeighbors = z.infer<typeof storyNeighborsSchema>;
 
+/** מרחיב את פרטי הסיפור בנתוני הניווט שהעמוד מקבל מהשרת. */
 export const storyWithNeighborsSchema = storySchema.extend({
   neighbors: storyNeighborsSchema,
 });
 export type StoryWithNeighbors = z.infer<typeof storyWithNeighborsSchema>;
 
-export const paginatedStoryCardsSchema = z.object({
-  stories: z.array(storyCardSchema),
-  total: z.number(),
-  page: z.number(),
-  limit: z.number(),
+/** מאמת את מזהי הסיפורים ודגל ההמשך שנדרשים לבניית מפת האתר. */
+export const sitemapPageSchema = z.object({
+  stories: z.array(z.object({ id: z.string() })),
+  hasMore: z.boolean(),
 });
-export type PaginatedStoryCards = z.infer<typeof paginatedStoryCardsSchema>;
+
+export const searchMatchSchema = z.object({
+  matchType: z.enum(['direct', 'close']),
+  reasonCode: z.enum(['source_match', 'nearby_source']),
+});
+/** מתאר את מצב החיפוש ואת סימוני ההתאמה עבור הכרטיסים שחזרו בעמוד. */
+export const searchPageMetaSchema = z.object({
+  status: z.enum(['complete', 'no_useful_match', 'partial']),
+  sourceMatch: z.enum(['exact', 'same_location', 'nearby']).optional(),
+  matches: z.record(z.string(), searchMatchSchema),
+});
+/** בודק את רשימת הכרטיסים ואת הסמן להמשך בכל תגובת חיפוש. */
+export const cursorStoryCardsSchema = z.object({
+  stories: z.array(storyCardSchema),
+  total: z.number().int().nonnegative(),
+  pageSize: z.literal(10),
+  nextCursor: searchCursorSchema.nullable(),
+  searchMeta: searchPageMetaSchema,
+});
+export type CursorStoryCards = z.infer<typeof cursorStoryCardsSchema>;
+export type SearchPageMeta = z.infer<typeof searchPageMetaSchema>;

@@ -1,5 +1,7 @@
 'use client';
 
+import { MAX_SEARCH_QUERY_LENGTH } from '@/lib/schemas/search';
+
 import { useRef, type RefObject } from 'react';
 import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,9 +19,11 @@ interface SearchQueryFieldProps {
   variant?: 'setup' | 'results';
 }
 
+/** משתף את שדה השאילתה בין שני המסכים ומחיל בשניהם את מגבלת קלט החיפוש. */
 export function SearchQueryField({ id, value, onChange, ref, describedBy, variant = 'results' }: SearchQueryFieldProps) {
   const localRef = useRef<HTMLInputElement>(null);
   const inputRef = ref ?? localRef;
+  /** מנקה את הטקסט בטיוטה ומחזיר את המיקוד לשדה כדי שאפשר יהיה להקליד שוב. */
   const clearQuery = () => {
     onChange('');
     inputRef.current?.focus({ preventScroll: true });
@@ -33,6 +37,7 @@ export function SearchQueryField({ id, value, onChange, ref, describedBy, varian
         ref={inputRef}
         id={id}
         value={value}
+        maxLength={MAX_SEARCH_QUERY_LENGTH}
         onChange={(event) => onChange(event.target.value)}
         placeholder="כתבו את השאלה שלכם"
         aria-describedby={describedBy}

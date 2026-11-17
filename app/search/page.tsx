@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description: 'מצאו סיפורים לפי מסכת ודף, שולחן ערוך וסימן, ספר או נושא — סננו את המאגר במקום לנחש מילות חיפוש.',
 };
 
+/** פותח את מסך החיפוש בתוך Suspense כדי שרכיב החיפוש יוכל לקרוא את הפרמטרים שבכתובת. */
 export default function SearchPage() {
   return (
     <PageShell fullWidth className="min-h-0">

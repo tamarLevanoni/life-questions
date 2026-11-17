@@ -7,10 +7,12 @@ import { cn } from "@/lib/utils";
 import { toHebrewNumeral } from "@/lib/hebrew-numerals";
 import type { ScenarioCardProps } from "@/lib/types";
 
+/** מציג תצוגה מקדימה של המקרה עם נתוני הקטלוג וסימון ההתאמה, ומאפשר לפתוח את עמוד המקרה. */
 export function ScenarioCard({
   story,
   bookName,
   topicName,
+  matchLabel,
   onClick,
   className,
 }: ScenarioCardProps) {
@@ -56,6 +58,9 @@ export function ScenarioCard({
         <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
           {story.legalQuestion}
         </p>
+        {matchLabel && (
+          <Badge variant="outline" className="mt-2 text-muted-foreground">{matchLabel}</Badge>
+        )}
         {shuSiman && (
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs leading-relaxed">
             <Badge

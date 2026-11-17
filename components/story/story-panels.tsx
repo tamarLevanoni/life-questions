@@ -14,6 +14,7 @@ interface StoryPanelsProps {
   onRequestExpansionAccess?: () => void;
 }
 
+/** מציג את מיקום הסיפור בספר ובנושא, ואת המקור המרכזי והווידאו כשהם קיימים. */
 function StoryBreadcrumb({ story, book }: { story: Story; book: Book | undefined }) {
   const siman = story.centralShuSiman;
   return (
@@ -41,6 +42,7 @@ function StoryBreadcrumb({ story, book }: { story: Story; book: Book | undefined
   );
 }
 
+/** מציג יחד הפניות מובנות למקורות והפניות שנשמרו כטקסט חופשי. */
 function StorySourcesList({
   shasRefs,
   shuRefs,
@@ -75,6 +77,7 @@ function StorySourcesList({
   );
 }
 
+/** מציג את גוף הסיפור, השאלה, המקורות והתשובות. סימון קיום ההרחבה מאפשר להציג פאנל נעול גם בלי הטקסט. */
 export function StoryPanels({
   story,
   book,

@@ -8,6 +8,7 @@ import { SearchResultsPanel } from './search-results-panel';
 import { AuthRequiredOverlay } from './auth-required-overlay';
 import styles from './search-layout.module.css';
 
+/** מציג את טופס החיפוש או את מסך התוצאות ומעביר את המיקוד למקום המתאים במעבר ביניהם. */
 export function SearchView() {
   const search = useSearch();
   const previousView = useRef(search.view);

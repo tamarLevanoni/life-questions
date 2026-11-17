@@ -12,11 +12,14 @@ test('guest search prompts login and does not send a backend search', async ({ p
 test('authenticated search sends free text and selected categories', async ({ page, context, request }) => {
   await login(context);
   await page.goto('/search');
+  await expect(page.getByRole('button', { name: 'הצג תוצאות', exact: true })).toBeDisabled();
+  expect((await context.request.post('/api/stories/search', { data: {} })).status()).toBe(400);
+  expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search')).toHaveLength(0);
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('שאלת בדיקה');
   await page.getByRole('checkbox', { name: 'ספר בדיקה', exact: true }).check();
   await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
-  expect((await backendRequests(request)).find(r => r.path === '/api/stories/search')?.body).toMatchObject({ q: 'שאלת בדיקה', bookIds: ['book-1'], page: 1, limit: 10 });
+  expect((await backendRequests(request)).find(r => r.path === '/api/stories/search')?.body).toEqual({ q: 'שאלת בדיקה', bookIds: ['book-1'] });
   await page.getByRole('heading', { name: 'סיפור בדיקה 1', exact: true }).click();
   await expect(page).toHaveURL(/\/story\/story-1$/);
   await expect(page.getByRole('heading', { name: 'סיפור בדיקה 1', exact: true })).toBeVisible();
@@ -34,7 +37,7 @@ test('desktop result query edits do not change the submitted pagination filters'
   await page.getByRole('button', { name: 'טען עוד' }).click();
   await expect(page.getByText('מציג 12 מתוך 12 תוצאות')).toBeVisible();
   const searches = (await backendRequests(request)).filter(r => r.path === '/api/stories/search');
-  expect(searches.at(-1)?.body).toMatchObject({ q: 'החיפוש שנשלח', page: 2 });
+  expect(searches.at(-1)?.body).toEqual({ cursor: { resultSetId: expect.any(String), offset: 10 } });
 });
 
 test('URL parameters trigger a single authorized initial search', async ({ page, context, request }) => {
@@ -107,7 +110,7 @@ test('filter tabs preserve selections and combine both tracks in a single reques
   await expect(page.getByRole('tablist')).toBeHidden();
   await expect(page.getByLabel('מסננים פעילים', { exact: true })).toBeVisible();
   expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search').at(-1)?.body).toMatchObject({
-    bookIds: ['book-1'], topicIds: ['topic-1'], shasRefs: [{ masechetId: 'masechet-1', daf: 2 }], shuRefs: [{ shuSectionId: 'section-1', simanId: 'siman-1' }], page: 1,
+    bookIds: ['book-1'], topicIds: ['topic-1'], shasRefs: [{ masechetId: 'masechet-1', daf: 2 }], shuRefs: [{ shuSectionId: 'section-1', simanId: 'siman-1' }],
   });
   await page.getByRole('button', { name: 'חזרה לחיפוש ולסינון המלא' }).click();
   await expect(page.getByRole('textbox', { name: 'חיפוש חופשי' })).toBeFocused();
@@ -130,7 +133,7 @@ test('removing an applied book searches immediately, clears its topics and prese
   await sent;
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   const body = (await backendRequests(request)).filter(r => r.path === '/api/stories/search').at(-1)?.body;
-  expect(body).toMatchObject({ q: 'נשלח', page: 1 });
+  expect(body).toMatchObject({ q: 'נשלח' });
   expect(body).not.toHaveProperty('bookIds'); expect(body).not.toHaveProperty('topicIds');
   await page.getByRole('button', { name: 'טען עוד' }).click();
   await expect(page.getByText('מציג 12 מתוך 12 תוצאות')).toBeVisible();
@@ -180,5 +183,18 @@ test('desktop results submit edited text with the current category filters', asy
   await query.fill('שאלה חדשה');
   await page.getByRole('button', { name: 'חיפוש', exact: true }).click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
-  expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search').at(-1)?.body).toMatchObject({ q: 'שאלה חדשה', bookIds: ['book-1'], page: 1 });
+  expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search').at(-1)?.body).toMatchObject({ q: 'שאלה חדשה', bookIds: ['book-1'] });
+});
+
+test('expired continuation keeps the current cards until the user restarts', async ({ page, context, request }) => {
+  await login(context);
+  await page.goto('/search?q=פג%20תוקף');
+  await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
+  await page.getByRole('button', { name: 'טען עוד' }).click();
+  await expect(page.getByText('פג הזמן לטעינת סיפורים נוספים.')).toBeVisible();
+  await expect(page.locator('[data-result-cards] article')).toHaveCount(10);
+  expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search')).toHaveLength(2);
+  await page.getByRole('button', { name: 'חיפוש מחדש' }).click();
+  await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
+  expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search')).toHaveLength(3);
 });

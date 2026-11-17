@@ -1,6 +1,6 @@
-import { test, expect, login } from './fixtures';
+import { test, expect, login, backendRequests } from './fixtures';
 
-test('removing tags keeps focus on surviving filters, including dependent topic removal', async ({ page, context }) => {
+test('removing tags focuses surviving filters or returns to setup when none remain', async ({ page, context, request }) => {
   await login(context);
   await page.goto('/search');
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('שאלה');
@@ -17,8 +17,9 @@ test('removing tags keeps focus on surviving filters, including dependent topic 
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'הסרת מסנן נושא בדיקה', exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'חזרה לחיפוש ולסינון המלא', exact: true })).toBeFocused();
-  await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'חיפוש חופשי', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'הצג תוצאות', exact: true })).toBeDisabled();
+  expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search')).toHaveLength(2);
 });
 
 for (const source of [

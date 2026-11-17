@@ -17,6 +17,7 @@ const STARS = [
 
 const STORY_TRUNCATE = 120;
 
+/** מציג תצוגה מקדימה של סיפור השבוע וטוען את נגן הווידאו רק לאחר לחיצה. */
 export function VideoSection() {
   const weeklyStory = useAppDataStore((s) => s.weeklyStory);
   const [started, setStarted] = useState(false);

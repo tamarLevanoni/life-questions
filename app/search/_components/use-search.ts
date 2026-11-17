@@ -8,8 +8,10 @@ import { useUserStore } from '@/lib/stores/user-store';
 import { useAuth } from '@/lib/auth-context';
 import { useToast } from '@/lib/toast-context';
 import type { UiSearchFilters } from '@/lib/types';
+import { hasSearchCriteria, searchStartSchema } from '@/lib/schemas/search';
 import { buildSearchParams, removeSearchFilter, type SearchFilter, type SearchTab } from './search-filter-utils';
 
+/** מחבר בין הטופס, החיפוש השמור בחנות המצב והניווט בין מסך החיפוש לתוצאות. */
 export function useSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -20,6 +22,11 @@ export function useSearch() {
 
   const stories = useStoriesStore((s) => s.searchResults);
   const total = useStoriesStore((s) => s.total);
+  const hasMore = useStoriesStore((s) => s.cursor !== null);
+  const searchMeta = useStoriesStore((s) => s.searchMeta);
+  const continuationError = useStoriesStore((s) => s.continuationError);
+  const expired = useStoriesStore((s) => s.expired);
+  const resetSearch = useStoriesStore((s) => s.resetSearch);
   const loading = useStoriesStore((s) => s.loading);
   const error = useStoriesStore((s) => s.error);
   const authRequired = useStoriesStore((s) => s.authRequired);
@@ -31,20 +38,26 @@ export function useSearch() {
   const topics = useAppDataStore((s) => s.topics);
   const books = useAppDataStore((s) => s.books);
 
-  const hasInitialParams = Boolean(searchParams.get('q') || searchParams.get('bookId'));
+  // מאתחל את הטופס מהשאילתה או מהספר שהועברו בקישור.
   const [initialFilters] = useState<UiSearchFilters>(() => {
     const q = searchParams.get('q') ?? undefined;
     const bookId = searchParams.get('bookId');
     return { q, bookIds: bookId ? [bookId] : undefined };
   });
+  const [initialSearch] = useState(() => searchStartSchema.safeParse(buildSearchParams(initialFilters)));
+  // אפשר לערוך את הטיוטה בזמן שהתוצאות עדיין שייכות לחיפוש האחרון.
   const [draftFilters, setDraftFilters] = useState(initialFilters);
-  const [view, setView] = useState<'setup' | 'results'>(hasInitialParams ? 'results' : 'setup');
+  const [view, setView] = useState<'setup' | 'results'>(initialSearch.success ? 'results' : 'setup');
   const [activeTab, setActiveTab] = useState<SearchTab>('book-topic');
   const initialSearchStarted = useRef(false);
-  // Pagination and result tags use the submitted snapshot, independently of draft edits.
+  // Result tags and a manual restart use the submitted filters.
   const [submittedFilters, setSubmittedFilters] = useState(initialFilters);
 
+  /** בודק התחברות ותקינות, שומר את הבחירות שהוגשו ופותח חיפוש חדש. */
   const submit = useCallback((next: UiSearchFilters) => {
+    const params = buildSearchParams(next);
+    if (!hasSearchCriteria(params)) return;
+
     if (authStatus !== 'authenticated') {
       if (isUnauthenticated) {
         showToast('יש להתחבר כדי לבצע חיפוש', 'info');
@@ -52,35 +65,54 @@ export function useSearch() {
       }
       return;
     }
+    const parsed = searchStartSchema.safeParse(params);
+    if (!parsed.success) {
+      showToast(parsed.error.issues[0]?.message ?? 'בקשת חיפוש לא תקינה', 'info');
+      return;
+    }
     setView('results');
     setSubmittedFilters(next);
-    void searchStories(buildSearchParams(next));
+    void searchStories(parsed.data);
   }, [authStatus, isUnauthenticated, showToast, openLoginModal, searchStories]);
 
+  /** שולח את טיוטת החיפוש כפי שהיא עכשיו. */
   const handleSearch = () => submit(draftFilters);
+  /** מעדכן רק את הטיוטה עד להגשה. */
   const handleQueryChange = (q: string) => {
     setDraftFilters((draft) => ({ ...draft, q: q || undefined }));
   };
+  /** מחפש שוב לאחר הסרת מסנן, או חוזר לטופס אם לא נותרו תנאי חיפוש. */
   const handleRemoveFilter = (filter: SearchFilter) => {
     setDraftFilters((draft) => removeSearchFilter(draft, filter, topics));
-    submit(removeSearchFilter(submittedFilters, filter, topics));
+    const next = removeSearchFilter(submittedFilters, filter, topics);
+    if (hasSearchCriteria(buildSearchParams(next))) {
+      submit(next);
+      return;
+    }
+    resetSearch();
+    setSubmittedFilters(next);
+    setView('setup');
   };
+  /** מבטל עבודה פעילה, מאפס את הטופס וחוזר למסך החיפוש. */
   const handleClearAll = () => {
+    resetSearch();
     setDraftFilters({});
     setSubmittedFilters({});
     setActiveTab('book-topic');
     setView('setup');
   };
 
+  /** ממשיך את החיפוש מהסמן שכבר נשמר לאחר בדיקת מצב ההתחברות. */
   const handleLoadMore = useCallback(() => {
     if (isUnauthenticated) {
       showToast('יש להתחבר כדי לבצע חיפוש', 'info');
       openLoginModal();
       return;
     }
-    loadMoreStories(buildSearchParams(submittedFilters));
-  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories, submittedFilters]);
+    void loadMoreStories();
+  }, [isUnauthenticated, showToast, openLoginModal, loadMoreStories]);
 
+  /** פותח את עמוד המקרה שבחר המשתמש מתוך התוצאות. */
   const handleStoryClick = useCallback(
     (story: { id: string }) => {
       router.push(`/story/${story.id}`);
@@ -89,6 +121,7 @@ export function useSearch() {
   );
 
   useEffect(() => {
+    // מטפל גם בדחייה מהשרת כשהתחברות שהייתה בתוקף פגה במהלך השימוש.
     if (!authRequired) return;
     showToast('יש להתחבר כדי לבצע חיפוש', 'info');
     openLoginModal();
@@ -96,16 +129,15 @@ export function useSearch() {
   }, [authRequired, showToast, openLoginModal, clearAuthRequired]);
 
   useEffect(() => {
-    if (!hasInitialParams || authStatus === 'idle' || initialSearchStarted.current) return;
+    // קישור עם ערכי חיפוש מתחיל בקשה אחת ברגע שמצב ההתחברות מאפשר זאת.
+    if (!initialSearch.success || authStatus === 'idle' || initialSearchStarted.current) return;
     if (authStatus !== 'authenticated') {
       openLoginModal();
       return;
     }
     initialSearchStarted.current = true;
-    void searchStories(buildSearchParams(initialFilters));
-  }, [hasInitialParams, authStatus, openLoginModal, searchStories, initialFilters]);
-
-  const hasMore = stories.length < total;
+    void searchStories(initialSearch.data);
+  }, [initialSearch, authStatus, openLoginModal, searchStories]);
 
   return {
     draftFilters,
@@ -115,10 +147,15 @@ export function useSearch() {
     setView,
     activeTab,
     setActiveTab,
-    canSearch: authStatus === 'authenticated',
+    canSearch: authStatus === 'authenticated' && hasSearchCriteria(buildSearchParams(draftFilters)),
     handleRemoveFilter,
     handleClearAll,
     hasMore,
+    searchMeta,
+    continuationError,
+    expired,
+    // מתחיל מחדש עם הבחירות שהניבו את התוצאות המוצגות, למשל לאחר פקיעת הסמן.
+    handleRestart: () => submit(submittedFilters),
     isUnauthenticated,
     stories,
     total,

@@ -13,6 +13,7 @@ type ShasSubProps = {
   className?: string;
 };
 
+/** מאפשר לבחור מסכת ואז לצמצם לדף מתוך הדפים הזמינים בה. */
 export function ShasSubFilters({ masechtot, sourceRef, onRefChange, usedDafs = [], className }: ShasSubProps) {
   const [masechetOpen, setMasechetOpen] = useState(false);
   const [dafOpen, setDafOpen] = useState(false);
@@ -37,10 +38,12 @@ export function ShasSubFilters({ masechtot, sourceRef, onRefChange, usedDafs = [
   const activeDaf = sourceRef.daf !== undefined ? String(sourceRef.daf) : undefined;
   const activeDafLabel = dafOptions.find((o) => o.value === activeDaf)?.label;
 
+  /** מחליף מסכת ומאפס את הדף שתלוי במסכת הקודמת. */
   const handleMasechetSelect = (value: string) => {
     onRefChange({ ...sourceRef, masechetId: activeMasechet === value ? undefined : value, daf: undefined });
     setMasechetOpen(false);
   };
+  /** בוחר דף במסכת הנוכחית או מבטל את הבחירה בו. */
   const handleDafSelect = (value: string) => {
     onRefChange({ ...sourceRef, daf: activeDaf === value ? undefined : Number(value) });
     setDafOpen(false);

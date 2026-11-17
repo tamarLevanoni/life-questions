@@ -1,5 +1,5 @@
 import { mkdir } from 'node:fs/promises';
-import { testEnvironment } from './environment';
+import { appPort, testEnvironment } from './environment';
 
 Object.assign(process.env, testEnvironment);
 await mkdir('.cache/e2e', { recursive: true });
@@ -21,8 +21,8 @@ async function run(args: string[]) {
   process.off('SIGTERM', stop); process.off('SIGINT', stop);
   if (code !== 0) process.exit(code);
 }
-if (mode === 'dev') await run(['dev', '--hostname', 'localhost', '--port', '3100']);
+if (mode === 'dev') await run(['dev', '--hostname', 'localhost', '--port', appPort]);
 else {
   await run(['build']);
-  if (mode !== 'build') await run(['start', '--hostname', 'localhost', '--port', '3100']);
+  if (mode !== 'build') await run(['start', '--hostname', 'localhost', '--port', appPort]);
 }

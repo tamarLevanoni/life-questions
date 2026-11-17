@@ -19,7 +19,8 @@ The server sends `x-api-secret` to `BACKEND_API_URL`. Expected responses are `{ 
 | GET /api/stories/featured | full example stories, not ids | storySchema[] |
 | GET /api/stories/weekly | full weekly story or null | storySchema.nullable() |
 | GET /api/stories/:id | story with previous/next | storyWithNeighborsSchema |
-| POST /api/stories/search | user search and internal sitemap read | searchBodySchema -> paginatedStoryCardsSchema |
+| POST /api/stories/search | browser search with a continuation cursor | cursorSearchBodySchema -> cursorStoryCardsSchema |
+| GET /api/stories/sitemap | internal paginated story ID listing | sitemapPageSchema |
 | GET /api/users/google/:googleId | lookup by verified Google identity | userDataSchema; 404 means not registered |
 | POST /api/users | registration | registerUserSchema -> userDataSchema |
 | PATCH /api/users/profile/:id | current user edit | updateUserSchema -> userDataSchema |
@@ -37,7 +38,7 @@ The exact schemas live in [story.ts](../../lib/schemas/story.ts), [reference.ts]
 
 ## Validation limits
 
-`searchBodySchema` requires positive integer `page`/`limit`, with a maximum limit of 50, matching the backend validator. Daf/seif values must be positive integers; a seif requires a siman. The UI requests ten results at a time and the sitemap requests pages of 50. The upstream also validates UUID filter ids; frontend types do not replace that validation. Registration/profile reuse the form constraints described in [Domain](07-domain-model.md).
+Daf and seif values must be positive integers. A seif requires a siman. A new search requires a valid query or at least one filter entry. The BFF rejects empty searches with 400 and the Core API rejects them with 422. A continuation sends only `{ cursor }`. Search pages contain up to ten cards. The sitemap reads numbered pages from its own endpoint with a default limit of 50. The BFF derives `x-search-account` from the verified session. A 410 on continuation leaves loaded cards visible and allows a manual restart. The Core API also validates UUID filter IDs. Registration and profile use the form constraints described in the domain model. [Domain model](07-domain-model.md)
 
 On 2026-11-04, the correction was applied to the local sibling backend: registration and every profile update require an explicit literal `marketingConsent: true`; missing, false, null and string values return 422 before database access. Swagger and existing integration-test requests were updated, and isolated controller/service tests cover validation and persistence with a mocked database. Success responses no longer print their payloads to the console. No database migration or automatic change to existing users' consent is included. The [quality foundation record](../planning/done/project-quality-foundation.md) records local verification; the backend has not been deployed as part of this work.
 

@@ -15,6 +15,7 @@ interface FilterCheckListProps {
   label: string;
 }
 
+/** מציג אפשרויות לבחירה מרובה ויכול לסנן מקומית את שמות האפשרויות. */
 export function FilterCheckList({ options, selected, onToggle, listClassName = 'max-h-80', searchable = false, label }: FilterCheckListProps) {
   const [search, setSearch] = useState('');
   const listId = useId();
