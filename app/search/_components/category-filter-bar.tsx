@@ -17,18 +17,22 @@ interface Props extends CategoryFilterBarProps {
 const tabClass = 'flex min-h-7 min-w-0 flex-1 items-center justify-center gap-2 rounded-[0.375rem] px-2 py-0.5 text-[0.6875rem] font-semibold leading-4 text-muted-foreground transition-colors data-[state=active]:bg-primary/8 data-[state=active]:text-primary md:min-h-9 md:rounded-xl md:py-1.5 md:text-xs md:leading-6';
 const headingClass = 'flex min-h-6 shrink-0 flex-wrap items-center justify-between gap-1 border-b border-border px-1.5 py-0.5 md:min-h-9 md:px-2 md:py-1.5';
 
+/** מקבץ את מסנני הקטלוג ואת מסנני המקורות בלשוניות של טופס החיפוש. */
 export function CategoryFilterBar({ masechtot, shuSections, topics, books, activeFilters, onFiltersChange, activeTab, onTabChange, className }: Props) {
   const { bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = activeFilters;
   const bookOptions = books.map((book) => ({ value: book.id, label: book.name }));
   const availableTopics = bookIds.length ? topics.filter((topic) => bookIds.includes(topic.bookId)) : topics;
   const topicOptions = availableTopics.map((topic) => ({ value: topic.id, label: topic.name }));
+  /** מעדכן את הלשונית הפעילה ושומר את בחירות המסננים. */
   const changeTab = (value: string) => {
     if (value === 'book-topic' || value === 'sources') onTabChange(value);
   };
+  /** מוסיף או מסיר ספר ומעדכן את רשימת הנושאים שנבחרו בהתאם. */
   const toggleBook = (id: string) => {
     const selected = bookIds.includes(id) ? bookIds.filter((bookId) => bookId !== id) : [...bookIds, id];
     onFiltersChange(selectBooks(activeFilters, selected, topics));
   };
+  /** מוסיף או מסיר נושא מהטיוטה בלי לשלוח בקשת חיפוש. */
   const toggleTopic = (id: string) => {
     const selected = topicIds.includes(id) ? topicIds.filter((topicId) => topicId !== id) : [...topicIds, id];
     onFiltersChange({ ...activeFilters, topicIds: selected.length ? selected : undefined });

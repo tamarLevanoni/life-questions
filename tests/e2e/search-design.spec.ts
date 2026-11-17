@@ -2,12 +2,14 @@ import AxeBuilder from '@axe-core/playwright';
 import type { Page, TestInfo } from '@playwright/test';
 import { test, expect, login } from './fixtures';
 
+/** מצרף לדוח הבדיקה צילום של האזור הנראה במסך. */
 async function capture(page: Page, info: TestInfo, name: string) {
   const screenshot = info.outputPath(`${name}.png`);
   await page.screenshot({ path: screenshot, fullPage: false, scale: 'css' });
   await info.attach(name, { path: screenshot, contentType: 'image/png' });
 }
 
+/** בודק שהכפתור כולו בחלון ונמצא מתחת לכותרת הקבועה. */
 async function expectInViewport(page: Page, name: string, regionName?: string) {
   const scope = regionName ? page.getByRole('region', { name: regionName, exact: true }) : page;
   const control = scope.getByRole('button', { name, exact: true });
@@ -18,6 +20,7 @@ async function expectInViewport(page: Page, name: string, regionName?: string) {
   expect(box!.y + box!.height, name).toBeLessThanOrEqual(page.viewportSize()!.height);
 }
 
+/** סופר רק שורות שהגובה המלא שלהן נכנס לשטח רשימת המסננים. */
 async function visibleFilterRows(page: Page, name: string) {
   return page.getByRole('group', { name, exact: true }).evaluate(group => {
     const bounds = group.getBoundingClientRect();
@@ -28,6 +31,7 @@ async function visibleFilterRows(page: Page, name: string) {
   });
 }
 
+/** בודק נגישות בתוכן הראשי וגם שהדף אינו גולש לרוחב. */
 async function scan(page: Page) {
   const results = await new AxeBuilder({ page }).include('main').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(results.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => ({ target: node.target, summary: node.failureSummary })) }))).toEqual([]);
@@ -137,6 +141,8 @@ test('enlarged text and several source rows keep every control reachable', async
   const submitBox = await submit.boundingBox();
   expect(submitBox!.x).toBeGreaterThanOrEqual(-1);
   expect(submitBox!.x + submitBox!.width).toBeLessThanOrEqual(page.viewportSize()!.width + 1);
+  await expect(submit).toBeDisabled();
+  await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('חיפוש לדוגמה');
   await submit.click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   await capture(page, info, 'enlarged-text');

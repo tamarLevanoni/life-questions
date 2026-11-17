@@ -13,6 +13,7 @@ type ShuSubProps = {
   className?: string;
 };
 
+/** מאפשר לבחור חלק ואז לצמצם לסימן מתוך הסימנים הזמינים בו. */
 export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange, usedSimanim = [], className }: ShuSubProps) {
   const [sectionOpen, setSectionOpen] = useState(false);
   const [simanOpen, setSimanOpen] = useState(false);
@@ -33,10 +34,12 @@ export function ShulchanAruchSubFilters({ shuSections, sourceRef, onRefChange, u
   const activeSiman = sourceRef.simanId;
   const activeSimanLabel = simanOptions.find((o) => o.value === activeSiman)?.label;
 
+  /** בוחר חלק או מבטל את בחירתו, ומאפס את הסימן שתלוי בחלק הקודם. */
   const handleSectionSelect = (value: string) => {
     onRefChange({ ...sourceRef, shuSectionId: activeSection === value ? undefined : value, simanId: undefined });
     setSectionOpen(false);
   };
+  /** בוחר סימן בחלק הנוכחי או מבטל את הבחירה בו. */
   const handleSimanSelect = (value: string) => {
     onRefChange({ ...sourceRef, simanId: activeSiman === value ? undefined : value });
     setSimanOpen(false);

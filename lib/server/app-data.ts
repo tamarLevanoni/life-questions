@@ -52,6 +52,7 @@ export async function getBooks(): Promise<Book[]> {
   return fetchList('/api/reference/books', z.array(bookSchema));
 }
 
+/** משאיר בנתוני דף הבית את סימון קיום ההרחבה ומסיר את הטקסט שלה. */
 function storyPreview(story: Story): Story {
   return {
     ...story,
@@ -60,6 +61,7 @@ function storyPreview(story: Story): Story {
   };
 }
 
+/** טוען ושומר במטמון את הדוגמאות הציבוריות להצגה בדף הבית. */
 export async function getFeaturedStories(): Promise<Story[]> {
   'use cache';
   cacheLife('hours');
@@ -69,6 +71,7 @@ export async function getFeaturedStories(): Promise<Story[]> {
   return stories.map(storyPreview);
 }
 
+/** טוען ושומר במטמון את התצוגה הציבורית של סיפור השבוע, אם יש סיפור נבחר. */
 export async function getWeeklyStory(): Promise<Story | null> {
   'use cache';
   cacheLife('weeks');

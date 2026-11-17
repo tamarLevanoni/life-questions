@@ -11,7 +11,7 @@ A story contains a scenario (`storyBody`), legal question, short answer and opti
 - `StoryCard`: partial search result; it is not a full story.
 - `Story`: full content used for examples/weekly stories.
 - `StoryWithNeighbors`: full story plus nullable previous/next references.
-- Search results carry `stories`, `total`, `page`, `limit`; preserve backend order.
+- Browser search results carry `stories`, `total`, `pageSize`, `nextCursor` and `searchMeta`. Preserve backend order. The sitemap reads numbered pages of story IDs from a separate endpoint.
 
 The exact fields/nullable values are owned by [`lib/schemas/story.ts`](../../lib/schemas/story.ts). Do not assume search cards contain `storyBody` or expansion.
 
@@ -25,7 +25,7 @@ The weekly story from the Core API and `/weekly-question` are separate surfaces.
 
 ## Search
 
-[`lib/schemas/search.ts`](../../lib/schemas/search.ts) owns server request fields: optional free text, book/topic ids, Shas/Shulchan Aruch refs, concepts, page and limit. UI-only row ids live in `UiSearchFilters`, not the API body. The schema accepts `concepts`, but the current search UI does not expose that filter. Browser code builds parameters and manages requests; the backend ranks and interprets matches.
+[`lib/schemas/search.ts`](../../lib/schemas/search.ts) defines search requests. A new search requires free text or at least one filter (book, topic, Shas or Shulchan Aruch reference, or concept). A continuation sends only its cursor. UI-only row ids live in `UiSearchFilters`, not the API body. The schema accepts `concepts`, but the current search UI does not expose that filter. Browser code builds parameters and manages requests; the backend ranks and interprets matches.
 
 ## Users and contact
 

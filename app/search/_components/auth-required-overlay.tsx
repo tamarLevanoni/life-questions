@@ -6,6 +6,7 @@ interface AuthRequiredOverlayProps {
   onClick: () => void;
 }
 
+/** מציג כניסה לחשבון כשהמסך אינו זמין למשתמש שלא התחבר. */
 export function AuthRequiredOverlay({ onClick }: AuthRequiredOverlayProps) {
   return (
     <button

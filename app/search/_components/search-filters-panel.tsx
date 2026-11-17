@@ -13,7 +13,9 @@ interface SearchFiltersPanelProps {
   queryRef: RefObject<HTMLInputElement | null>;
 }
 
+/** עורך את טיוטת השאילתה והמסננים ושולח אותה רק בהגשת הטופס. */
 export function SearchFiltersPanel({ search, queryRef }: SearchFiltersPanelProps) {
+  /** מאפס את החיפוש ומחזיר את המיקוד לשדה השאילתה. */
   const clearAll = () => {
     search.handleClearAll();
     queryRef.current?.focus({ preventScroll: true });
@@ -36,7 +38,7 @@ export function SearchFiltersPanel({ search, queryRef }: SearchFiltersPanelProps
           </Button>
         </div>
         <p id="free-search-hint" className="mt-0.5 text-[0.625rem] leading-3.5 text-muted-foreground md:text-[0.6875rem] md:leading-relaxed">
-          חיפוש AI בפיתוח • מומלץ לפרט את השאלה
+          הקלידו שאלה או בחרו מסנן כדי לחפש
         </p>
       </div>
       <CategoryFilterBar

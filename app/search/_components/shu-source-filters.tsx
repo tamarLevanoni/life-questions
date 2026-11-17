@@ -14,16 +14,20 @@ interface ShuSourceFiltersProps {
   onChange: (sources: UiShuRef[]) => void;
 }
 
+/** מנהל כמה שורות מקור לפי חלק וסימן, ומעביר לכל שורה את הבחירות שכבר נעשו בשורות האחרות. */
 export function ShuSourceFilters({ shuSections, sources, onChange }: ShuSourceFiltersProps) {
   const selectedSimanim = sources.flatMap((source) =>
     source.shuSectionId && source.simanId
       ? [{ id: source.id, shuSectionId: source.shuSectionId, simanId: source.simanId }]
       : []
   );
+  /** מוסיף שורת מקור ריקה עם מזהה מקומי שנשאר קבוע בזמן העריכה. */
   const addSource = () => onChange([...sources, { id: crypto.randomUUID() }]);
+  /** מעדכן את הבחירה בשורה לפי המזהה המקומי שלה. */
   const updateSource = (updated: UiShuRef) => {
     onChange(sources.map((source) => source.id === updated.id ? updated : source));
   };
+  /** מעביר את המיקוד לכפתור סמוך לפני הסרת השורה. */
   const removeSource = (index: number, button: HTMLButtonElement) => {
     const card = button.closest('[data-source-card]');
     const buttons = card?.querySelectorAll<HTMLButtonElement>('[data-remove-source]');

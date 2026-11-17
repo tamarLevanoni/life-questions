@@ -16,11 +16,13 @@
   gap: 0.5rem;
 }
 
+/* גובה מסנני הספר והנושא תלוי בגובה החלון, כדי להשאיר מקום לפקדי השליחה. */
 .bookTopic {
   max-height: clamp(8rem, calc(100dvh - 25rem), 17rem);
   grid-template-rows: minmax(0, 1fr);
 }
 
+/* מאפשר לגלול בתוך רשימת הפניות ארוכה ושומר את הגלילה בתוך הרשימה בקצה שלה. */
 .sourceRows {
   max-height: max(4rem, min(8rem, calc((100dvh - 29rem) / 2)));
   overflow-y: auto;

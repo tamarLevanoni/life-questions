@@ -8,6 +8,7 @@ const headingFont = Noto_Serif_Hebrew({
   display: 'swap',
 });
 
+/** מציג את כותרת מסך החיפוש מעל הטופס הראשי. */
 export function SearchHeader() {
   return (
     <div className="py-3 text-center md:py-4" dir="rtl">

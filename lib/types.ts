@@ -46,6 +46,7 @@ export interface UiSearchFilters {
 // ==================== COMPONENT PROPS ====================
 
 export interface ScenarioCardProps {
+  matchLabel?: string;
   story: StoryCard | Story | StoryWithNeighbors;
   bookName?: string;
   topicName?: string;
@@ -73,6 +74,8 @@ export interface CategoryFilterBarProps {
 }
 
 export interface SearchResultsListProps {
+  expired?: boolean;
+  matches?: import('@/lib/schemas/story').SearchPageMeta['matches'];
   stories: StoryCard[];
   books: Book[];
   topics: Topic[];
@@ -81,6 +84,4 @@ export interface SearchResultsListProps {
   total: number;
   onLoadMore: () => void;
   onStoryClick: (story: { id: string }) => void;
-  emptyMessage?: string;
-  emptyHint?: string;
 }

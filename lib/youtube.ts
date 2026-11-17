@@ -1,3 +1,4 @@
+/** מחלץ מזהה וידאו מקישור מקוצר או מהפרמטר v בכתובת רגילה. */
 function extractVideoId(url: string): string | null {
   try {
     const parsed = new URL(url);
@@ -8,6 +9,7 @@ function extractVideoId(url: string): string | null {
   }
 }
 
+/** בונה כתובת להטמעה ולהפעלה לפי בחירה, עם הכתובת המקורית כברירת מחדל אם לא זוהה מזהה. */
 export function getYouTubeEmbedUrl(url: string, autoplay = false): string {
   const videoId = extractVideoId(url);
   if (videoId) {
@@ -17,6 +19,7 @@ export function getYouTubeEmbedUrl(url: string, autoplay = false): string {
   return url;
 }
 
+/** בונה כתובת לתמונה שאפשר להציג לפני טעינת הנגן. */
 export function getYouTubeThumbnail(url: string): string | null {
   const videoId = extractVideoId(url);
   if (!videoId) return null;

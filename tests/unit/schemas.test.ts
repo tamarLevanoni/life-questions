@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  storyWithNeighborsSchema, storyCardSchema, paginatedStoryCardsSchema, bookSchema,
-  userDataSchema, onboardingSchema, profileEditSchema, contactSchema, contactFormSchema, searchBodySchema,
+  storyWithNeighborsSchema, storyCardSchema, cursorStoryCardsSchema, bookSchema,
+  userDataSchema, onboardingSchema, profileEditSchema, contactSchema, contactFormSchema, cursorSearchBodySchema,
 } from '@/lib/schemas';
 import { makeStory, makeCard, makeBundle, testUser, validContact } from '../fixtures/data';
 
@@ -11,13 +11,13 @@ describe('Core API and form schemas', () => {
     expect(storyCardSchema.safeParse(makeCard()).success).toBe(true);
     expect(bookSchema.safeParse(makeBundle().books[0]).success).toBe(true);
     expect(userDataSchema.safeParse(testUser).success).toBe(true);
-    expect(paginatedStoryCardsSchema.safeParse({ stories: [makeCard()], total: 1, page: 1, limit: 10 }).success).toBe(true);
+    expect(cursorStoryCardsSchema.safeParse({ stories: [makeCard()], total: 1, pageSize: 10, nextCursor: null, searchMeta: { status: 'complete', matches: {} } }).success).toBe(true);
   });
 
   test('rejects incomplete upstream stories, invalid users and malformed pagination', () => {
     expect(storyWithNeighborsSchema.safeParse({ id: 'story-1' }).success).toBe(false);
     expect(userDataSchema.safeParse({ ...testUser, email: 'invalid' }).success).toBe(false);
-    expect(paginatedStoryCardsSchema.safeParse({ stories: [], total: 'many' }).success).toBe(false);
+    expect(cursorStoryCardsSchema.safeParse({ stories: [], total: 'many' }).success).toBe(false);
     expect(bookSchema.safeParse({ ...makeBundle().books[0], orderIndex: 'first' }).success).toBe(false);
   });
 
@@ -42,8 +42,12 @@ describe('Core API and form schemas', () => {
   });
 
   test('search accepts server parameters but rejects wrong data types', () => {
-    expect(searchBodySchema.safeParse({ q: 'בדיקה', bookIds: ['book-1'], page: 1, limit: 10 }).success).toBe(true);
-    expect(searchBodySchema.safeParse({ bookIds: 'book-1' }).success).toBe(false);
-    expect(searchBodySchema.safeParse({ page: 'one' }).success).toBe(false);
+    expect(cursorSearchBodySchema.safeParse({ q: 'בדיקה', bookIds: ['book-1'] }).success).toBe(true);
+    expect(cursorSearchBodySchema.safeParse({ bookIds: ['book-1'] }).success).toBe(true);
+    expect(cursorSearchBodySchema.safeParse({}).success).toBe(false);
+    expect(cursorSearchBodySchema.safeParse({ bookIds: [], topicIds: [] }).success).toBe(false);
+    expect(cursorSearchBodySchema.safeParse({ q: '   ' }).success).toBe(false);
+    expect(cursorSearchBodySchema.safeParse({ bookIds: 'book-1' }).success).toBe(false);
+    expect(cursorSearchBodySchema.safeParse({ page: 1 }).success).toBe(false);
   });
 });

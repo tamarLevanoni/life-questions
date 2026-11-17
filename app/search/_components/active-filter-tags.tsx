@@ -25,10 +25,12 @@ interface FilterTag {
   label: string;
 }
 
+/** מציג שמות קריאים עבור המסננים שנשלחו לחיפוש ומאפשר להסיר אותם בנפרד. */
 export function ActiveFilterTags({ filters, books, topics, masechtot, shuSections, onRemove, onClear, onEmpty }: ActiveFilterTagsProps) {
   const pendingRemoval = useRef<{ index: number; container: HTMLElement } | null>(null);
   const { q = '', bookIds = [], topicIds = [], shasRefs = [], shuRefs = [] } = filters;
   const tags: FilterTag[] = [];
+  /** מקשר בין הטקסט המוצג לזיהוי המסנן שצריך להעביר לפעולת ההסרה. */
   const addTag = (filter: SearchFilter, label: string) => {
     const key = filter.type === 'query' ? 'query' : filter.type + '-' + filter.id;
     tags.push({ key, filter, label });

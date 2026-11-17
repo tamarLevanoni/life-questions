@@ -25,6 +25,7 @@ interface SearchComboboxProps {
   disabled?: boolean;
 }
 
+/** מסנן בזמן הקלדה אפשרויות של מסנן יחיד, ושולח את הבחירה לטופס. */
 export function SearchCombobox({ open, onOpenChange, fieldLabel, label, activeValue, onClear, options, onSelect, placeholder, popoverWidth, disabled = false }: SearchComboboxProps) {
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -33,6 +34,7 @@ export function SearchCombobox({ open, onOpenChange, fieldLabel, label, activeVa
   const [search, setSearch] = useState('');
   const filtered = options.filter((option) => option.label.includes(search));
 
+  /** שומר את מיקום הגלילה בפתיחה ומאפס את הטקסט המקומי בסגירה. */
   const changeOpen = (value: boolean) => {
     if (value) {
       scrollPosition.current = window.scrollY;
@@ -42,10 +44,12 @@ export function SearchCombobox({ open, onOpenChange, fieldLabel, label, activeVa
     }
     onOpenChange(value);
   };
+  /** מנקה את הבחירה ומחזיר את המיקוד לכפתור שפותח את הרשימה. */
   const clearSelection = () => {
     trigger.current?.focus({ preventScroll: true });
     onClear();
   };
+  /** מחזיר את מיקום הגלילה אחרי שהמיקוד חוזר לכפתור בעקבות סגירה. */
   const restoreScrollAfterClose = () => {
     if (interactedOutside.current) return;
     // Keep Radix's focus return. On compact pages it can scroll controls behind

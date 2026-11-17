@@ -12,6 +12,7 @@ interface StoryPageProps {
   params: Promise<{ id: string }>;
 }
 
+/** מפיק כותרת ותיאור מפרטי הסיפור הציבוריים עבור תוצאות חיפוש ותצוגות מקדימות של קישור. */
 export async function generateMetadata({ params }: StoryPageProps): Promise<Metadata> {
   const { id } = await params;
   try {
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
   }
 }
 
+/** מציג את מעטפת העמוד ומראה מצב טעינה עד שהשרת מסיים לאחזר את הסיפור. */
 export default function StoryPage({ params }: StoryPageProps) {
   return (
     <PageShell maxWidth="3xl">
@@ -38,6 +40,7 @@ export default function StoryPage({ params }: StoryPageProps) {
   );
 }
 
+/** טוען את גרסת הסיפור שמתאימה לקורא ומעביר אותה לתצוגה ולחנות המצב. */
 async function StoryContent({ params }: StoryPageProps) {
   const { id } = await params;
 
@@ -49,6 +52,7 @@ async function StoryContent({ params }: StoryPageProps) {
     throw err;
   }
 
+  // מפרסם במידע המובנה למנועי חיפוש את הכותרת וגוף הסיפור הציבורי.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',

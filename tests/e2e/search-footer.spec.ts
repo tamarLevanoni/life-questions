@@ -1,6 +1,7 @@
 import type { Page, TestInfo } from '@playwright/test';
 import { test, expect, login } from './fixtures';
 
+/** בודק שאין שטח גלילה מיותר מתחת לכותרת התחתונה, גם כשהתוכן קצר מגובה המסך. */
 async function expectDocumentEndsAtFooter(page: Page) {
   await expect.poll(() => page.evaluate(() => {
     const footerBottom = document.querySelector('footer')!.getBoundingClientRect().bottom + window.scrollY;
@@ -8,6 +9,7 @@ async function expectDocumentEndsAtFooter(page: Page) {
   })).toBeLessThanOrEqual(2);
 }
 
+/** גולל אל הכותרת התחתונה ומצרף לדוח צילום של הפריסה המלאה. */
 async function captureFooter(page: Page, info: TestInfo, name: string) {
   await page.getByRole('contentinfo').scrollIntoViewIfNeeded();
   const screenshot = info.outputPath(`${name}.png`);

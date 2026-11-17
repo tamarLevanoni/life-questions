@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import type { ExpandableAnswerPanelProps } from '@/lib/types';
 import { ChevronDown, Lock, Eye, EyeOff } from 'lucide-react';
 
+/** מציג את התשובה הקצרה או ההרחבה בפאנל שניתן לפתוח ולסגור לפי ההרשאה. */
 export function ExpandableAnswerPanel({
   title,
   content,
@@ -15,6 +16,7 @@ export function ExpandableAnswerPanel({
 }: ExpandableAnswerPanelProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
+  /** אם הפאנל נעול, מפעיל את בקשת הגישה ומשאיר אותו סגור. אחרת מחליף את מצב הפתיחה. */
   const handleToggle = () => {
     if (isLocked) {
       onRequestAccess?.();

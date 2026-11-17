@@ -6,6 +6,7 @@ import { SectionHeader } from '@/components/ui/section-header';
 import { MotionFadeIn } from '@/components/common/motion-fade-in';
 import { getCategoryColor, getBookIcon } from '@/lib/config/category-colors';
 
+/** מציג סיפורים נבחרים מנתוני דף הבית, עם קישור לעמוד הסיפור הרגיל. */
 export function StoryExamplesList() {
   const stories = useAppDataStore((s) => s.featuredStories);
   const books = useAppDataStore((s) => s.books);

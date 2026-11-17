@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next';
-import { searchStories } from '@/lib/server/stories';
+import { listSitemapStories } from '@/lib/server/stories';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://life-questions.example';
 
+/** משלב את העמודים הקבועים עם כתובות הסיפורים מ־Core API, ומציג את הקבועים גם כשאחזור הסיפורים נכשל. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticUrls: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: 'weekly', priority: 1 },
@@ -14,19 +15,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const storyUrls: MetadataRoute.Sitemap = [];
     const seen = new Set<string>();
-    const limit = 50;
     let page = 1;
-    let received = 0;
     while (true) {
-      const result = await searchStories({ limit, page });
+      const result = await listSitemapStories(page);
       if (result.stories.length === 0) break;
       for (const story of result.stories) {
         if (seen.has(story.id)) continue;
         seen.add(story.id);
         storyUrls.push({ url: `${SITE_URL}/story/${story.id}`, changeFrequency: 'monthly', priority: 0.7 });
       }
-      received += result.stories.length;
-      if (received >= result.total || result.stories.length < limit) break;
+      if (!result.hasMore) break;
       page += 1;
     }
     return [...staticUrls, ...storyUrls];

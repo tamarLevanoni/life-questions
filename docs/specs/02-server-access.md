@@ -9,7 +9,7 @@ Keep upstream access and secrets on the server, with explicit public entrypoints
 | Caller | Entry point | Upstream path |
 |---|---|---|
 | RSC, metadata, sitemap | `lib/server/*` | `serverClient` |
-| Browser search | `apiCall` -> `POST /api/stories/search` -> `searchStories` | `serverClient.post` |
+| Browser search | `apiCall` -> `POST /api/stories/search` -> `searchStoryCardsForAccount` | `serverClient.post` |
 | Profile/onboarding/contact | `lib/server/actions.ts` (`use server`) | delegated server function -> `serverClient` |
 | NextAuth callbacks | server callback | `serverClient` |
 
@@ -27,7 +27,7 @@ Authenticate/authorize protected public entrypoints on the server. A UI lock or 
 
 ## Calls and caching
 
-[State/cache](03-stores-and-cache.md) owns the actual cache policy. Cache Components functions surround cacheable GET reads. User-driven search is POST and is not persistently cached. Profile, session and mutations are never shared caches. The search store passes AbortSignal to the browser's BFF request and ignores obsolete successes and failures. The BFF does not forward that signal to the upstream request.
+[State/cache](03-stores-and-cache.md) owns the actual cache policy. Cache Components functions surround cacheable GET reads. User-driven search is POST and is not persistently cached. Profile, session and mutations are never shared caches. The search store passes AbortSignal to the browser's BFF request and ignores obsolete successes and failures. The BFF forwards the abort signal for search and sends an account key derived from the verified Google session.
 
 ## Upstream contract
 

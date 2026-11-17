@@ -6,16 +6,17 @@ import type { SearchResultsListProps } from '@/lib/types';
 import { ScenarioCard } from '@/components/story/scenario-card';
 import { Loader2, SearchX } from 'lucide-react';
 
+/** מציג כרטיסים בסדר שהתקבל מהשרת ומציע טעינת עמוד נוסף כשיש סמן. */
 export function SearchResultsList({
   stories,
   books,
   topics,
   isLoading,
   hasMore,
+  expired,
+  matches,
   onLoadMore,
   onStoryClick,
-  emptyMessage = 'לא נמצאו תוצאות',
-  emptyHint,
 }: SearchResultsListProps) {
   // Loading state
   if (isLoading && stories.length === 0) {
@@ -25,12 +26,12 @@ export function SearchResultsList({
   }
 
   // Empty state
-  if (!isLoading && stories.length === 0) {
+  if (!isLoading && stories.length === 0 && !hasMore) {
     return (
       <div className="empty-state" dir="rtl">
         <SearchX className="w-16 h-16 mb-4 opacity-30" />
-        <p className="text-lg font-medium font-hebrew">{emptyMessage}</p>
-        {emptyHint && <p className="text-sm mt-2 font-hebrew">{emptyHint}</p>}
+        <p className="text-lg font-medium font-hebrew">לא נמצאו תוצאות לחיפוש זה</p>
+        <p className="text-sm mt-2 font-hebrew">נסו לשנות את הסינון או להוסיף מילת מפתח</p>
       </div>
     );
   }
@@ -45,6 +46,7 @@ export function SearchResultsList({
             story={story}
             bookName={books.find((b) => b.id === story.bookId)?.name}
             topicName={topics.find((t) => t.id === story.topicId)?.name}
+            matchLabel={matches?.[story.id]?.reasonCode === 'nearby_source' ? 'מקור סמוך' : undefined}
             onClick={() => onStoryClick(story)}
           />
         ))}
@@ -67,7 +69,7 @@ export function SearchResultsList({
       )}
 
       {/* End of results */}
-      {!isLoading && !hasMore && stories.length > 0 && (
+      {!isLoading && !hasMore && !expired && stories.length > 0 && (
         <p className="text-center text-sm text-muted-foreground py-4 font-hebrew">
           הגעת לסוף התוצאות
         </p>

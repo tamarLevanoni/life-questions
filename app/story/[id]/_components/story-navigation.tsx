@@ -12,6 +12,7 @@ interface StoryNavigationProps {
 
 const controlClassName = 'flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-muted transition-colors font-hebrew text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-wait disabled:opacity-50';
 
+/** מציג את השכנים שהשרת מצא באותו ספר. ההפעלה מנווטת או פותחת התחברות לפי מצב הקורא. */
 export function StoryNavigation({ prevId, nextId }: StoryNavigationProps) {
   const authStatus = useUserStore((s) => s.authStatus);
   const { openLoginModal, openOnboardingModal } = useAuth();

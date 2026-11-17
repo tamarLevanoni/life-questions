@@ -14,16 +14,20 @@ interface ShasSourceFiltersProps {
   onChange: (sources: UiShasRef[]) => void;
 }
 
+/** מנהל כמה שורות של מקורות לפי מסכת ודף ומונע הצעה חוזרת של דף שכבר נבחר באותה מסכת. */
 export function ShasSourceFilters({ masechtot, sources, onChange }: ShasSourceFiltersProps) {
   const selectedDafs = sources.flatMap((source) =>
     source.masechetId && source.daf !== undefined
       ? [{ id: source.id, masechetId: source.masechetId, daf: source.daf }]
       : []
   );
+  /** מוסיף שורת מקור ריקה עם מזהה מקומי שנשאר קבוע בזמן העריכה. */
   const addSource = () => onChange([...sources, { id: crypto.randomUUID() }]);
+  /** מחליף רק את שורת המקור שערכו לפי המזהה המקומי שלה. */
   const updateSource = (updated: UiShasRef) => {
     onChange(sources.map((source) => source.id === updated.id ? updated : source));
   };
+  /** מסיר שורת מקור ומעביר את המיקוד לכפתור הסמוך שיישאר בתצוגה. */
   const removeSource = (index: number, button: HTMLButtonElement) => {
     const card = button.closest('[data-source-card]');
     const buttons = card?.querySelectorAll<HTMLButtonElement>('[data-remove-source]');
