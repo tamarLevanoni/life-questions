@@ -33,7 +33,7 @@ export function SearchFiltersPanel({ search, queryRef }: SearchFiltersPanelProps
             value={search.draftFilters.q ?? ''} onChange={search.handleQueryChange}
             describedBy="free-search-hint"
           />
-          <Button type="submit" disabled={!search.canSearch} className="hidden h-10 rounded-xl px-4 text-xs md:inline-flex">
+          <Button type="submit" disabled={!search.canSearch} className="h-8 rounded-lg px-3 text-xs md:h-10 md:rounded-xl md:px-4">
             חיפוש
           </Button>
         </div>
@@ -52,7 +52,7 @@ export function SearchFiltersPanel({ search, queryRef }: SearchFiltersPanelProps
           איפוס בחירה
         </Button>
         <Button type="submit" disabled={!search.canSearch} className="h-7 rounded-xl px-3 text-[0.6875rem] font-semibold leading-(--text-xs--line-height) md:h-9 md:text-xs">
-          הצג תוצאות
+          חיפוש
         </Button>
       </div>
     </form>

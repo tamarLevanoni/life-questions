@@ -6,7 +6,7 @@ test('removing tags focuses surviving filters or returns to setup when none rema
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('שאלה');
   await page.getByRole('checkbox', { name: 'ספר בדיקה', exact: true }).check();
   await page.getByRole('checkbox', { name: 'נושא בדיקה', exact: true }).check();
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
 
   const removeQuery = page.getByRole('button', { name: 'הסרת מסנן שאלה', exact: true });
@@ -18,7 +18,7 @@ test('removing tags focuses surviving filters or returns to setup when none rema
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'הסרת מסנן נושא בדיקה', exact: true })).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'חיפוש חופשי', exact: true })).toBeFocused();
-  await expect(page.getByRole('button', { name: 'הצג תוצאות', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'חיפוש', exact: true }).last()).toBeDisabled();
   expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search')).toHaveLength(2);
 });
 
@@ -63,7 +63,7 @@ test('clearing query and resetting setup leave focus on the query field', async 
   await expect(query).toBeFocused();
   await expect(query).toHaveValue('');
   await query.fill('חיפוש');
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   await page.getByRole('button', { name: 'נקה הכל', exact: true }).click();
   await expect(query).toBeFocused();

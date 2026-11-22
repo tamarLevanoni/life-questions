@@ -12,12 +12,12 @@ test('guest search prompts login and does not send a backend search', async ({ p
 test('authenticated search sends free text and selected categories', async ({ page, context, request }) => {
   await login(context);
   await page.goto('/search');
-  await expect(page.getByRole('button', { name: 'הצג תוצאות', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'חיפוש', exact: true }).last()).toBeDisabled();
   expect((await context.request.post('/api/stories/search', { data: {} })).status()).toBe(400);
   expect((await backendRequests(request)).filter(r => r.path === '/api/stories/search')).toHaveLength(0);
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('שאלת בדיקה');
   await page.getByRole('checkbox', { name: 'ספר בדיקה', exact: true }).check();
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   expect((await backendRequests(request)).find(r => r.path === '/api/stories/search')?.body).toEqual({ q: 'שאלת בדיקה', bookIds: ['book-1'] });
   await page.getByRole('heading', { name: 'סיפור בדיקה 1', exact: true }).click();
@@ -30,7 +30,7 @@ test('desktop result query edits do not change the submitted pagination filters'
   await login(context); await page.goto('/search');
   const query = page.getByRole('textbox', { name: 'חיפוש חופשי' });
   await query.fill('החיפוש שנשלח');
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   await expect(query).toHaveValue('החיפוש שנשלח');
   await query.fill('טיוטה שטרם נשלחה');
@@ -51,7 +51,7 @@ test('URL parameters trigger a single authorized initial search', async ({ page,
 test('empty results explain how to change the search', async ({ page, context }) => {
   await login(context); await page.goto('/search');
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('ללא תוצאות');
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('לא נמצאו תוצאות לחיפוש זה')).toBeVisible();
 });
 
@@ -59,7 +59,7 @@ for (const query of ['שגיאה', 'לא תקין']) {
   test(`search failure is visible and preserves the query: ${query}`, async ({ page, context }) => {
     await login(context); await page.goto('/search');
     await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill(query);
-    await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+    await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
     await expect(page.getByRole('alert').filter({ hasText: 'אירעה שגיאה בחיפוש' })).toContainText('אירעה שגיאה בחיפוש');
     await page.getByRole('button', { name: 'חזרה לחיפוש ולסינון המלא' }).click();
     await expect(page.getByRole('textbox', { name: 'חיפוש חופשי' })).toHaveValue(query);
@@ -71,10 +71,10 @@ test('a late search cannot replace the latest submitted request', async ({ page,
   const query = page.getByRole('textbox', { name: 'חיפוש חופשי' });
   await query.fill('איטי');
   const firstSent = page.waitForRequest(r => r.url().endsWith('/api/stories/search') && r.postDataJSON().q === 'איטי');
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click(); await firstSent;
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click(); await firstSent;
   await page.getByRole('button', { name: 'חזרה לחיפוש ולסינון המלא' }).click();
   await query.fill('ללא תוצאות');
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('לא נמצאו תוצאות לחיפוש זה')).toBeVisible();
   await page.getByRole('button', { name: 'חזרה לחיפוש ולסינון המלא' }).click();
   await expect(query).toHaveValue('ללא תוצאות');
@@ -104,7 +104,7 @@ test('filter tabs preserve selections and combine both tracks in a single reques
   await expect(page.getByLabel('מסננים פעילים', { exact: true })).toBeHidden();
   await page.getByRole('tab', { name: 'מקורות (שו״ע וש״ס)' }).click();
   await expect(page.getByRole('button', { name: 'מסכת: ברכות' })).toBeVisible();
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'תוצאות החיפוש' })).toBeFocused();
   await expect(page.getByRole('tablist')).toBeHidden();
@@ -125,7 +125,7 @@ test('removing an applied book searches immediately, clears its topics and prese
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('נשלח');
   await page.getByRole('checkbox', { name: 'ספר בדיקה', exact: true }).check();
   await page.getByRole('checkbox', { name: 'נושא בדיקה', exact: true }).check();
-  await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+  await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
   await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
   await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('טיוטה שמורה');
   const sent = page.waitForRequest(r => r.url().endsWith('/api/stories/search') && !r.postDataJSON().bookIds);

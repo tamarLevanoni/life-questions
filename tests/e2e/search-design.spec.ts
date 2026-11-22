@@ -12,7 +12,7 @@ async function capture(page: Page, info: TestInfo, name: string) {
 /** בודק שהכפתור כולו בחלון ונמצא מתחת לכותרת הקבועה. */
 async function expectInViewport(page: Page, name: string, regionName?: string) {
   const scope = regionName ? page.getByRole('region', { name: regionName, exact: true }) : page;
-  const control = scope.getByRole('button', { name, exact: true });
+  const control = scope.getByRole('button', { name, exact: true }).last();
   await expect(control).toBeInViewport({ ratio: 1 });
   const box = await control.boundingBox();
   expect(box, name).not.toBeNull();
@@ -55,7 +55,7 @@ for (const theme of ['light', 'dark']) {
     await page.getByRole('checkbox', { name: 'ספר בדיקה', exact: true }).check();
     await page.getByRole('checkbox', { name: 'נושא בדיקה', exact: true }).check();
     await page.getByRole('textbox', { name: 'חיפוש חופשי' }).fill('שאלה לדוגמה');
-    await expectInViewport(page, 'הצג תוצאות');
+    await expectInViewport(page, 'חיפוש');
     const bookList = await page.getByRole('group', { name: 'ספרים', exact: true }).boundingBox();
     const topicList = await page.getByRole('group', { name: 'נושאים', exact: true }).boundingBox();
     if (page.viewportSize()!.width < 768) {
@@ -66,7 +66,7 @@ for (const theme of ['light', 'dark']) {
     } else {
       expect(Math.abs(bookList!.x - topicList!.x)).toBeGreaterThan(100);
     }
-    const actions = await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).boundingBox();
+    const actions = await page.getByRole('button', { name: 'חיפוש', exact: true }).last().boundingBox();
     const footer = await page.getByRole('contentinfo').boundingBox();
     const footerGap = footer!.y - actions!.y - actions!.height;
     if (page.viewportSize()!.width >= 768) {
@@ -87,12 +87,12 @@ for (const theme of ['light', 'dark']) {
     await page.getByRole('button', { name: 'ברכות', exact: true }).click();
     await expectInViewport(page, 'הוספת מקור', 'שולחן ערוך');
     await expectInViewport(page, 'הוספת מקור', 'ש״ס');
-    for (const name of [ 'חלק: אורח חיים', 'סימן: בחרו סימן...', 'מסכת: ברכות', 'דף: בחרו דף...', 'הצג תוצאות']) await expectInViewport(page, name);
+    for (const name of [ 'חלק: אורח חיים', 'סימן: בחרו סימן...', 'מסכת: ברכות', 'דף: בחרו דף...', 'חיפוש']) await expectInViewport(page, name);
     await expect.poll(async () => (await page.getByRole('textbox', { name: 'חיפוש חופשי' }).boundingBox())?.y ?? 0).toBeGreaterThanOrEqual(72);
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     await scan(page);
     await capture(page, info, `${theme}-sources`);
-    await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+    await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
     await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
     await scan(page);
     await capture(page, info, `${theme}-results`);
@@ -106,7 +106,7 @@ test('360px and short desktop show setup controls without page scrolling', async
     await page.goto('/search');
     await page.getByRole('checkbox', { name: 'ספר בדיקה', exact: true }).check();
     await page.getByRole('checkbox', { name: 'נושא בדיקה', exact: true }).check();
-    await expectInViewport(page, 'הצג תוצאות');
+    await expectInViewport(page, 'חיפוש');
     if (viewport.width < 768) {
       expect(await visibleFilterRows(page, 'ספרים')).toBeGreaterThanOrEqual(4);
       expect(await visibleFilterRows(page, 'נושאים')).toBeGreaterThanOrEqual(3);
@@ -116,7 +116,7 @@ test('360px and short desktop show setup controls without page scrolling', async
     await page.getByRole('region', { name: 'ש״ס', exact: true }).getByRole('button', { name: 'הוספת מקור', exact: true }).click();
     await expectInViewport(page, 'הוספת מקור', 'שולחן ערוך');
     await expectInViewport(page, 'הוספת מקור', 'ש״ס');
-    for (const name of [ 'חלק: בחרו חלק...', 'סימן: בחרו סימן...', 'מסכת: בחרו מסכת...', 'דף: בחרו דף...', 'הצג תוצאות']) await expectInViewport(page, name);
+    for (const name of [ 'חלק: בחרו חלק...', 'סימן: בחרו סימן...', 'מסכת: בחרו מסכת...', 'דף: בחרו דף...', 'חיפוש']) await expectInViewport(page, name);
     const rows = await page.locator('[data-source-rows]').evaluateAll(nodes => nodes.map(node => ({ content: node.scrollHeight, available: node.clientHeight })));
     expect(rows.every(row => row.content <= row.available), JSON.stringify(rows)).toBe(true);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
@@ -134,7 +134,7 @@ test('enlarged text and several source rows keep every control reachable', async
   await page.getByRole('button', { name: 'הסרת מסכת 5', exact: true }).scrollIntoViewIfNeeded();
   await expect(page.getByRole('button', { name: 'הסרת מסכת 5', exact: true })).toBeInViewport({ ratio: 1 });
   await page.addStyleTag({ content: 'html { font-size: 200%; }' });
-  const submit = page.getByRole('button', { name: 'הצג תוצאות', exact: true });
+  const submit = page.getByRole('button', { name: 'חיפוש', exact: true }).last();
   await submit.scrollIntoViewIfNeeded();
   // IntersectionObserver rounds fractional pixels at 200% text size.
   await expect(submit).toBeInViewport({ ratio: 0.999 });

@@ -81,14 +81,6 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
-          <Link
-            href="/search"
-            className="md:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-            aria-label="חיפוש"
-          >
-            <Search className="w-5 h-5 text-foreground/70" />
-          </Link>
-
           <div className="hidden md:block">
             <Suspense fallback={<HeaderAuthDesktopSkeleton />}>
               <HeaderAuthDesktop />

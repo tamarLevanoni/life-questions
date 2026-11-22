@@ -39,7 +39,7 @@ for (const authenticated of [false, true]) {
     await expectDocumentEndsAtFooter(page);
     await page.getByRole('tab', { name: 'ספר ונושא' }).click();
     await expectDocumentEndsAtFooter(page);
-    await page.getByRole('button', { name: 'הצג תוצאות', exact: true }).click();
+    await page.getByRole('button', { name: 'חיפוש', exact: true }).last().click();
     await expect(page.getByText('מציג 10 מתוך 12 תוצאות')).toBeVisible();
     await expectDocumentEndsAtFooter(page);
     await page.getByRole('button', { name: 'טען עוד', exact: true }).click();
