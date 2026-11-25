@@ -9,6 +9,12 @@ const navLinks = [
   { href: '/contact', label: 'צור קשר' },
 ];
 
+const legalLinks = [
+  { href: '/privacy', label: 'מדיניות פרטיות' },
+  { href: '/terms', label: 'תנאי שימוש' },
+  { href: '/accessibility', label: 'הצהרת נגישות' },
+];
+
 export function Footer() {
   return (
     <footer
@@ -40,12 +46,24 @@ export function Footer() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-row items-center gap-6">
+        <nav aria-label="ניווט בתחתית האתר" className="flex flex-row flex-wrap justify-center items-center gap-x-6 gap-y-2">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className="text-sm text-white/50 hover:text-white/90 transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <nav aria-label="מסמכים משפטיים ונגישות" className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
+          {legalLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="inline-flex min-h-11 items-center rounded-sm text-sm text-white/70 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
             >
               {link.label}
             </Link>

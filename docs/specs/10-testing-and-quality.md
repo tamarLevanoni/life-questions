@@ -25,6 +25,8 @@ The [browser suite](../../tests/e2e) covers home examples/weekly answer -> publi
 
 Use accessible roles/names, condition-based waits and stable fictional data. Screenshots are review artifacts while design evolves, not blanket pixel-snapshot merge gates. [`playwright.config.ts`](../../playwright.config.ts) runs Chromium desktop/mobile by default. `test:ui` uses an isolated development server; `test:e2e` uses a production build. Release mode adds only `@smoke` flows in Firefox/WebKit, not the entire suite. The [release runner](../../scripts/test-release.ts) rejects unsupported local macOS/WebKit combinations with an explanation. Real Google OAuth, a physical device and the real upstream backend require manual staging verification.
 
+[`Legal page tests`](../../tests/e2e/legal.spec.ts) use a fictional two-page PDF to exercise the bundled PDF.js worker, footer navigation, text layers, responsive page widths and the original-document link after a delivery failure. They do not verify the live Cloudinary service or establish accessibility of the source PDFs.
+
 ## Automation policy
 
 `check` runs the fast suite. The [Husky hook](../../scripts/check-staged.ts) runs only lint and local documentation-link checks against staged content. It neither changes files nor runs the whole suite after every edit. The [Quality workflow](../../.github/workflows/quality.yml) runs checks, dependency audit and isolated browser builds/tests on pushes to main, PRs and manual dispatch. Its first remote run must still be verified after an authorized push. CI fails on flaky tests, allows one retry and retains browser diagnostics for seven days. Branches and PRs are optional for this solo project; branch protection is not a completion requirement.

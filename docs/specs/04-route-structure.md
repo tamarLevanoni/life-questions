@@ -23,6 +23,8 @@ Keep pages, route-local components and hooks at most 200 lines when adding/chang
 
 ## Forms and navigation
 
+Public legal pages live at `/privacy` (מדיניות פרטיות), `/terms` (תנאי שימוש) and `/accessibility` (הצהרת נגישות). They use the shared [`LegalDocumentPage`](../../components/common/legal-document-page.tsx) with `PageShell` and an always-visible link opening the source PDF in a new tab. [`PdfViewer`](../../components/common/pdf-viewer.tsx) loads [`PdfDocument`](../../components/common/pdf-document.tsx) only in the browser. React-PDF renders all pages at the container width in normal document flow, with text and annotation layers; it does not extract the source into authored HTML. The PDF.js worker is bundled locally from the matching installed dependency. Loading and failure messages are in Hebrew. Cloudinary document URLs omit the version segment. The global footer links to these routes in a separate labelled navigation row that wraps on narrow screens. Document delivery and PDF accessibility depend on the external source.
+
 Wrap fields in [`FormField`](../../components/ui/form-field.tsx); it associates a label/error with one direct `Input`, `input`, `textarea` or `select` child. For grouped or nested custom controls, wire labels, descriptions and invalid state explicitly. Keep schema validation both in forms and at server boundaries; [Domain](07-domain-model.md) owns the shared constraints. Preserve entered values on request failure; prevent duplicate submissions while pending.
 
 Clearing the optional institution field in profile editing sends `null`; omitting a PATCH field leaves its previous value intact. Registration omits an empty institution instead, matching the Core API's create contract.
